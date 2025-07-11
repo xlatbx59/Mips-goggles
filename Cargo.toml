@@ -1,0 +1,9 @@
+workspace = { members = ["linear_sweep"] }
+[package]
+name = "mips_goggles"
+version = "0.1.0"
+edition = "2021"
+authors = ["xlatbx59"]
+
+[dependencies]
+#no dependencies
