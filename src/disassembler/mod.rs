@@ -289,11 +289,10 @@ impl MgDisassembler{
 
         MgDisassembler::basic_str_format(instruction)
     }
-    fn imm_format(&self, instruction: &mut MgInstructionContext, rs: Option<FieldInfos>, rt: Option<FieldInfos>, imm: FieldInfos) -> Result<(), MgError>{
+    fn imm_format(&self, instruction: &mut MgInstructionContext, rs: Option<FieldInfos>, rt: Option<FieldInfos>, imm: Option<FieldInfos>) -> Result<(), MgError>{
 
         //Some attributes about the instruction and setting the operands
         instruction.format = Some(MgInstructionFormat::Imm);
-        instruction.operand_num =  1;
         //Rs field
         if let Some(field) = rs{
             let field_mask_result = instruction.machine_code >> 21 & field.mask;
@@ -343,7 +342,10 @@ impl MgDisassembler{
             }
         }
         //Imm field
-        instruction.operand[imm.operand_order] = Some(MgOpImmediate::new_imm_opreand((instruction.machine_code & 0b1111111111111111) as u64));
+        if let Some(imm) = imm{
+            instruction.operand[imm.operand_order] = Some(MgOpImmediate::new_imm_opreand((instruction.machine_code & 0b1111111111111111) as u64));
+            instruction.operand_num += 1;
+        }
         let (Some(mne), Some(category)) = (instruction.mnemonic, instruction.category) else{
             return Err(MgError::throw_error(MgErrorCode::DevError, instruction.opcode, instruction.address, instruction.machine_code))
         };
