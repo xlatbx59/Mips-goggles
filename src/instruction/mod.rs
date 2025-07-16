@@ -34,6 +34,7 @@ pub enum MgCoprocessor{
 pub (crate) struct MgInstructionContext{
     pub address: u64,
     pub mnemonic: Option<&'static str>,
+    pub mnemonic_id: Option<MgMnemonic>,
     pub opcode: u8,
     pub machine_code: u32,
     pub string: MgString,
@@ -53,6 +54,7 @@ pub (crate) struct MgInstructionContext{
 pub struct MgInstruction{
     address: u64,
     mnemonic: &'static str,
+    mnemonic_id: Option<MgMnemonic>,
     operand: [Option<MgOperand>; 4],    //L'ordre des opérandes suit celui du format en chaîne de caractères 
     machine_code: u32,
     operand_num: usize,
@@ -63,7 +65,7 @@ pub struct MgInstruction{
     is_conditional: bool,
     is_relative: bool,
     opcode: u8,
-    version: MgMipsVersion,
+    _version: MgMipsVersion,
     is_region: bool,
 }
 
@@ -87,6 +89,7 @@ impl MgInstruction{
             opcode: context.opcode,
             machine_code: context.machine_code,
             mnemonic,
+            mnemonic_id: context.mnemonic_id,
             string: context.string,
             category,
             format,
@@ -95,9 +98,12 @@ impl MgInstruction{
             is_relative: context.is_relative,
             is_region: context.is_region,
             operand_num: context.operand_num,
-            version,
+            _version: version,
             operand: context.operand
         })
+    }
+    pub fn get_mnemonicid(&self) -> Option<MgMnemonic>{
+        self.mnemonic_id
     }
     pub fn is_region(&self) -> bool{
         self.is_region

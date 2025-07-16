@@ -3,11 +3,13 @@
 //Link to repo: https://github.com/xlatbx59/mips-goggles
 use core::fmt;
 
+#[derive(Debug)]
 pub enum MgErrorCode{
     FieldBadValue = 0x80000000, NoInstruction = 0x80000001, DevError = 0x80000002,
     VersionError = 0x80000003,
 }
 
+#[derive(Debug)]
 pub struct MgError{
     address: u64,
     machine_code: u32,

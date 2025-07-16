@@ -88,10 +88,10 @@ impl MgDisassembler{
             MgDisassembler::addi_addiu,  MgDisassembler::addi_addiu,  MgDisassembler::slti_sltiu,  MgDisassembler::slti_sltiu,  MgDisassembler::andi,  MgDisassembler::ori,  MgDisassembler::xori,  MgDisassembler::lui,
             MgDisassembler::cop0_opcode_map,  MgDisassembler::cop1_opcode_map,  MgDisassembler::cop2_opcode_map,  MgDisassembler::cop1x_opcode_map,  MgDisassembler::beql,  MgDisassembler::bnel,  MgDisassembler::blezl,  MgDisassembler::bgtzl,
             MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::special2_opcode_map,  MgDisassembler::jalx,  MgDisassembler::no_instructions,  MgDisassembler::special3_opcode_map,
-            MgDisassembler::cpu_loadstore,  MgDisassembler::cpu_loadstore,  MgDisassembler::cpu_loadstore,  MgDisassembler::cpu_loadstore,  MgDisassembler::cpu_loadstore,  MgDisassembler::cpu_loadstore,  MgDisassembler::cpu_loadstore,  MgDisassembler::no_instructions,
-            MgDisassembler::cpu_loadstore,  MgDisassembler::cpu_loadstore,  MgDisassembler::cpu_loadstore,  MgDisassembler::cpu_loadstore,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::cpu_loadstore,  MgDisassembler::cache_pref,
-            MgDisassembler::cpu_loadstore,  MgDisassembler::cpu_loadstore,  MgDisassembler::cpu_loadstore,  MgDisassembler::cache_pref,  MgDisassembler::no_instructions, MgDisassembler::cpu_loadstore, MgDisassembler::cpu_loadstore,  MgDisassembler::no_instructions,
-            MgDisassembler::cpu_loadstore,  MgDisassembler::cpu_loadstore,  MgDisassembler::cpu_loadstore,  MgDisassembler::pcrel_opcode_map,  MgDisassembler::no_instructions,  MgDisassembler::cpu_loadstore,  MgDisassembler::cpu_loadstore,  MgDisassembler::no_instructions];
+            MgDisassembler::cpu_loadstore,  MgDisassembler::cpu_loadstore,  MgDisassembler::lwr_swr_lwl_swl,  MgDisassembler::cpu_loadstore,  MgDisassembler::cpu_loadstore,  MgDisassembler::cpu_loadstore,  MgDisassembler::lwr_swr_lwl_swl,  MgDisassembler::no_instructions,
+            MgDisassembler::cpu_loadstore,  MgDisassembler::cpu_loadstore,  MgDisassembler::lwr_swr_lwl_swl,  MgDisassembler::cpu_loadstore,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::lwr_swr_lwl_swl,  MgDisassembler::cache_pref,
+            MgDisassembler::cpu_loadstore,  MgDisassembler::cpu_loadstore,  MgDisassembler::bc_balc,  MgDisassembler::cache_pref,  MgDisassembler::no_instructions, MgDisassembler::cpu_loadstore, MgDisassembler::load_store_cp2,  MgDisassembler::no_instructions,
+            MgDisassembler::cpu_loadstore,  MgDisassembler::cpu_loadstore,  MgDisassembler::bc_balc,  MgDisassembler::pcrel_opcode_map,  MgDisassembler::no_instructions,  MgDisassembler::cpu_loadstore,  MgDisassembler::load_store_cp2,  MgDisassembler::no_instructions];
 
         let mut instruction: MgInstructionContext = MgInstructionContext{
             category: None,
@@ -113,6 +113,7 @@ impl MgDisassembler{
             string: MgString::new_lmstring(),
             version: Some(self.version),
             mnemonic: None,
+            mnemonic_id: None,
             address,
         };
         

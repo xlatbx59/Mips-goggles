@@ -16,7 +16,8 @@ pub const MG_MNE_SW: &str = "sw"; pub const MG_MNE_SWR: &str = "swr"; pub const 
 pub const MG_MNE_LL: &str = "ll"; pub const MG_MNE_LWC1: &str = "lwc1"; pub const MG_MNE_LWC2: &str = "lwc2";
 pub const MG_MNE_PREF: &str = "pref"; pub const MG_MNE_LDC1: &str = "ldc1"; pub const MG_MNE_LDC2: &str = "ldc2";
 pub const MG_MNE_SC: &str = "sc"; pub const MG_MNE_SWC1: &str = "swc1"; pub const MG_MNE_SWC2: &str = "swc2";
-pub const MG_MNE_SDC1: &str = "sdc1"; pub const MG_MNE_SDC2: &str = "sdc2";
+pub const MG_MNE_SDC1: &str = "sdc1"; pub const MG_MNE_SDC2: &str = "sdc2"; pub const MG_MNE_BALC: &str = "balc";
+pub const MG_MNE_BC: &str = "bc";
 
 //Special
 pub const MG_MNE_SSNOP: &str = "ssnop"; pub const MG_MNE_EHB: &str = "ehb"; pub const MG_MNE_PAUSE: &str = "pause";
@@ -34,7 +35,8 @@ pub const MG_MNE_SLT: &str = "slt"; pub const MG_MNE_SLTU: &str = "sltu"; pub co
 pub const MG_MNE_TGEU: &str = "tgeu"; pub const MG_MNE_TLT: &str = "tlt"; pub const MG_MNE_TLTU: &str = "tltu";
 pub const MG_MNE_TEQ: &str = "teq"; pub const MG_MNE_TNE: &str = "tne"; pub const MG_MNE_SRLV: &str = "srlv";
 pub const MG_MNE_ROTRV: &str = "rotrv"; pub const MG_MNE_SRL: &str = "srl"; pub const MG_MNE_ROTR: &str = "rotr";
-pub const MG_MNE_MOVF: &str = "movf"; pub const MG_MNE_MOVT: &str = "movt";
+pub const MG_MNE_MOVF: &str = "movf"; pub const MG_MNE_MOVT: &str = "movt";pub const MG_MNE_SELEQZ: &str = "seleqz"; 
+pub const MG_MNE_SELNEZ: &str = "selnez";
 
 //Special2
 pub const MG_MNE_MADD: &str = "madd"; pub const MG_MNE_MADDU: &str = "maddu"; pub const MG_MNE_MUL: &str = "mul";
@@ -58,7 +60,7 @@ pub const MG_MNE_MFC0: &str = "mfc0"; pub const MG_MNE_MTC0: &str = "mtc0"; pub 
 pub const MG_MNE_WRPGPR: &str = "wrpgpr"; pub const MG_MNE_DI: &str = "di"; pub const MG_MNE_EI: &str = "ei";
 pub const MG_MNE_TLBR: &str = "tlbr"; pub const MG_MNE_TLBWI: &str = "tlbwi"; pub const MG_MNE_TLBWR: &str = "tlbwr";
 pub const MG_MNE_TLBP: &str = "tlbp"; pub const MG_MNE_ERET: &str = "eret"; pub const MG_MNE_DERET: &str = "deret";
-pub const MG_MNE_WAIT: &str = "wait";
+pub const MG_MNE_WAIT: &str = "wait"; 
 
 //PCREL
 pub const MG_MNE_ADDIUPC: &str = "addiupc"; pub const MG_MNE_LWPC: &str = "lwpc"; pub const MG_MNE_LDPC: &str = "ldpc";
@@ -79,7 +81,8 @@ pub enum MgMnemonic {
     MgMneWsbh, MgMneSeb, MgMneSeh, MgMneRdhwr, MgMneBltz, MgMneBgez, MgMneBltzl, MgMneBgezl, MgMneTgei, MgMneTgeiu,
     MgMneTlti, MgMneTltiu, MgMneTeqi, MgMneTnei, MgMneBltzal, MgMneBgezal, MgMneBltzall, MgMneBgezall, MgMneSynci, MgMneBal,
     MgMneMfc0, MgMneMtc0, MgMneRdpgpr, MgMneWrpgpr, MgMneDi, MgMneEi, MgMneTlbr, MgMneTlbwi, MgMneTlbwr, MgMneTlbp,
-    MgMneEret, MgMneDeret, MgMneWait, MgMneAddiupc, MgMneLwpc, MgMneLdpc, MgMneAuipc, MgMneAluipc, MgMneLwupc,
+    MgMneEret, MgMneDeret, MgMneWait, MgMneAddiupc, MgMneLwpc, MgMneLdpc, MgMneAuipc, MgMneAluipc, MgMneLwupc, MgMneSeleqz,
+    MgMneSelnez, MgMneBalc, MgMneBc,
 }
 
 pub const MG_MNEMONICS: &[&str] = &[
@@ -96,5 +99,6 @@ pub const MG_MNEMONICS: &[&str] = &[
     MG_MNE_WSBH, MG_MNE_SEB, MG_MNE_SEH, MG_MNE_RDHWR, MG_MNE_BLTZ, MG_MNE_BGEZ, MG_MNE_BLTZL, MG_MNE_BGEZL, MG_MNE_TGEI, MG_MNE_TGEIU,
     MG_MNE_TLTI, MG_MNE_TLTIU, MG_MNE_TEQI, MG_MNE_TNEI, MG_MNE_BLTZAL, MG_MNE_BGEZAL, MG_MNE_BLTZALL, MG_MNE_BGEZALL, MG_MNE_SYNCI, MG_MNE_BAL,
     MG_MNE_MFC0, MG_MNE_MTC0, MG_MNE_RDPGPR, MG_MNE_WRPGPR, MG_MNE_DI, MG_MNE_EI, MG_MNE_TLBR, MG_MNE_TLBWI, MG_MNE_TLBWR, MG_MNE_TLBP,
-    MG_MNE_ERET, MG_MNE_DERET, MG_MNE_WAIT, MG_MNE_ADDIUPC, MG_MNE_LWPC, MG_MNE_LDPC, MG_MNE_AUIPC, MG_MNE_ALUIPC, MG_MNE_LWUPC,
+    MG_MNE_ERET, MG_MNE_DERET, MG_MNE_WAIT, MG_MNE_ADDIUPC, MG_MNE_LWPC, MG_MNE_LDPC, MG_MNE_AUIPC, MG_MNE_ALUIPC, MG_MNE_LWUPC, MG_MNE_SELEQZ,
+    MG_MNE_SELNEZ, MG_MNE_BALC, MG_MNE_BC
 ];
