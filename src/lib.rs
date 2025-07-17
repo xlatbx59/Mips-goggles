@@ -48,6 +48,66 @@ use instruction::mnemonics::*;
     }
 
     #[test]
+    fn test_bovc_bnvc(){
+        let machine_code: [u32; 2] = [0x209B0030, 0x609B0030];
+        let mut decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgR6));
+
+        let inst0 = decoder.disassemble(machine_code[0], 0).unwrap();
+        let inst1 = decoder.disassemble(machine_code[1], 0).unwrap();
+
+        assert_eq!(inst0.get_mnemonicid(), Some(MgMnemonic::MgMneBovc));
+        assert_eq!(get_mnemonic(inst0.get_mnemonicid().unwrap()), MG_MNE_BOVC);
+        assert_eq!(inst0.get_category(), MgInstructionCategory::BranchJump);
+        assert_eq!(inst0.get_format(), MgInstructionFormat::Imm);
+        assert_eq!(inst0.is_conditional(), true);
+        assert_eq!(inst0.is_relative(), true);
+        assert_eq!(inst0.is_region(), false);
+        assert_eq!(inst0.get_operand_num(), 3);
+        match inst0.get_operand(0){
+            Some(MgOperand::MgOpRegister(_)) => (),
+            _ => panic!(),
+        }
+        match inst0.get_operand(1){
+            Some(MgOperand::MgOpRegister(_)) => (),
+            _ => panic!(),
+        }
+        match inst0.get_operand(2){
+            Some(MgOperand::MgOpImmediate(_)) => (),
+            _ => panic!(),
+        }
+
+        assert_eq!(inst1.get_mnemonicid(), Some(MgMnemonic::MgMneBnvc));
+        assert_eq!(inst1.get_format(), MgInstructionFormat::Imm);
+        assert_eq!(inst1.is_conditional(), true);
+        assert_eq!(inst1.is_relative(), true);
+        assert_eq!(inst1.is_region(), false);
+        assert_eq!(inst1.get_operand_num(), 3);
+        assert_eq!(inst1.get_category(), MgInstructionCategory::BranchJump);
+        assert_eq!(get_mnemonic(inst1.get_mnemonicid().unwrap()), MG_MNE_BNVC);
+        match inst1.get_operand(0){
+            Some(MgOperand::MgOpRegister(_)) => (),
+            _ => panic!(),
+        }
+        match inst1.get_operand(1){
+            Some(MgOperand::MgOpRegister(_)) => (),
+            _ => panic!(),
+        }
+        match inst1.get_operand(2){
+            Some(MgOperand::MgOpImmediate(_)) => (),
+            _ => panic!(),
+        }
+
+        //One is addi and the other is an error
+        decoder.version = MgMipsVersion::M32(MgMips32::MgPreR6);
+        let inst0 = decoder.disassemble(machine_code[0], 0).unwrap();
+
+        assert_ne!(inst0.get_category(), MgInstructionCategory::BranchJump);
+        assert_eq!(decoder.disassemble(machine_code[1], 0).is_err(), true);
+        assert_ne!(inst0.is_region(), true);
+        assert_ne!(inst0.get_mnemonicid(), Some(MgMnemonic::MgMneAddi));
+    }
+
+    #[test]
     fn test_jic_jialc(){
         let machine_code: [u32; 2] = [0xd8020050, 0xf8020050];
         let mut decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgR6));

@@ -365,6 +365,25 @@ impl MgDisassembler{
 
         return MgDisassembler::imm_format(self, context, Some(base), Some(rt), Some(FieldInfos::default_imm_field(1)))
     }
+    pub(super) fn bovc_bnvc(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+        if let MgMipsVersion::M32(MgMips32::MgPreR6) = self.version{
+            return if context.opcode & 0b010000 == 0{
+                self.addi_addiu(context)
+            }else {
+                self.no_instructions(context)
+            }
+        };
+
+        context.is_conditional = true;
+        context.is_relative = true;
+        (context.mnemonic, context.mnemonic_id) = if context.opcode & 0b010000 == 0{
+            (Some(MG_MNE_BOVC), Some(MgMnemonic::MgMneBovc))
+        }else{
+            (Some(MG_MNE_BNVC), Some(MgMnemonic::MgMneBnvc))
+        };
+        context.category = Some(MgInstructionCategory::BranchJump);
+        return MgDisassembler::imm_format(self, context, Some(FieldInfos::default_reg_field(0, MgCoprocessor::Cpu)), Some(FieldInfos::default_reg_field(1, MgCoprocessor::Cpu)), Some(FieldInfos::default_imm_field(2)))
+    }
     pub(super) fn jic_jialc(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
         if let MgMipsVersion::M32(MgMips32::MgPreR6) = self.version{
             return self.load_store_cp2(context)
