@@ -2,6 +2,10 @@
 //Github profile: https://github.com/xlatbx59
 //Link to repo: https://github.com/xlatbx59/mips-goggles
 
+pub fn get_mnemonic(mnemonic: MgMnemonic) -> &'static str{
+    MG_MNEMONICS[mnemonic as usize]
+}
+
 pub const MG_MNE_J: &str = "j"; pub const MG_MNE_JAL: &str = "jal";
 pub const MG_MNE_BEQ: &str = "beq"; pub const MG_MNE_BNE: &str = "bne"; pub const MG_MNE_BLEZ: &str = "blez";
 pub const MG_MNE_BGTZ: &str = "bgtz"; pub const MG_MNE_ADDI: &str = "addi"; pub const MG_MNE_ADDIU: &str = "addiu";
@@ -17,7 +21,7 @@ pub const MG_MNE_LL: &str = "ll"; pub const MG_MNE_LWC1: &str = "lwc1"; pub cons
 pub const MG_MNE_PREF: &str = "pref"; pub const MG_MNE_LDC1: &str = "ldc1"; pub const MG_MNE_LDC2: &str = "ldc2";
 pub const MG_MNE_SC: &str = "sc"; pub const MG_MNE_SWC1: &str = "swc1"; pub const MG_MNE_SWC2: &str = "swc2";
 pub const MG_MNE_SDC1: &str = "sdc1"; pub const MG_MNE_SDC2: &str = "sdc2"; pub const MG_MNE_BALC: &str = "balc";
-pub const MG_MNE_BC: &str = "bc";
+pub const MG_MNE_BC: &str = "bc"; pub const MG_MNE_JIC: &str = "jic"; pub const MG_MNE_JIALC: &str = "jialc";
 
 //Special
 pub const MG_MNE_SSNOP: &str = "ssnop"; pub const MG_MNE_EHB: &str = "ehb"; pub const MG_MNE_PAUSE: &str = "pause";
@@ -82,7 +86,7 @@ pub enum MgMnemonic {
     MgMneTlti, MgMneTltiu, MgMneTeqi, MgMneTnei, MgMneBltzal, MgMneBgezal, MgMneBltzall, MgMneBgezall, MgMneSynci, MgMneBal,
     MgMneMfc0, MgMneMtc0, MgMneRdpgpr, MgMneWrpgpr, MgMneDi, MgMneEi, MgMneTlbr, MgMneTlbwi, MgMneTlbwr, MgMneTlbp,
     MgMneEret, MgMneDeret, MgMneWait, MgMneAddiupc, MgMneLwpc, MgMneLdpc, MgMneAuipc, MgMneAluipc, MgMneLwupc, MgMneSeleqz,
-    MgMneSelnez, MgMneBalc, MgMneBc,
+    MgMneSelnez, MgMneBalc, MgMneBc,MgMneJic,MgMneJialc
 }
 
 pub const MG_MNEMONICS: &[&str] = &[
@@ -100,5 +104,5 @@ pub const MG_MNEMONICS: &[&str] = &[
     MG_MNE_TLTI, MG_MNE_TLTIU, MG_MNE_TEQI, MG_MNE_TNEI, MG_MNE_BLTZAL, MG_MNE_BGEZAL, MG_MNE_BLTZALL, MG_MNE_BGEZALL, MG_MNE_SYNCI, MG_MNE_BAL,
     MG_MNE_MFC0, MG_MNE_MTC0, MG_MNE_RDPGPR, MG_MNE_WRPGPR, MG_MNE_DI, MG_MNE_EI, MG_MNE_TLBR, MG_MNE_TLBWI, MG_MNE_TLBWR, MG_MNE_TLBP,
     MG_MNE_ERET, MG_MNE_DERET, MG_MNE_WAIT, MG_MNE_ADDIUPC, MG_MNE_LWPC, MG_MNE_LDPC, MG_MNE_AUIPC, MG_MNE_ALUIPC, MG_MNE_LWUPC, MG_MNE_SELEQZ,
-    MG_MNE_SELNEZ, MG_MNE_BALC, MG_MNE_BC
+    MG_MNE_SELNEZ, MG_MNE_BALC, MG_MNE_BC, MG_MNE_JIC, MG_MNE_JIALC
 ];

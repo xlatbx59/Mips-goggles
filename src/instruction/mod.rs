@@ -3,7 +3,7 @@
 //Link to repo: https://github.com/xlatbx59/mips-goggles
 
 pub mod mnemonics;
-use mnemonics::{MgMnemonic, MG_MNEMONICS};
+use mnemonics::MgMnemonic;
 use super::MgMipsVersion;
 use super::operands::*;
 use super::error::*;
@@ -67,10 +67,6 @@ pub struct MgInstruction{
     opcode: u8,
     _version: MgMipsVersion,
     is_region: bool,
-}
-
-pub fn get_mnemonic(mnemonic: MgMnemonic) -> &'static str{
-    MG_MNEMONICS[mnemonic as usize]
 }
 
 impl MgInstruction{

@@ -26,6 +26,8 @@ pub enum MgMips32{
 mod test{
 use super::*;
 use disassembler::MgDisassembler;
+use instruction::*;
+use operands::*;
 use instruction::mnemonics::*;
 
     #[test]
@@ -45,6 +47,90 @@ use instruction::mnemonics::*;
         assert_eq!(decoder.disassemble(machine_code[3], 0).is_err(), true);
     }
 
+    #[test]
+    fn test_jic_jialc(){
+        let machine_code: [u32; 2] = [0xd8020050, 0xf8020050];
+        let mut decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgR6));
+
+        let inst0 = decoder.disassemble(machine_code[0], 0).unwrap();
+        let inst1 = decoder.disassemble(machine_code[1], 0).unwrap();
+
+        assert_eq!(inst0.get_mnemonicid(), Some(MgMnemonic::MgMneJic));
+        assert_eq!(get_mnemonic(inst0.get_mnemonicid().unwrap()), MG_MNE_JIC);
+        assert_eq!(inst0.get_category(), MgInstructionCategory::BranchJump);
+        assert_eq!(inst0.is_conditional(), false);
+        assert_eq!(inst0.is_region(), false);
+        assert_eq!(inst0.get_operand_num(), 2);
+        match inst0.get_operand(0){
+            Some(MgOperand::MgOpRegister(_)) => (),
+            _ => panic!(),
+        }
+        match inst0.get_operand(1){
+            Some(MgOperand::MgOpImmediate(_)) => (),
+            _ => panic!(),
+        }
+
+        assert_eq!(inst1.get_mnemonicid(), Some(MgMnemonic::MgMneJialc));
+        assert_eq!(inst1.is_conditional(), false);
+        assert_eq!(inst1.is_region(), false);
+        assert_eq!(inst1.get_operand_num(), 2);
+        assert_eq!(inst1.get_category(), MgInstructionCategory::BranchJump);
+        assert_eq!(get_mnemonic(inst1.get_mnemonicid().unwrap()), MG_MNE_JIALC);
+        match inst1.get_operand(0){
+            Some(MgOperand::MgOpRegister(_)) => (),
+            _ => panic!(),
+        }
+        match inst1.get_operand(1){
+            Some(MgOperand::MgOpImmediate(_)) => (),
+            _ => panic!(),
+        }
+
+        //Load and store instructions from cop2
+        decoder.version = MgMipsVersion::M32(MgMips32::MgPreR6);
+        let inst0 = decoder.disassemble(machine_code[0], 0).unwrap();
+        let inst1 = decoder.disassemble(machine_code[1], 0).unwrap();
+
+        assert_ne!(inst0.get_category(), MgInstructionCategory::BranchJump);
+        assert_ne!(inst1.get_category(), MgInstructionCategory::BranchJump);
+        assert_ne!(inst0.is_conditional(), true);
+        assert_ne!(inst0.is_region(), true);
+        assert_ne!(inst0.get_mnemonicid(), Some(MgMnemonic::MgMneBc));
+        assert_ne!(inst1.get_mnemonicid(), Some(MgMnemonic::MgMneBalc));
+    }
+    #[test]
+    fn test_bc_balc(){
+        let machine_code: [u32; 2] = [0xC8020050, 0xE8020050];
+        let mut decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgR6));
+
+        let inst0 = decoder.disassemble(machine_code[0], 0).unwrap();
+        let inst1 = decoder.disassemble(machine_code[1], 0).unwrap();
+
+        assert_eq!(inst0.get_mnemonicid(), Some(MgMnemonic::MgMneBc));
+        assert_eq!(get_mnemonic(inst0.get_mnemonicid().unwrap()), MG_MNE_BC);
+        assert_eq!(inst0.get_category(), MgInstructionCategory::BranchJump);
+        assert_eq!(inst0.is_conditional(), true);
+        assert_ne!(inst0.is_region(), true);
+        assert_eq!(inst0.get_operand_num(), 1);
+
+        assert_eq!(inst1.get_mnemonicid(), Some(MgMnemonic::MgMneBalc));
+        assert_eq!(inst1.is_conditional(), true);
+        assert_ne!(inst1.is_region(), true);
+        assert_eq!(inst1.get_operand_num(), 1);
+        assert_eq!(inst1.get_category(), MgInstructionCategory::BranchJump);
+        assert_eq!(get_mnemonic(inst1.get_mnemonicid().unwrap()), MG_MNE_BALC);
+
+        //Load and store instructions from cop2
+        decoder.version = MgMipsVersion::M32(MgMips32::MgPreR6);
+        let inst0 = decoder.disassemble(machine_code[0], 0).unwrap();
+        let inst1 = decoder.disassemble(machine_code[1], 0).unwrap();
+
+        assert_ne!(inst0.get_category(), MgInstructionCategory::BranchJump);
+        assert_ne!(inst1.get_category(), MgInstructionCategory::BranchJump);
+        assert_ne!(inst0.is_conditional(), true);
+        assert_ne!(inst0.is_region(), true);
+        assert_ne!(inst0.get_mnemonicid(), Some(MgMnemonic::MgMneBc));
+        assert_ne!(inst1.get_mnemonicid(), Some(MgMnemonic::MgMneBalc));
+    }
     #[test]
     fn test_load_store_cp2(){
         let machine_code: [u32; 8] = [0xC8020050, 0xE8020050, 0xD8020050, 0xF8020050, 0x49C00000,0x49400000, 0x49E00000,0x49600000];
