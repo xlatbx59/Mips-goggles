@@ -442,31 +442,33 @@ impl MgDisassembler{
         let mnemonic_id: [[Option<MgMnemonic>; 2]; 2] = [[Some(MgMnemonic::MgMneLwc2), Some(MgMnemonic::MgMneSwc2)], [Some(MgMnemonic::MgMneLdc2), Some(MgMnemonic::MgMneSdc2)]];
         let base: FieldInfos = FieldInfos::default_reg_field(2, MgCoprocessor::Cpu);
         let rt = FieldInfos::default_reg_field(0, MgCoprocessor::Cp2);
+        let imm: Option<FieldInfos>;
 
          match self.version{
             MgMipsVersion::M32(MgMips32::MgR6)=> {
-                unimplemented!();
-                (context.mnemonic, context.mnemonic_id, context.category) = (mnemonics[(context.machine_code >> 23 & 1) as usize][(context.machine_code >> 21 & 1) as usize], mnemonic_id[(context.machine_code >> 23 & 1) as usize][(context.machine_code >> 21 & 1) as usize], Some(match context.machine_code >> 21 & 1{
-                    0 => MgInstructionCategory::Load,
-                    1 => MgInstructionCategory::Store,
-                    _ => return Err(MgError::throw_error(MgErrorCode::FieldBadValue, context.opcode, context.address, context.machine_code))
+                (context.mnemonic, context.mnemonic_id, context.category) = (mnemonics[(context.machine_code >> 23 & 1) as usize][(context.machine_code >> 21 & 1) as usize], mnemonic_id[(context.machine_code >> 23 & 1) as usize][(context.machine_code >> 21 & 1) as usize], Some(if context.machine_code >> 21 & 1 == 0{
+                    MgInstructionCategory::Load
+                }else{
+                    MgInstructionCategory::Store
                 }));
-                return MgDisassembler::imm_format(self, context, Some(base), Some(rt), Some(FieldInfos::imm_field(1, 0b11111111111)))
+                imm = Some(FieldInfos::imm_field(1, 0b11111111111));
             },
             MgMipsVersion::M32(MgMips32::MgPreR6) => {
                 if context.opcode == 0b010010{
                     return Err(MgError::throw_error(MgErrorCode::VersionError, context.opcode, context.address, context.machine_code))
                 }
-                (context.mnemonic, context.mnemonic_id, context.category) = (mnemonics[(context.opcode >> 2 & 1) as usize][(context.opcode >> 3 & 1) as usize], mnemonic_id[(context.opcode >> 2 & 1) as usize][(context.opcode >> 3 & 1) as usize], Some(match context.machine_code & 1{
-                    0 => MgInstructionCategory::Load,
-                    1 => MgInstructionCategory::Store,
-                    _ => return Err(MgError::throw_error(MgErrorCode::FieldBadValue, context.opcode, context.address, context.machine_code))
-                }));
-                return MgDisassembler::imm_format(self, context, Some(base), Some(rt), Some(FieldInfos::default_imm_field(1)))
+                (context.mnemonic_id, context.mnemonic) = (mnemonic_id[(context.opcode >> 2 & 1) as usize][(context.opcode >> 3 & 1) as usize], mnemonics[(context.opcode >> 2 & 1) as usize][(context.opcode >> 3 & 1) as usize]);
+                context.category = if context.opcode >> 3 & 1 == 0{
+                    Some(MgInstructionCategory::Load)
+                }else{
+                    Some(MgInstructionCategory::Store)
+                };
+                imm = Some(FieldInfos::default_imm_field(1));
             }
             _ => unimplemented!(),
         };
 
+        return MgDisassembler::imm_format(self, context, Some(base), Some(rt), imm)
     }
     pub (super) fn sc_ll(&self, context : &mut MgInstructionContext) -> Result<(), MgError>{
         let base: FieldInfos = FieldInfos::default_reg_field(2, MgCoprocessor::Cpu);
@@ -515,8 +517,8 @@ impl MgDisassembler{
         let mnemonics: [[Option<&str>; 7]; 4] = [
             [Some(MG_MNE_LB), Some(MG_MNE_LH), None, Some(MG_MNE_LW), Some(MG_MNE_LBU), Some(MG_MNE_LHU), None],
             [Some(MG_MNE_SB), Some(MG_MNE_SH), None, Some(MG_MNE_SW), None, None, None],
-            [Some(MG_MNE_LL), Some(MG_MNE_LWC1), None, None, None, Some(MG_MNE_LDC1), None],
-            [Some(MG_MNE_SC), Some(MG_MNE_SWC1), None, None, None, Some(MG_MNE_SDC1), None]
+            [None, Some(MG_MNE_LWC1), None, None, None, Some(MG_MNE_LDC1), None],
+            [None, Some(MG_MNE_SWC1), None, None, None, Some(MG_MNE_SDC1), None]
         ];
 
         context.mnemonic = mnemonics[(context.machine_code >> 29 & 3) as usize][(context.machine_code >> 26 & 7) as usize];

@@ -130,8 +130,8 @@ fn test_jic_jialc(){
     assert_ne!(inst1.get_category(), MgInstructionCategory::BranchJump);
     assert_ne!(inst0.is_conditional(), true);
     assert_ne!(inst0.is_region(), true);
-    assert_ne!(inst0.get_mnemonicid(), Some(MgMnemonic::MgMneBc));
-    assert_ne!(inst1.get_mnemonicid(), Some(MgMnemonic::MgMneBalc));
+    assert_eq!(inst0.get_mnemonicid(), Some(MgMnemonic::MgMneLdc2));
+    assert_eq!(inst1.get_mnemonicid(), Some(MgMnemonic::MgMneSdc2));
 }
 #[test]
 fn test_bc_balc(){
@@ -164,8 +164,8 @@ fn test_bc_balc(){
     assert_ne!(inst1.get_category(), MgInstructionCategory::BranchJump);
     assert_ne!(inst0.is_conditional(), true);
     assert_ne!(inst0.is_region(), true);
-    assert_ne!(inst0.get_mnemonicid(), Some(MgMnemonic::MgMneBc));
-    assert_ne!(inst1.get_mnemonicid(), Some(MgMnemonic::MgMneBalc));
+    assert_eq!(inst0.get_mnemonicid(), Some(MgMnemonic::MgMneLwc2));
+    assert_eq!(inst1.get_mnemonicid(), Some(MgMnemonic::MgMneSwc2));
 }
 #[test]
 fn test_sc_ll(){
@@ -238,10 +238,10 @@ fn test_load_store_cp2(){
     let mut inst2 = decoder.disassemble(machine_code[2], 0).unwrap();
     let mut inst3 = decoder.disassemble(machine_code[3], 0).unwrap();
 
-    // let inst4 = decoder.disassemble(machine_code[4], 0);
-    // let inst5 = decoder.disassemble(machine_code[5], 0);
-    // let inst6 = decoder.disassemble(machine_code[6], 0);
-    // let inst7 = decoder.disassemble(machine_code[7], 0);
+    let inst4 = decoder.disassemble(machine_code[4], 0);
+    let inst5 = decoder.disassemble(machine_code[5], 0);
+    let inst6 = decoder.disassemble(machine_code[6], 0);
+    let inst7 = decoder.disassemble(machine_code[7], 0);
 
     assert_eq!(inst0.get_mnemonicid(), Some(MgMnemonic::MgMneLwc2));
     assert_eq!(inst1.get_mnemonicid(), Some(MgMnemonic::MgMneSwc2));
@@ -249,32 +249,32 @@ fn test_load_store_cp2(){
     assert_eq!(inst3.get_mnemonicid(), Some(MgMnemonic::MgMneSdc2));
 
     //Will fail
-    // assert_eq!(inst4.is_err(), true);    //Ldc2
-    // assert_eq!(inst5.is_err(), true);    //Lwc2
-    // assert_eq!(inst6.is_err(), true);    //Sdc2
-    // assert_eq!(inst7.is_err(), true);    //Swc2
+    assert_eq!(inst4.is_err(), true);    //Ldc2
+    assert_eq!(inst5.is_err(), true);    //Lwc2
+    assert_eq!(inst6.is_err(), true);    //Sdc2
+    assert_eq!(inst7.is_err(), true);    //Swc2
 
     //The same machine code is used by other instructions in release6
     decoder.version = MgMipsVersion::M32(MgMips32::MgR6);
     inst0 = decoder.disassemble(machine_code[0], 0).unwrap();
     inst1 = decoder.disassemble(machine_code[1], 0).unwrap();
-    // inst2 = decoder.disassemble(machine_code[2], 0).unwrap();
-    // inst3 = decoder.disassemble(machine_code[3], 0).unwrap();
+    inst2 = decoder.disassemble(machine_code[2], 0).unwrap();
+    inst3 = decoder.disassemble(machine_code[3], 0).unwrap();
 
-    // let inst4 = decoder.disassemble(machine_code[4], 0).unwrap();
-    // let inst5 = decoder.disassemble(machine_code[5], 0).unwrap();
-    // let inst6 = decoder.disassemble(machine_code[6], 0).unwrap();
-    // let inst7 = decoder.disassemble(machine_code[7], 0).unwrap();
+    let inst4 = decoder.disassemble(machine_code[4], 0).unwrap();
+    let inst5 = decoder.disassemble(machine_code[5], 0).unwrap();
+    let inst6 = decoder.disassemble(machine_code[6], 0).unwrap();
+    let inst7 = decoder.disassemble(machine_code[7], 0).unwrap();
 
-    assert_ne!(inst0.get_mnemonicid(), Some(MgMnemonic::MgMneLwc2));
-    assert_ne!(inst1.get_mnemonicid(), Some(MgMnemonic::MgMneSwc2));
-    // assert_ne!(inst2.get_mnemonicid(), Some(MgMnemonic::MgMneLdc2));
-    // assert_ne!(inst3.get_mnemonicid(), Some(MgMnemonic::MgMneSdc2));
+    assert_eq!(inst0.get_mnemonicid(), Some(MgMnemonic::MgMneBc));
+    assert_eq!(inst1.get_mnemonicid(), Some(MgMnemonic::MgMneBalc));
+    assert_eq!(inst2.get_mnemonicid(), Some(MgMnemonic::MgMneJic));
+    assert_eq!(inst3.get_mnemonicid(), Some(MgMnemonic::MgMneJialc));
 
-    // assert_ne!(inst4.get_mnemonicid(), Some(MgMnemonic::MgMneLdc2));
-    // assert_ne!(inst5.get_mnemonicid(), Some(MgMnemonic::MgMneLwc2));
-    // assert_ne!(inst6.get_mnemonicid(), Some(MgMnemonic::MgMneSdc2));
-    // assert_ne!(inst7.get_mnemonicid(), Some(MgMnemonic::MgMneSwc2));
+    assert_eq!(inst4.get_mnemonicid(), Some(MgMnemonic::MgMneLdc2));
+    assert_eq!(inst5.get_mnemonicid(), Some(MgMnemonic::MgMneLwc2));
+    assert_eq!(inst6.get_mnemonicid(), Some(MgMnemonic::MgMneSdc2));
+    assert_eq!(inst7.get_mnemonicid(), Some(MgMnemonic::MgMneSwc2));
 }
 
 #[test]
