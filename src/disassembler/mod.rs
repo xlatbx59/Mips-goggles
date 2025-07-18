@@ -90,8 +90,8 @@ impl MgDisassembler{
             MgDisassembler::bovc_bnvc,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::special2_opcode_map,  MgDisassembler::jalx,  MgDisassembler::no_instructions,  MgDisassembler::special3_opcode_map,
             MgDisassembler::cpu_loadstore,  MgDisassembler::cpu_loadstore,  MgDisassembler::lwr_swr_lwl_swl,  MgDisassembler::cpu_loadstore,  MgDisassembler::cpu_loadstore,  MgDisassembler::cpu_loadstore,  MgDisassembler::lwr_swr_lwl_swl,  MgDisassembler::no_instructions,
             MgDisassembler::cpu_loadstore,  MgDisassembler::cpu_loadstore,  MgDisassembler::lwr_swr_lwl_swl,  MgDisassembler::cpu_loadstore,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::lwr_swr_lwl_swl,  MgDisassembler::cache_pref,
-            MgDisassembler::cpu_loadstore,  MgDisassembler::cpu_loadstore,  MgDisassembler::bc_balc,  MgDisassembler::cache_pref,  MgDisassembler::no_instructions, MgDisassembler::cpu_loadstore, MgDisassembler::jic_jialc,  MgDisassembler::no_instructions,
-            MgDisassembler::cpu_loadstore,  MgDisassembler::cpu_loadstore,  MgDisassembler::bc_balc,  MgDisassembler::pcrel_opcode_map,  MgDisassembler::no_instructions,  MgDisassembler::cpu_loadstore,  MgDisassembler::jic_jialc,  MgDisassembler::no_instructions];
+            MgDisassembler::sc_ll,  MgDisassembler::cpu_loadstore,  MgDisassembler::bc_balc,  MgDisassembler::cache_pref,  MgDisassembler::no_instructions, MgDisassembler::cpu_loadstore, MgDisassembler::jic_jialc,  MgDisassembler::no_instructions,
+            MgDisassembler::sc_ll,  MgDisassembler::cpu_loadstore,  MgDisassembler::bc_balc,  MgDisassembler::pcrel_opcode_map,  MgDisassembler::no_instructions,  MgDisassembler::cpu_loadstore,  MgDisassembler::jic_jialc,  MgDisassembler::no_instructions];
 
         let mut instruction: MgInstructionContext = MgInstructionContext{
             category: None,

@@ -76,7 +76,7 @@ impl MgDisassembler{
         return MgDisassembler::imm_format(self, context, rs, None, Some(FieldInfos::default_imm_field(imm_order)))
     }
     pub (super) fn special2_opcode_map(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
-        let MgMipsVersion::M32(MgMips32::MgPreR6) = self.version else{
+        let MgMipsVersion::M32(MgMips32::MgR6) = self.version else{
             return Err(MgError::throw_error(MgErrorCode::VersionError, context.opcode, context.address, context.machine_code))
         };
         static SPECIAL2_MAP: [fn(disassembler: &MgDisassembler, &mut MgInstructionContext) -> Result<(), MgError>; 64] = 
@@ -96,9 +96,9 @@ impl MgDisassembler{
                 MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
                 MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
                 MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
-                MgDisassembler::bshfl,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::cache_pref,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
+                MgDisassembler::bshfl,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::cache_pref,  MgDisassembler::sc_ll,  MgDisassembler::no_instructions,
                 MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
-                MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::cache_pref,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
+                MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::cache_pref,  MgDisassembler::sc_ll,  MgDisassembler::no_instructions,
                 MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::rdhwr,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions ];
         
         SPECIAL3_MAP[(context.machine_code & 0b111111) as usize](self, context)
@@ -139,7 +139,10 @@ impl MgDisassembler{
             MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions ];
         return COP2_MAP[(context.machine_code >> 21 & 0b11111) as usize](self, context)
     }
-    pub (super) fn cop1x_opcode_map(&self, _instruction: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub (super) fn cop1x_opcode_map(&self,context : &mut MgInstructionContext) -> Result<(), MgError>{
+        let MgMipsVersion::M32(MgMips32::MgR6) = self.version else{
+            return Err(MgError::throw_error(MgErrorCode::VersionError, context.opcode, context.address, context.machine_code))
+        };
         static _COP1X_MAP: [fn(disassembler: &MgDisassembler, &mut MgInstructionContext) -> Result<(), MgError>; 64] = 
         [   MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
             MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
@@ -293,7 +296,7 @@ impl MgDisassembler{
         return MgDisassembler::imm_format(self, context, Some(FieldInfos::default_fixed_field()), Some(rt), Some(sa));
     }
     pub(super) fn beql(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
-        let MgMipsVersion::M32(MgMips32::MgPreR6) = self.version else{
+        let MgMipsVersion::M32(MgMips32::MgR6) = self.version else{
             return Err(MgError::throw_error(MgErrorCode::VersionError, context.opcode, context.address, context.machine_code))
         };
         let rs: FieldInfos = FieldInfos::default_reg_field(0, MgCoprocessor::Cpu);    
@@ -308,7 +311,7 @@ impl MgDisassembler{
         return MgDisassembler::imm_format(self, context, Some(rs), Some(rt), Some(imm));
     }
     pub(super) fn bnel(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
-        let MgMipsVersion::M32(MgMips32::MgPreR6) = self.version else{
+        let MgMipsVersion::M32(MgMips32::MgR6) = self.version else{
             return Err(MgError::throw_error(MgErrorCode::VersionError, context.opcode, context.address, context.machine_code))
         };
         let rs: FieldInfos = FieldInfos::default_reg_field(0, MgCoprocessor::Cpu);    
@@ -323,6 +326,9 @@ impl MgDisassembler{
         return MgDisassembler::imm_format(self, context, Some(rs), Some(rt), Some(imm));
     }
     pub(super) fn blezl(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+        let MgMipsVersion::M32(MgMips32::MgR6) = self.version else{
+            return Err(MgError::throw_error(MgErrorCode::VersionError, context.opcode, context.address, context.machine_code))
+        };
         context.is_relative = true;
         context.mnemonic = Some(MG_MNE_BLEZL);
         context.category = Some(MgInstructionCategory::BranchJump);
@@ -331,6 +337,9 @@ impl MgDisassembler{
         return MgDisassembler::imm_format(self, context, Some(rs), Some(FieldInfos::default_fixed_field()), Some(FieldInfos::default_imm_field(1)));
     }
     pub(super) fn bgtzl(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+        let MgMipsVersion::M32(MgMips32::MgR6) = self.version else{
+            return Err(MgError::throw_error(MgErrorCode::VersionError, context.opcode, context.address, context.machine_code))
+        };
         context.is_relative = true;
         context.mnemonic = Some(MG_MNE_BGTZL);
         context.category = Some(MgInstructionCategory::BranchJump);
@@ -339,7 +348,7 @@ impl MgDisassembler{
         return MgDisassembler::imm_format(self, context, Some(rs), Some(FieldInfos::default_fixed_field()), Some(FieldInfos::default_imm_field(1)));
     }
     pub(super) fn jalx(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
-        let MgMipsVersion::M32(MgMips32::MgPreR6) = self.version else{
+        let MgMipsVersion::M32(MgMips32::MgR6) = self.version else{
             return Err(MgError::throw_error(MgErrorCode::VersionError, context.opcode, context.address, context.machine_code))
         };
         context.mnemonic = Some(MG_MNE_JALX);
@@ -458,6 +467,47 @@ impl MgDisassembler{
             _ => unimplemented!(),
         };
 
+    }
+    pub (super) fn sc_ll(&self, context : &mut MgInstructionContext) -> Result<(), MgError>{
+        let base: FieldInfos = FieldInfos::default_reg_field(2, MgCoprocessor::Cpu);
+        let rt = FieldInfos::default_reg_field(0, MgCoprocessor::Cp2);
+        let imm: Option<FieldInfos>;
+
+        context.is_conditional = true;
+        (context.mnemonic, context.mnemonic_id, context.category) = match self.version{
+            MgMipsVersion::M32(MgMips32::MgPreR6) => {
+                if 0b011111 == context.opcode{
+                    return Err(MgError::throw_error(MgErrorCode::VersionError, context.opcode, context.address, context.machine_code))
+                }else {
+                    imm = Some(FieldInfos::default_imm_field(1));
+                    if context.opcode >> 3 & 1 == 1{
+                        (Some(MG_MNE_SC), Some(MgMnemonic::MgMneSc), Some(MgInstructionCategory::Store))
+                    }else {
+                        (Some(MG_MNE_LL), Some(MgMnemonic::MgMneLl), Some(MgInstructionCategory::Load))
+                    }
+                }
+            },
+            MgMipsVersion::M32(MgMips32::MgR6) =>{
+                if 0b011111 != context.opcode{
+                    return Err(MgError::throw_error(MgErrorCode::VersionError, context.opcode, context.address, context.machine_code))
+                }else{
+                    if context.machine_code >> 6 == 1{
+                        return Err(MgError::throw_error(MgErrorCode::FieldBadValue, context.opcode, context.address, context.machine_code))
+                    }
+                    imm = None;
+                    context.operand[1] = Some(MgOpImmediate::new_imm_opreand((context.machine_code >> 7 & 0b111111111) as u64));
+                    context.operand_num += 1;
+                    if context.machine_code >> 4 & 1 != 1{
+                        (Some(MG_MNE_SC), Some(MgMnemonic::MgMneSc), Some(MgInstructionCategory::Store))
+                    }else {
+                        (Some(MG_MNE_LL), Some(MgMnemonic::MgMneLl), Some(MgInstructionCategory::Load))
+                    }
+                }
+            },
+            _ => unimplemented!(),
+        };
+
+        return MgDisassembler::imm_format(self, context, Some(base), Some(rt), imm)
     }
     pub(super) fn cpu_loadstore(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
         let base: FieldInfos = FieldInfos::default_reg_field(2, MgCoprocessor::Cpu);
