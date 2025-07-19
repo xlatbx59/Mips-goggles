@@ -211,13 +211,49 @@ impl MgDisassembler{
         
         return MgDisassembler::imm_format(self, context, Some(rs), Some(rt), Some(FieldInfos::default_imm_field(2)));
     }
-    pub(super) fn blez(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn blez_pop06(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+        let rs: Option<FieldInfos>;
+        let rt: Option<FieldInfos>;    
+        let imm: Option<FieldInfos>;    
+
         context.is_relative = true;
-        context.mnemonic = Some(MG_MNE_BLEZ);
         context.is_conditional = true;
         context.category = Some(MgInstructionCategory::BranchJump);
-        let rs: FieldInfos = FieldInfos::default_reg_field(0, MgCoprocessor::Cpu);    
-        return MgDisassembler::imm_format(self, context, Some(rs), Some(FieldInfos::default_fixed_field()), Some(FieldInfos::default_imm_field(1)));
+
+        (rt, rs, imm) = if let MgMipsVersion::M32(MgMips32::MgPreR6) = self.version{
+            if context.machine_code >> 0x10 & 0b11111 != 0{
+                return Err(MgError::throw_error(MgErrorCode::FieldBadValue, context.opcode, context.address, context.machine_code))
+            }
+            context.mnemonic = Some(MG_MNE_BLEZ);
+            context.mnemonic_id = Some(MgMnemonic::MgMneBlez);      
+            (None, Some(FieldInfos::default_reg_field(0, MgCoprocessor::Cpu)), Some(FieldInfos::default_imm_field(1)))
+        }else if let MgMipsVersion::M32(MgMips32::MgR6) = self.version{
+            if context.machine_code >> 0x15 & 0b11111 == context.machine_code >> 0x10 & 0b11111 && context.machine_code >> 0x10 & 0b11111 != 0{
+                context.mnemonic = Some(MG_MNE_BGEZALC);
+                context.mnemonic_id = Some(MgMnemonic::MgMneBgezalc);
+                (Some(FieldInfos::default_reg_field(0, MgCoprocessor::Cpu)),     //rt
+                None, Some(FieldInfos::default_imm_field(1)))   //rs
+            }else if context.machine_code >> 0x15 & 0b11111 != context.machine_code >> 0x10 & 0b11111 && 
+            context.machine_code >> 0x10 & 0b11111 != 0 && context.machine_code >> 0x15 & 0b11111 != 0{
+                context.mnemonic = Some(MG_MNE_BGEUC);
+                context.mnemonic_id = Some(MgMnemonic::MgMneBgeuc);
+                (Some(FieldInfos::default_reg_field(1, MgCoprocessor::Cpu)),     //rt
+                Some(FieldInfos::default_reg_field(0, MgCoprocessor::Cpu)), Some(FieldInfos::default_imm_field(2)))   //rs
+            }else if context.machine_code >> 0x15 & 0b11111 == 0x00 && context.machine_code >> 0x10 & 0b11111 != 0x00{
+                context.mnemonic = Some(MG_MNE_BLEZALC);
+                context.mnemonic_id = Some(MgMnemonic::MgMneBlezalc);
+                (Some(FieldInfos::default_reg_field(0, MgCoprocessor::Cpu)), None, Some(FieldInfos::default_imm_field(1)))
+            }else {
+                context.mnemonic = Some(MG_MNE_BLEZ);
+                context.mnemonic_id = Some(MgMnemonic::MgMneBlez);      
+                (None,     //rt
+                Some(FieldInfos::default_reg_field(0, MgCoprocessor::Cpu)), Some(FieldInfos::default_imm_field(1)))   //rs
+            }
+        }else {
+            unimplemented!();
+        };
+        
+        return MgDisassembler::imm_format(self, context, rs, rt, imm);
     }
     pub(super) fn bgtz(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
         context.is_relative = true;
