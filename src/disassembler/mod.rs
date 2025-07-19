@@ -84,7 +84,7 @@ impl MgDisassembler{
     pub fn disassemble(&self, memory: u32, address: u64) -> Result<MgInstruction, MgError>{
         //Une map qui réunit tous les handlers des opcodes, il y a d'autre map dans cette map
         const OPCODE_MAP: [fn (disass: &MgDisassembler, instruction: &mut MgInstructionContext) -> Result<(), MgError>; 64] = [
-            MgDisassembler::special_opcode_map, MgDisassembler::regimm_opcode_map, MgDisassembler::j, MgDisassembler::jal, MgDisassembler::beq, MgDisassembler::bne,  MgDisassembler::blez_pop06,  MgDisassembler::bgtz,
+            MgDisassembler::special_opcode_map, MgDisassembler::regimm_opcode_map, MgDisassembler::j, MgDisassembler::jal, MgDisassembler::beq, MgDisassembler::bne,  MgDisassembler::blez_pop06,  MgDisassembler::bgtz_pop07,
             MgDisassembler::bovc_bnvc,  MgDisassembler::addi_addiu,  MgDisassembler::slti_sltiu,  MgDisassembler::slti_sltiu,  MgDisassembler::andi,  MgDisassembler::ori,  MgDisassembler::xori,  MgDisassembler::lui,
             MgDisassembler::cop0_opcode_map,  MgDisassembler::cop1_opcode_map,  MgDisassembler::cop2_opcode_map,  MgDisassembler::cop1x_opcode_map,  MgDisassembler::beql,  MgDisassembler::bnel,  MgDisassembler::blezl,  MgDisassembler::bgtzl,
             MgDisassembler::bovc_bnvc,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::special2_opcode_map,  MgDisassembler::jalx,  MgDisassembler::no_instructions,  MgDisassembler::special3_opcode_map,

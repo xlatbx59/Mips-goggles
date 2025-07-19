@@ -3,13 +3,82 @@
 //Link to repo: https://github.com/xlatbx59/mips-goggles
 
 #[cfg(test)]
-
-use super::*;
+use crate::*;
+#[cfg(test)]
 use crate::disassembler::*;
+#[cfg(test)]
 use crate::instruction::*;
+#[cfg(test)]
 use crate::operands::*;
+#[cfg(test)]
 use crate::instruction::mnemonics::*;
 
+#[test]
+fn test_pop07(){
+    let machine_code: [u32; 4] = [0x1c30FFFF, 0x1c0a0050, 0x1c420050, 0x1c00C011];
+    let mut decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgR6));
+
+    let inst0 = decoder.disassemble(machine_code[0], 0).unwrap();
+    let inst1 = decoder.disassemble(machine_code[1], 0).unwrap();
+    let inst2 = decoder.disassemble(machine_code[2], 0).unwrap();
+    let mut inst3 = decoder.disassemble(machine_code[3], 0).unwrap();
+
+    assert_eq!(inst0.get_category(), MgInstructionCategory::BranchJump);
+    assert_eq!(inst1.is_region(), false);
+    assert_eq!(inst1.is_relative(), true);
+    assert_eq!(inst1.is_conditional(), true);
+
+    assert_eq!(inst0.get_mnemonicid(), Some(MgMnemonic::MgMneBltuc));
+    assert_eq!(get_mnemonic(inst0.get_mnemonicid().unwrap()), MG_MNE_BLTUC);
+    assert_eq!(inst0.get_operand_num(), 3);
+    match (inst0.get_operand(0), inst0.get_operand(1), inst0.get_operand(2)){
+        (Some(MgOperand::MgOpRegister(r1)),Some(MgOperand::MgOpRegister(r2)), Some(MgOperand::MgOpImmediate(_))) => assert_ne!(r1, r2),
+        _ => panic!(),
+    }
+
+    assert_eq!(inst1.get_mnemonicid(), Some(MgMnemonic::MgMneBltzalc));
+    assert_eq!(get_mnemonic(inst1.get_mnemonicid().unwrap()), MG_MNE_BLTZALC);
+    assert_eq!(inst2.get_mnemonicid(), Some(MgMnemonic::MgMneBgtzalc));
+    assert_eq!(get_mnemonic(inst2.get_mnemonicid().unwrap()), MG_MNE_BGTZALC);
+
+    assert_eq!(inst1.get_operand_num(), 2);
+    match (inst1.get_operand(0), inst1.get_operand(1)){
+        (Some(MgOperand::MgOpRegister(_)), Some(MgOperand::MgOpImmediate(_))) => (),
+        _ => panic!(),
+    }
+
+    assert_eq!(inst2.get_operand_num(), 2);
+    match (inst2.get_operand(0), inst2.get_operand(1)){
+        (Some(MgOperand::MgOpRegister(_)), Some(MgOperand::MgOpImmediate(_))) => (),
+        _ => panic!(),
+    }
+
+    assert_eq!(inst3.get_mnemonicid(), Some(MgMnemonic::MgMneBgtz));
+    assert_eq!(get_mnemonic(inst3.get_mnemonicid().unwrap()), MG_MNE_BGTZ);
+    assert_eq!(inst3.get_operand_num(), 2);
+    match (inst3.get_operand(0), inst3.get_operand(1)){
+        (Some(MgOperand::MgOpRegister(_)), Some(MgOperand::MgOpImmediate(_))) => (),
+        _ => panic!(),
+    }
+
+    decoder.version = MgMipsVersion::M32(MgMips32::MgPreR6);
+    let inst0 = decoder.disassemble(machine_code[0], 0);
+    let inst1 = decoder.disassemble(machine_code[1], 0);
+    let inst2 = decoder.disassemble(machine_code[2], 0);
+    inst3 = decoder.disassemble(machine_code[3], 0).unwrap();
+
+    assert_eq!(inst0.is_err(), true);   //Field value wrong
+    assert_eq!(inst1.is_err(), true);   //Field value wrong
+    assert_eq!(inst2.is_err(), true);   //Field value wrong
+
+    assert_eq!(inst3.get_mnemonicid(), Some(MgMnemonic::MgMneBgtz));
+    assert_eq!(get_mnemonic(inst3.get_mnemonicid().unwrap()), MG_MNE_BGTZ);
+    assert_eq!(inst3.get_operand_num(), 2);
+    match (inst3.get_operand(0), inst3.get_operand(1)){
+        (Some(MgOperand::MgOpRegister(_)), Some(MgOperand::MgOpImmediate(_))) => (),
+        _ => panic!(),
+    }
+}
 #[test]
 fn test_blez_pop06(){
     let machine_code: [u32; 4] = [0x1830FFFF, 0x180a0050, 0x18420050, 0x1800C011];
