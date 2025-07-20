@@ -33,8 +33,7 @@ pub enum MgCoprocessor{
 #[derive(Debug)]
 pub (crate) struct MgInstructionContext{
     pub address: u64,
-    pub mnemonic: Option<&'static str>,
-    pub mnemonic_id: Option<MgMnemonic>,
+    pub mnemonic: Option<MgMnemonic>,
     pub opcode: u8,
     pub machine_code: u32,
     pub string: MgString,
@@ -53,8 +52,7 @@ pub (crate) struct MgInstructionContext{
 #[derive(Debug)]
 pub struct MgInstruction{
     address: u64,
-    mnemonic: &'static str,
-    mnemonic_id: Option<MgMnemonic>,
+    mnemonic: MgMnemonic,
     operand: [Option<MgOperand>; 4],    //L'ordre des opérandes suit celui du format en chaîne de caractères 
     machine_code: u32,
     operand_num: usize,
@@ -71,13 +69,16 @@ pub struct MgInstruction{
 
 impl MgInstruction{
     pub (crate) fn new_instruction(context: MgInstructionContext) -> Result<MgInstruction, MgError>{
+        let Some(mnemonic) = context.mnemonic else{
+            return Err(MgError::throw_error(MgErrorCode::DevError, context.opcode, context.address, context.machine_code))
+        };
         let (Some(category), Some(format)) = (context.category, context.format) else{
             return Err(MgError::throw_error(MgErrorCode::DevError, context.opcode, context.address, context.machine_code))
         };
         let Some(version) = context.version else{
             return Err(MgError::throw_error(MgErrorCode::DevError, context.opcode, context.address, context.machine_code))
         };
-        let (Some(coprocessor), Some(mnemonic)) = (context.coprocessor, context.mnemonic) else{
+        let Some(coprocessor) = context.coprocessor else{
             return Err(MgError::throw_error(MgErrorCode::DevError, context.opcode, context.address, context.machine_code))
         };
         Ok(MgInstruction{
@@ -85,7 +86,6 @@ impl MgInstruction{
             opcode: context.opcode,
             machine_code: context.machine_code,
             mnemonic,
-            mnemonic_id: context.mnemonic_id,
             string: context.string,
             category,
             format,
@@ -98,8 +98,11 @@ impl MgInstruction{
             operand: context.operand
         })
     }
-    pub fn get_mnemonicid(&self) -> Option<MgMnemonic>{
-        self.mnemonic_id
+    pub fn get_mnemonic_str(&self) -> &'static str{
+        mnemonics::get_mnemonic(self.mnemonic)
+    }
+    pub fn get_mnemonic(&self) -> MgMnemonic{
+        self.mnemonic
     }
     pub fn is_region(&self) -> bool{
         self.is_region
@@ -124,9 +127,6 @@ impl MgInstruction{
     }
     pub fn get_format(&self) -> MgInstructionFormat{
         self.format
-    }
-    pub fn get_mnemonic(&self) -> &str{
-        self.mnemonic
     }
     pub fn get_string(&self) -> &[char]{
         self.string.data()

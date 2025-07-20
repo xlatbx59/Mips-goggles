@@ -27,5 +27,5 @@ Mips-Goggles is a mips disassembler for the mips instruction set, but is not fin
 
 - [Online assembler/disassembler](https://yozan233.github.io/Online-Assembler-Disassembler/) which is basically [Keystone](https://github.com/keystone-engine/keystone)
 1. [Manuel Volume 1](https://riteme.site/nscscc/doc/mips/Volume%20I:%20Introduction%20to%20MIPS32%20Architecture.pdf)
-2. [Manuel Volume 2](https://s3-eu-west-1.amazonaws.com/downloads-mips/documents/MD00086-2B-MIPS32BIS-AFP-6.06.pdf)
+2. [Manuel Volume 2](https://s3-eu-west-1.amazonaws.com/downloads-mips/documents/MD00086-2B-MIPS32BIS-AFP-6.06.pdf), [Release 6](https://s3-eu-west-1.amazonaws.com/downloads-mips/documents/MD00086-2B-MIPS32BIS-AFP-6.06.pdf)
 3. [Manuel Volume 3](https://s3-eu-west-1.amazonaws.com/downloads-mips/documents/MD00090-2B-MIPS32PRA-AFP-06.02.pdf)

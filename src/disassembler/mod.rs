@@ -4,12 +4,10 @@
 
 mod opcode_handlers;
 
-use core::cmp::Ordering;
-
 use crate::MgMipsVersion;
 
 use super::instruction::*;
-use super::instruction::mnemonics::*;
+// use super::instruction::mnemonics::*;
 use super::operands::*;
 use super::utils::string::*;
 use super::error::*;
@@ -113,7 +111,6 @@ impl MgDisassembler{
             string: MgString::new_lmstring(),
             version: Some(self.version),
             mnemonic: None,
-            mnemonic_id: None,
             address,
         };
         
@@ -128,9 +125,6 @@ impl MgDisassembler{
         }
     }
     fn reg_format(&self, instruction: &mut MgInstructionContext, rs: Option<FieldInfos>, rt: Option<FieldInfos>, rd: Option<FieldInfos>, sa: Option<FieldInfos>) -> Result<(), MgError>{
-        let mut hex_num: MgString = MgString::new_lmstring();
-        let comma: &str = ", ";
-
         instruction.format = Some(MgInstructionFormat::Reg);
 
         //Rs field
@@ -229,51 +223,32 @@ impl MgDisassembler{
                 return Err(MgError::throw_error(MgErrorCode::FieldBadValue, instruction.opcode, instruction.address, instruction.machine_code))
             }
         }
-
-        let Some(mne) = instruction.mnemonic else{
-            return Err(MgError::throw_error(MgErrorCode::DevError, instruction.opcode, instruction.address, instruction.machine_code))
-        };
-        instruction.string.append_str(mne);
-        instruction.string.append_char(' ');
-        for i in 0..instruction.operand_num{
-            if let Some(MgOperand::MgOpRegister(reg)) = instruction.operand[i]{
-                instruction.string.append_str(reg.get_register());
-            }
-            else if let Some(MgOperand::MgOpImmediate(imm)) = instruction.operand[i]{
-                hex_num.num_to_str(imm.get_value());
-                instruction.string.append_string(&hex_num);
-            }
-
-            if instruction.operand_num - 1 > i{
-                instruction.string.append_str(&comma);
-            }
-        }
         Ok(())
     }
-    fn basic_str_format(instruction: &mut MgInstructionContext) -> Result<(), MgError>{
-        let mut hex_num: MgString = MgString::new_lmstring();
-        let comma: &str = ", ";
+    // fn basic_str_format(instruction: &mut MgInstructionContext) -> Result<(), MgError>{
+    //     let mut hex_num: MgString = MgString::new_lmstring();
+    //     let comma: &str = ", ";
 
-        let Some(mne) = instruction.mnemonic else{
-            return Err(MgError::throw_error(MgErrorCode::DevError, instruction.opcode, instruction.address, instruction.machine_code))
-        };
-        instruction.string.append_str(mne);
-        instruction.string.append_char(' ');
-        for i in 0..instruction.operand_num{
-            if let Some(MgOperand::MgOpRegister(reg)) = instruction.operand[i]{
-                instruction.string.append_str(reg.get_register());
-            }
-            else if let Some(MgOperand::MgOpImmediate(imm)) = instruction.operand[i]{
-                hex_num.num_to_str(imm.get_value());
-                instruction.string.append_string(&hex_num);
-            }
+    //     let Some(mne) = instruction.mnemonic else{
+    //         return Err(MgError::throw_error(MgErrorCode::DevError, instruction.opcode, instruction.address, instruction.machine_code))
+    //     };
+    //     instruction.string.append_str(mne);
+    //     instruction.string.append_char(' ');
+    //     for i in 0..instruction.operand_num{
+    //         if let Some(MgOperand::MgOpRegister(reg)) = instruction.operand[i]{
+    //             instruction.string.append_str(reg.get_register());
+    //         }
+    //         else if let Some(MgOperand::MgOpImmediate(imm)) = instruction.operand[i]{
+    //             hex_num.num_to_str(imm.get_value());
+    //             instruction.string.append_string(&hex_num);
+    //         }
 
-            if instruction.operand_num - 1 > i{
-                instruction.string.append_str(&comma);
-            }
-        }
-        Ok(())
-    }
+    //         if instruction.operand_num - 1 > i{
+    //             instruction.string.append_str(&comma);
+    //         }
+    //     }
+    //     Ok(())
+    // }
     fn cpx_cpu_transfer_format(&self, instruction: &mut MgInstructionContext, rt: FieldInfos, rd: FieldInfos) -> Result<(), MgError>{
         if (instruction.machine_code & 0b11111111111) != 0{
             return Err(MgError::throw_error(MgErrorCode::FieldBadValue, instruction.opcode, instruction.address, instruction.machine_code))
@@ -288,7 +263,7 @@ impl MgDisassembler{
         instruction.operand[rd.operand_order] = Some(MgOpRegister::new_reg_opreand((instruction.machine_code >> 11 & rd.mask) as u8, rd_cop));
         instruction.operand[rt.operand_order] = Some(MgOpRegister::new_reg_opreand((instruction.machine_code >> 16 & rt.mask) as u8, rt_cop));
 
-        MgDisassembler::basic_str_format(instruction)
+        Ok(())
     }
     fn imm_format(&self, instruction: &mut MgInstructionContext, rs: Option<FieldInfos>, rt: Option<FieldInfos>, imm: Option<FieldInfos>) -> Result<(), MgError>{
 
@@ -347,72 +322,61 @@ impl MgDisassembler{
             instruction.operand[imm.operand_order] = Some(MgOpImmediate::new_imm_opreand((instruction.machine_code & 0b1111111111111111) as u64));
             instruction.operand_num += 1;
         }
-        let (Some(mne), Some(category)) = (instruction.mnemonic, instruction.category) else{
-            return Err(MgError::throw_error(MgErrorCode::DevError, instruction.opcode, instruction.address, instruction.machine_code))
-        };
-
-        return if category == MgInstructionCategory::Load || category == MgInstructionCategory::Store
-        || category == MgInstructionCategory::MemoryControl || mne.cmp(MG_MNE_CACHE)  == Ordering::Equal{
-            MgDisassembler::imm_loadstore_str_format(instruction)
-        }
-        else {
-            MgDisassembler::imm_default_str_format(instruction)
-        }
-    }
-    fn imm_default_str_format(instruction: &mut MgInstructionContext) -> Result<(), MgError>{
-        let mut hex_num: MgString = MgString::new_lmstring();
-        let comma: &str = ", ";
-
-        let Some(mne) = instruction.mnemonic else{
-            return Err(MgError::throw_error(MgErrorCode::DevError, instruction.opcode, instruction.address, instruction.machine_code))
-        };
-        instruction.string.append_str(mne);
-        instruction.string.append_char(' ');
-        for i in 0..instruction.operand_num{
-            if let Some(MgOperand::MgOpRegister(reg)) = instruction.operand[i]{
-                instruction.string.append_str(reg.get_register());
-            }
-            else if let Some(MgOperand::MgOpImmediate(imm)) = instruction.operand[i]{
-                hex_num.num_to_str(imm.get_value());
-                instruction.string.append_string(&hex_num);
-            }
-
-            if instruction.operand_num - 1 > i{
-                instruction.string.append_str(&comma);
-            }
-        }
         Ok(())
     }
-    fn imm_loadstore_str_format(instruction: &mut MgInstructionContext) -> Result<(), MgError>{
-        let mut hex_num: MgString = MgString::new_lmstring();
-        let comma: &str = ", ";
+    // fn _imm_default_str_format(instruction: &mut MgInstructionContext) -> Result<(), MgError>{
+    //     let mut hex_num: MgString = MgString::new_lmstring();
+    //     let comma: &str = ", ";
 
-        let Some(mne) = instruction.mnemonic else{
-            return Err(MgError::throw_error(MgErrorCode::DevError, instruction.opcode, instruction.address, instruction.machine_code))
-        };
-        instruction.string.append_str(mne);
-        instruction.string.append_char(' ');
-        for i in 0..instruction.operand_num - 1{
-            if let Some(MgOperand::MgOpRegister(reg)) = instruction.operand[i]{
-                instruction.string.append_str(reg.get_register());
-            }
-            else if let Some(MgOperand::MgOpImmediate(imm)) = instruction.operand[i]{
-                hex_num.num_to_str(imm.get_value());
-                instruction.string.append_string(&hex_num);
-            }
-            if instruction.operand_num - 2 > i{
-                instruction.string.append_str(&comma);
-            }
-        }
-        instruction.string.append_char('(');
-        if let Some(MgOperand::MgOpRegister(reg)) = instruction.operand[instruction.operand_num - 1]{
-            instruction.string.append_str(reg.get_register());
-        }
-        instruction.string.append_char(')');
-        Ok(())
-    }
+    //     let Some(mne) = instruction.mnemonic else{
+    //         return Err(MgError::throw_error(MgErrorCode::DevError, instruction.opcode, instruction.address, instruction.machine_code))
+    //     };
+    //     instruction.string.append_str(mne);
+    //     instruction.string.append_char(' ');
+    //     for i in 0..instruction.operand_num{
+    //         if let Some(MgOperand::MgOpRegister(reg)) = instruction.operand[i]{
+    //             instruction.string.append_str(reg.get_register());
+    //         }
+    //         else if let Some(MgOperand::MgOpImmediate(imm)) = instruction.operand[i]{
+    //             hex_num.num_to_str(imm.get_value());
+    //             instruction.string.append_string(&hex_num);
+    //         }
+
+    //         if instruction.operand_num - 1 > i{
+    //             instruction.string.append_str(&comma);
+    //         }
+    //     }
+    //     Ok(())
+    // }
+    // fn _imm_loadstore_str_format(instruction: &mut MgInstructionContext) -> Result<(), MgError>{
+    //     let mut hex_num: MgString = MgString::new_lmstring();
+    //     let comma: &str = ", ";
+
+    //     let Some(mne) = instruction.mnemonic else{
+    //         return Err(MgError::throw_error(MgErrorCode::DevError, instruction.opcode, instruction.address, instruction.machine_code))
+    //     };
+    //     instruction.string.append_str(mne);
+    //     instruction.string.append_char(' ');
+    //     for i in 0..instruction.operand_num - 1{
+    //         if let Some(MgOperand::MgOpRegister(reg)) = instruction.operand[i]{
+    //             instruction.string.append_str(reg.get_register());
+    //         }
+    //         else if let Some(MgOperand::MgOpImmediate(imm)) = instruction.operand[i]{
+    //             hex_num.num_to_str(imm.get_value());
+    //             instruction.string.append_string(&hex_num);
+    //         }
+    //         if instruction.operand_num - 2 > i{
+    //             instruction.string.append_str(&comma);
+    //         }
+    //     }
+    //     instruction.string.append_char('(');
+    //     if let Some(MgOperand::MgOpRegister(reg)) = instruction.operand[instruction.operand_num - 1]{
+    //         instruction.string.append_str(reg.get_register());
+    //     }
+    //     instruction.string.append_char(')');
+    //     Ok(())
+    // }
     fn jump_format(&self, instruction: &mut MgInstructionContext) -> Result<(), MgError>{
-        let mut hex_num: MgString = MgString::new_lmstring();
 
         //Some attributes about the instruction
         instruction.format = Some(MgInstructionFormat::Jump);
@@ -420,16 +384,6 @@ impl MgDisassembler{
         instruction.is_region = true;
         instruction.category = Some(MgInstructionCategory::BranchJump);
         instruction.operand[0] = Some(MgOpImmediate::new_imm_opreand((instruction.machine_code & 0x3FFFFFF) as u64));
-
-        //Formatting the string
-        //If the branch/jump is relative, the string will show it's destination address instead of the offset
-        let (Some(MgOperand::MgOpImmediate(imm)), Some(mne)) = (instruction.operand[0], instruction.mnemonic) else{
-            return Err(MgError::throw_error(MgErrorCode::DevError, instruction.opcode, instruction.address, instruction.machine_code))
-        };
-        instruction.string.append_str(mne);
-        hex_num.num_to_str(imm.get_value() * 0x4 + instruction.address);
-        instruction.string.append_char(' ');
-        instruction.string.append_string(&hex_num);
 
         Ok(())
     }

@@ -28,18 +28,18 @@ fn test_pop07(){
     assert_eq!(inst1.is_relative(), true);
     assert_eq!(inst1.is_conditional(), true);
 
-    assert_eq!(inst0.get_mnemonicid(), Some(MgMnemonic::MgMneBltuc));
-    assert_eq!(get_mnemonic(inst0.get_mnemonicid().unwrap()), MG_MNE_BLTUC);
+    assert_eq!(inst0.get_mnemonic(), MgMnemonic::MgMneBltuc);
+    assert_eq!(get_mnemonic(inst0.get_mnemonic()), MG_MNE_BLTUC);
     assert_eq!(inst0.get_operand_num(), 3);
     match (inst0.get_operand(0), inst0.get_operand(1), inst0.get_operand(2)){
         (Some(MgOperand::MgOpRegister(r1)),Some(MgOperand::MgOpRegister(r2)), Some(MgOperand::MgOpImmediate(_))) => assert_ne!(r1, r2),
         _ => panic!(),
     }
 
-    assert_eq!(inst1.get_mnemonicid(), Some(MgMnemonic::MgMneBltzalc));
-    assert_eq!(get_mnemonic(inst1.get_mnemonicid().unwrap()), MG_MNE_BLTZALC);
-    assert_eq!(inst2.get_mnemonicid(), Some(MgMnemonic::MgMneBgtzalc));
-    assert_eq!(get_mnemonic(inst2.get_mnemonicid().unwrap()), MG_MNE_BGTZALC);
+    assert_eq!(inst1.get_mnemonic(), MgMnemonic::MgMneBltzalc);
+    assert_eq!(get_mnemonic(inst1.get_mnemonic()), MG_MNE_BLTZALC);
+    assert_eq!(inst2.get_mnemonic(), MgMnemonic::MgMneBgtzalc);
+    assert_eq!(get_mnemonic(inst2.get_mnemonic()), MG_MNE_BGTZALC);
 
     assert_eq!(inst1.get_operand_num(), 2);
     match (inst1.get_operand(0), inst1.get_operand(1)){
@@ -53,8 +53,8 @@ fn test_pop07(){
         _ => panic!(),
     }
 
-    assert_eq!(inst3.get_mnemonicid(), Some(MgMnemonic::MgMneBgtz));
-    assert_eq!(get_mnemonic(inst3.get_mnemonicid().unwrap()), MG_MNE_BGTZ);
+    assert_eq!(inst3.get_mnemonic(), MgMnemonic::MgMneBgtz);
+    assert_eq!(get_mnemonic(inst3.get_mnemonic()), MG_MNE_BGTZ);
     assert_eq!(inst3.get_operand_num(), 2);
     match (inst3.get_operand(0), inst3.get_operand(1)){
         (Some(MgOperand::MgOpRegister(_)), Some(MgOperand::MgOpImmediate(_))) => (),
@@ -71,8 +71,8 @@ fn test_pop07(){
     assert_eq!(inst1.is_err(), true);   //Field value wrong
     assert_eq!(inst2.is_err(), true);   //Field value wrong
 
-    assert_eq!(inst3.get_mnemonicid(), Some(MgMnemonic::MgMneBgtz));
-    assert_eq!(get_mnemonic(inst3.get_mnemonicid().unwrap()), MG_MNE_BGTZ);
+    assert_eq!(inst3.get_mnemonic(), MgMnemonic::MgMneBgtz);
+    assert_eq!(get_mnemonic(inst3.get_mnemonic()), MG_MNE_BGTZ);
     assert_eq!(inst3.get_operand_num(), 2);
     match (inst3.get_operand(0), inst3.get_operand(1)){
         (Some(MgOperand::MgOpRegister(_)), Some(MgOperand::MgOpImmediate(_))) => (),
@@ -94,18 +94,18 @@ fn test_blez_pop06(){
     assert_eq!(inst1.is_relative(), true);
     assert_eq!(inst1.is_conditional(), true);
 
-    assert_eq!(inst0.get_mnemonicid(), Some(MgMnemonic::MgMneBgeuc));
-    assert_eq!(get_mnemonic(inst0.get_mnemonicid().unwrap()), MG_MNE_BGEUC);
+    assert_eq!(inst0.get_mnemonic(), MgMnemonic::MgMneBgeuc);
+    assert_eq!(get_mnemonic(inst0.get_mnemonic()), MG_MNE_BGEUC);
     assert_eq!(inst0.get_operand_num(), 3);
     match (inst0.get_operand(0), inst0.get_operand(1), inst0.get_operand(2)){
         (Some(MgOperand::MgOpRegister(r1)),Some(MgOperand::MgOpRegister(r2)), Some(MgOperand::MgOpImmediate(_))) => assert_ne!(r1, r2),
         _ => panic!(),
     }
 
-    assert_eq!(inst1.get_mnemonicid(), Some(MgMnemonic::MgMneBlezalc));
-    assert_eq!(get_mnemonic(inst1.get_mnemonicid().unwrap()), MG_MNE_BLEZALC);
-    assert_eq!(inst2.get_mnemonicid(), Some(MgMnemonic::MgMneBgezalc));
-    assert_eq!(get_mnemonic(inst2.get_mnemonicid().unwrap()), MG_MNE_BGEZALC);
+    assert_eq!(inst1.get_mnemonic(), MgMnemonic::MgMneBlezalc);
+    assert_eq!(get_mnemonic(inst1.get_mnemonic()), MG_MNE_BLEZALC);
+    assert_eq!(inst2.get_mnemonic(), MgMnemonic::MgMneBgezalc);
+    assert_eq!(get_mnemonic(inst2.get_mnemonic()), MG_MNE_BGEZALC);
 
     assert_eq!(inst1.get_operand_num(), 2);
     match (inst1.get_operand(0), inst1.get_operand(1)){
@@ -119,8 +119,8 @@ fn test_blez_pop06(){
         _ => panic!(),
     }
 
-    assert_eq!(inst3.get_mnemonicid(), Some(MgMnemonic::MgMneBlez));
-    assert_eq!(get_mnemonic(inst3.get_mnemonicid().unwrap()), MG_MNE_BLEZ);
+    assert_eq!(inst3.get_mnemonic(), MgMnemonic::MgMneBlez);
+    assert_eq!(get_mnemonic(inst3.get_mnemonic()), MG_MNE_BLEZ);
     assert_eq!(inst3.get_operand_num(), 2);
     match (inst3.get_operand(0), inst3.get_operand(1)){
         (Some(MgOperand::MgOpRegister(_)), Some(MgOperand::MgOpImmediate(_))) => (),
@@ -137,8 +137,8 @@ fn test_blez_pop06(){
     assert_eq!(inst1.is_err(), true);   //Field value wrong
     assert_eq!(inst2.is_err(), true);   //Field value wrong
 
-    assert_eq!(inst3.get_mnemonicid(), Some(MgMnemonic::MgMneBlez));
-    assert_eq!(get_mnemonic(inst3.get_mnemonicid().unwrap()), MG_MNE_BLEZ);
+    assert_eq!(inst3.get_mnemonic(), MgMnemonic::MgMneBlez);
+    assert_eq!(get_mnemonic(inst3.get_mnemonic()), MG_MNE_BLEZ);
     assert_eq!(inst3.get_operand_num(), 2);
     match (inst3.get_operand(0), inst3.get_operand(1)){
         (Some(MgOperand::MgOpRegister(_)), Some(MgOperand::MgOpImmediate(_))) => (),
@@ -151,10 +151,14 @@ fn test_lwr_swr_lwl_swl() {
     let machine_code: [u32; 4] = [0x88450050, 0xA8450050, 0x98450050, 0xB8450050];
     let mut decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgPreR6));
     
-    assert_eq!(decoder.disassemble(machine_code[0], 0).unwrap().get_mnemonicid(), Some(MgMnemonic::MgMneLwl));
-    assert_eq!(decoder.disassemble(machine_code[1], 0).unwrap().get_mnemonicid(), Some(MgMnemonic::MgMneSwl));
-    assert_eq!(decoder.disassemble(machine_code[2], 0).unwrap().get_mnemonicid(), Some(MgMnemonic::MgMneLwr));
-    assert_eq!(decoder.disassemble(machine_code[3], 0).unwrap().get_mnemonicid(), Some(MgMnemonic::MgMneSwr));
+    let inst = decoder.disassemble(machine_code[0], 0).unwrap();
+
+    assert_eq!(inst.get_operand_num(), 3);
+
+    assert_eq!(inst.get_mnemonic(), MgMnemonic::MgMneLwl);
+    assert_eq!(decoder.disassemble(machine_code[1], 0).unwrap().get_mnemonic(), MgMnemonic::MgMneSwl);
+    assert_eq!(decoder.disassemble(machine_code[2], 0).unwrap().get_mnemonic(), MgMnemonic::MgMneLwr);
+    assert_eq!(decoder.disassemble(machine_code[3], 0).unwrap().get_mnemonic(), MgMnemonic::MgMneSwr);
     
     decoder.version = MgMipsVersion::M32(MgMips32::MgR6);
     assert_eq!(decoder.disassemble(machine_code[0], 0).is_err(), true);
@@ -171,8 +175,8 @@ fn test_bovc_bnvc(){
     let inst0 = decoder.disassemble(machine_code[0], 0).unwrap();
     let inst1 = decoder.disassemble(machine_code[1], 0).unwrap();
 
-    assert_eq!(inst0.get_mnemonicid(), Some(MgMnemonic::MgMneBovc));
-    assert_eq!(get_mnemonic(inst0.get_mnemonicid().unwrap()), MG_MNE_BOVC);
+    assert_eq!(inst0.get_mnemonic(), MgMnemonic::MgMneBovc);
+    assert_eq!(get_mnemonic(inst0.get_mnemonic()), MG_MNE_BOVC);
     assert_eq!(inst0.get_category(), MgInstructionCategory::BranchJump);
     assert_eq!(inst0.get_format(), MgInstructionFormat::Imm);
     assert_eq!(inst0.is_conditional(), true);
@@ -192,14 +196,14 @@ fn test_bovc_bnvc(){
         _ => panic!(),
     }
 
-    assert_eq!(inst1.get_mnemonicid(), Some(MgMnemonic::MgMneBnvc));
+    assert_eq!(inst1.get_mnemonic(), MgMnemonic::MgMneBnvc);
     assert_eq!(inst1.get_format(), MgInstructionFormat::Imm);
     assert_eq!(inst1.is_conditional(), true);
     assert_eq!(inst1.is_relative(), true);
     assert_eq!(inst1.is_region(), false);
     assert_eq!(inst1.get_operand_num(), 3);
     assert_eq!(inst1.get_category(), MgInstructionCategory::BranchJump);
-    assert_eq!(get_mnemonic(inst1.get_mnemonicid().unwrap()), MG_MNE_BNVC);
+    assert_eq!(get_mnemonic(inst1.get_mnemonic()), MG_MNE_BNVC);
     match inst1.get_operand(0){
         Some(MgOperand::MgOpRegister(_)) => (),
         _ => panic!(),
@@ -220,7 +224,7 @@ fn test_bovc_bnvc(){
     assert_ne!(inst0.get_category(), MgInstructionCategory::BranchJump);
     assert_eq!(decoder.disassemble(machine_code[1], 0).is_err(), true);
     assert_ne!(inst0.is_region(), true);
-    assert_ne!(inst0.get_mnemonicid(), Some(MgMnemonic::MgMneAddi));
+    assert_eq!(inst0.get_mnemonic(), MgMnemonic::MgMneAddi);
 }
 
 #[test]
@@ -231,8 +235,8 @@ fn test_jic_jialc(){
     let inst0 = decoder.disassemble(machine_code[0], 0).unwrap();
     let inst1 = decoder.disassemble(machine_code[1], 0).unwrap();
 
-    assert_eq!(inst0.get_mnemonicid(), Some(MgMnemonic::MgMneJic));
-    assert_eq!(get_mnemonic(inst0.get_mnemonicid().unwrap()), MG_MNE_JIC);
+    assert_eq!(inst0.get_mnemonic(), MgMnemonic::MgMneJic);
+    assert_eq!(get_mnemonic(inst0.get_mnemonic()), MG_MNE_JIC);
     assert_eq!(inst0.get_category(), MgInstructionCategory::BranchJump);
     assert_eq!(inst0.is_conditional(), false);
     assert_eq!(inst0.is_region(), false);
@@ -246,12 +250,12 @@ fn test_jic_jialc(){
         _ => panic!(),
     }
 
-    assert_eq!(inst1.get_mnemonicid(), Some(MgMnemonic::MgMneJialc));
+    assert_eq!(inst1.get_mnemonic(), MgMnemonic::MgMneJialc);
     assert_eq!(inst1.is_conditional(), false);
     assert_eq!(inst1.is_region(), false);
     assert_eq!(inst1.get_operand_num(), 2);
     assert_eq!(inst1.get_category(), MgInstructionCategory::BranchJump);
-    assert_eq!(get_mnemonic(inst1.get_mnemonicid().unwrap()), MG_MNE_JIALC);
+    assert_eq!(get_mnemonic(inst1.get_mnemonic()), MG_MNE_JIALC);
     match inst1.get_operand(0){
         Some(MgOperand::MgOpRegister(_)) => (),
         _ => panic!(),
@@ -270,8 +274,8 @@ fn test_jic_jialc(){
     assert_ne!(inst1.get_category(), MgInstructionCategory::BranchJump);
     assert_ne!(inst0.is_conditional(), true);
     assert_ne!(inst0.is_region(), true);
-    assert_eq!(inst0.get_mnemonicid(), Some(MgMnemonic::MgMneLdc2));
-    assert_eq!(inst1.get_mnemonicid(), Some(MgMnemonic::MgMneSdc2));
+    assert_eq!(inst0.get_mnemonic(), MgMnemonic::MgMneLdc2);
+    assert_eq!(inst1.get_mnemonic(), MgMnemonic::MgMneSdc2);
 }
 #[test]
 fn test_bc_balc(){
@@ -281,19 +285,19 @@ fn test_bc_balc(){
     let inst0 = decoder.disassemble(machine_code[0], 0).unwrap();
     let inst1 = decoder.disassemble(machine_code[1], 0).unwrap();
 
-    assert_eq!(inst0.get_mnemonicid(), Some(MgMnemonic::MgMneBc));
-    assert_eq!(get_mnemonic(inst0.get_mnemonicid().unwrap()), MG_MNE_BC);
+    assert_eq!(inst0.get_mnemonic(), MgMnemonic::MgMneBc);
+    assert_eq!(get_mnemonic(inst0.get_mnemonic()), MG_MNE_BC);
     assert_eq!(inst0.get_category(), MgInstructionCategory::BranchJump);
     assert_eq!(inst0.is_conditional(), true);
     assert_ne!(inst0.is_region(), true);
     assert_eq!(inst0.get_operand_num(), 1);
 
-    assert_eq!(inst1.get_mnemonicid(), Some(MgMnemonic::MgMneBalc));
+    assert_eq!(inst1.get_mnemonic(), MgMnemonic::MgMneBalc);
     assert_eq!(inst1.is_conditional(), true);
     assert_ne!(inst1.is_region(), true);
     assert_eq!(inst1.get_operand_num(), 1);
     assert_eq!(inst1.get_category(), MgInstructionCategory::BranchJump);
-    assert_eq!(get_mnemonic(inst1.get_mnemonicid().unwrap()), MG_MNE_BALC);
+    assert_eq!(get_mnemonic(inst1.get_mnemonic()), MG_MNE_BALC);
 
     //Load and store instructions from cop2
     decoder.version = MgMipsVersion::M32(MgMips32::MgPreR6);
@@ -304,8 +308,8 @@ fn test_bc_balc(){
     assert_ne!(inst1.get_category(), MgInstructionCategory::BranchJump);
     assert_ne!(inst0.is_conditional(), true);
     assert_ne!(inst0.is_region(), true);
-    assert_eq!(inst0.get_mnemonicid(), Some(MgMnemonic::MgMneLwc2));
-    assert_eq!(inst1.get_mnemonicid(), Some(MgMnemonic::MgMneSwc2));
+    assert_eq!(inst0.get_mnemonic(), MgMnemonic::MgMneLwc2);
+    assert_eq!(inst1.get_mnemonic(), MgMnemonic::MgMneSwc2);
 }
 #[test]
 fn test_sc_ll(){
@@ -318,13 +322,13 @@ fn test_sc_ll(){
     assert_eq!(decoder.disassemble(machine_code[3], 0).is_err(), true);
 
     assert_eq!(inst0.is_conditional(), true);
-    assert_eq!(inst0.get_mnemonicid().unwrap(), MgMnemonic::MgMneSc);
-    assert_eq!(get_mnemonic(inst0.get_mnemonicid().unwrap()), MG_MNE_SC);
+    assert_eq!(inst0.get_mnemonic(), MgMnemonic::MgMneSc);
+    assert_eq!(get_mnemonic(inst0.get_mnemonic()), MG_MNE_SC);
     assert_eq!(inst0.get_operand_num(), 3);
 
     assert_eq!(inst1.is_conditional(), true);
-    assert_eq!(inst1.get_mnemonicid().unwrap(), MgMnemonic::MgMneLl);
-    assert_eq!(get_mnemonic(inst1.get_mnemonicid().unwrap()), MG_MNE_LL);
+    assert_eq!(inst1.get_mnemonic(), MgMnemonic::MgMneLl);
+    assert_eq!(get_mnemonic(inst1.get_mnemonic()), MG_MNE_LL);
     assert_eq!(inst1.get_operand_num(), 3);
     match inst1.get_operand(0){
         Some(MgOperand::MgOpRegister(_)) => (),
@@ -348,13 +352,13 @@ fn test_sc_ll(){
     assert_eq!(decoder.disassemble(machine_code[1], 0).is_err(), true);
 
     assert_eq!(inst0.is_conditional(), true);
-    assert_eq!(inst0.get_mnemonicid().unwrap(), MgMnemonic::MgMneSc);
-    assert_eq!(get_mnemonic(inst0.get_mnemonicid().unwrap()), MG_MNE_SC);
+    assert_eq!(inst0.get_mnemonic(), MgMnemonic::MgMneSc);
+    assert_eq!(get_mnemonic(inst0.get_mnemonic()), MG_MNE_SC);
     assert_eq!(inst0.get_operand_num(), 3);
 
     assert_eq!(inst1.is_conditional(), true);
-    assert_eq!(inst1.get_mnemonicid().unwrap(), MgMnemonic::MgMneLl);
-    assert_eq!(get_mnemonic(inst1.get_mnemonicid().unwrap()), MG_MNE_LL);
+    assert_eq!(inst1.get_mnemonic(), MgMnemonic::MgMneLl);
+    assert_eq!(get_mnemonic(inst1.get_mnemonic()), MG_MNE_LL);
     assert_eq!(inst1.get_operand_num(), 3);
     match inst1.get_operand(0){
         Some(MgOperand::MgOpRegister(_)) => (),
@@ -383,10 +387,10 @@ fn test_load_store_cp2(){
     let inst6 = decoder.disassemble(machine_code[6], 0);
     let inst7 = decoder.disassemble(machine_code[7], 0);
 
-    assert_eq!(inst0.get_mnemonicid(), Some(MgMnemonic::MgMneLwc2));
-    assert_eq!(inst1.get_mnemonicid(), Some(MgMnemonic::MgMneSwc2));
-    assert_eq!(inst2.get_mnemonicid(), Some(MgMnemonic::MgMneLdc2));
-    assert_eq!(inst3.get_mnemonicid(), Some(MgMnemonic::MgMneSdc2));
+    assert_eq!(inst0.get_mnemonic(), MgMnemonic::MgMneLwc2);
+    assert_eq!(inst1.get_mnemonic(), MgMnemonic::MgMneSwc2);
+    assert_eq!(inst2.get_mnemonic(), MgMnemonic::MgMneLdc2);
+    assert_eq!(inst3.get_mnemonic(), MgMnemonic::MgMneSdc2);
 
     //Will fail
     assert_eq!(inst4.is_err(), true);    //Ldc2
@@ -406,15 +410,15 @@ fn test_load_store_cp2(){
     let inst6 = decoder.disassemble(machine_code[6], 0).unwrap();
     let inst7 = decoder.disassemble(machine_code[7], 0).unwrap();
 
-    assert_eq!(inst0.get_mnemonicid(), Some(MgMnemonic::MgMneBc));
-    assert_eq!(inst1.get_mnemonicid(), Some(MgMnemonic::MgMneBalc));
-    assert_eq!(inst2.get_mnemonicid(), Some(MgMnemonic::MgMneJic));
-    assert_eq!(inst3.get_mnemonicid(), Some(MgMnemonic::MgMneJialc));
+    assert_eq!(inst0.get_mnemonic(), MgMnemonic::MgMneBc);
+    assert_eq!(inst1.get_mnemonic(), MgMnemonic::MgMneBalc);
+    assert_eq!(inst2.get_mnemonic(), MgMnemonic::MgMneJic);
+    assert_eq!(inst3.get_mnemonic(), MgMnemonic::MgMneJialc);
 
-    assert_eq!(inst4.get_mnemonicid(), Some(MgMnemonic::MgMneLdc2));
-    assert_eq!(inst5.get_mnemonicid(), Some(MgMnemonic::MgMneLwc2));
-    assert_eq!(inst6.get_mnemonicid(), Some(MgMnemonic::MgMneSdc2));
-    assert_eq!(inst7.get_mnemonicid(), Some(MgMnemonic::MgMneSwc2));
+    assert_eq!(inst4.get_mnemonic(), MgMnemonic::MgMneLdc2);
+    assert_eq!(inst5.get_mnemonic(), MgMnemonic::MgMneLwc2);
+    assert_eq!(inst6.get_mnemonic(), MgMnemonic::MgMneSdc2);
+    assert_eq!(inst7.get_mnemonic(), MgMnemonic::MgMneSwc2);
 }
 
 #[test]
@@ -423,12 +427,12 @@ fn test_tne_teq() {
     let mut decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgR6));
     
     //No problem
-    assert_eq!(decoder.disassemble(machine_code[0], 0).unwrap().get_mnemonicid(), Some(MgMnemonic::MgMneTne));
-    assert_eq!(decoder.disassemble(machine_code[1], 0).unwrap().get_mnemonicid(), Some(MgMnemonic::MgMneTeq));
+    assert_eq!(decoder.disassemble(machine_code[0], 0).unwrap().get_mnemonic(), MgMnemonic::MgMneTne);
+    assert_eq!(decoder.disassemble(machine_code[1], 0).unwrap().get_mnemonic(), MgMnemonic::MgMneTeq);
 
     decoder.version = MgMipsVersion::M32(MgMips32::MgPreR6);
-    assert_eq!(decoder.disassemble(machine_code[0], 0).unwrap().get_mnemonicid(), Some(MgMnemonic::MgMneTne));
-    assert_eq!(decoder.disassemble(machine_code[1], 0).unwrap().get_mnemonicid(), Some(MgMnemonic::MgMneTeq));
+    assert_eq!(decoder.disassemble(machine_code[0], 0).unwrap().get_mnemonic(), MgMnemonic::MgMneTne);
+    assert_eq!(decoder.disassemble(machine_code[1], 0).unwrap().get_mnemonic(), MgMnemonic::MgMneTeq);
 }
 
 #[test]
@@ -437,8 +441,8 @@ fn test_seleqz_selnez() {
     let mut decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgR6));
     
     //No problem
-    assert_eq!(decoder.disassemble(machine_code[0], 0).unwrap().get_mnemonicid(), Some(MgMnemonic::MgMneSeleqz));
-    assert_eq!(decoder.disassemble(machine_code[1], 0).unwrap().get_mnemonicid(), Some(MgMnemonic::MgMneSelnez));
+    assert_eq!(decoder.disassemble(machine_code[0], 0).unwrap().get_mnemonic(), MgMnemonic::MgMneSeleqz);
+    assert_eq!(decoder.disassemble(machine_code[1], 0).unwrap().get_mnemonic(), MgMnemonic::MgMneSelnez);
     assert_eq!(decoder.disassemble(machine_code[0], 0).unwrap().is_conditional(), true);
     assert_eq!(decoder.disassemble(machine_code[1], 0).unwrap().is_conditional(), true);
     
