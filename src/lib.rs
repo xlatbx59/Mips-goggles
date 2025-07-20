@@ -3,9 +3,13 @@
 //Link to repo: https://github.com/xlatbx59/mips-goggles
 
 #![no_std]
+///Self explanatory
 pub mod instruction;
+///Where all the magic happens but self explanatory ;)
 pub mod disassembler;
+///Self explanatory
 pub mod operands;
+///Self explanatory
 pub mod error;
 mod test;
 mod utils;

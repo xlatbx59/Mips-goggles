@@ -31,7 +31,7 @@ pub enum MgCoprocessor{
 }
 
 #[derive(Debug)]
-pub (crate) struct MgInstructionContext{
+pub (crate) struct MgInstructionPrototype{
     pub address: u64,
     pub mnemonic: Option<MgMnemonic>,
     pub opcode: u8,
@@ -68,7 +68,7 @@ pub struct MgInstruction{
 }
 
 impl MgInstruction{
-    pub (crate) fn new_instruction(context: MgInstructionContext) -> Result<MgInstruction, MgError>{
+    pub (crate) fn new_instruction(context: MgInstructionPrototype) -> Result<MgInstruction, MgError>{
         let Some(mnemonic) = context.mnemonic else{
             return Err(MgError::throw_error(MgErrorCode::DevError, context.opcode, context.address, context.machine_code))
         };

@@ -13,11 +13,11 @@ use FieldInfos;
 //TODO: Je dois mettre les bonnes exceptions
 //TODO: Dans le Release1 mfmc0 avait une autre exception, je dois rajouter les versions pour ça
 impl MgDisassembler{
-    pub (super) fn no_instructions(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub (super) fn no_instructions(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         Err(MgError::throw_error(MgErrorCode::NoInstruction, context.opcode, context.address, context.machine_code))
     }
-    pub (super) fn special_opcode_map(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
-        static SPECIAL_MAP: [fn(disassembler: &MgDisassembler, &mut MgInstructionContext) -> Result<(), MgError>; 64] = [
+    pub (super) fn special_opcode_map(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        static SPECIAL_MAP: [fn(disassembler: &MgDisassembler, &mut MgInstructionPrototype) -> Result<(), MgError>; 64] = [
         MgDisassembler::sll,  MgDisassembler::movci,  MgDisassembler::srl_sra,  MgDisassembler::srl_sra,  MgDisassembler::sllv,  MgDisassembler::no_instructions,  MgDisassembler::srlv_srav,  MgDisassembler::srlv_srav,
         MgDisassembler::jr,  MgDisassembler::jalr,  MgDisassembler::movn_movz,  MgDisassembler::movn_movz,  MgDisassembler::syscall_break,  MgDisassembler::syscall_break,  MgDisassembler::no_instructions,  MgDisassembler::sync,
         MgDisassembler::mfhi_mflo,  MgDisassembler::mthi_mtlo,  MgDisassembler::mfhi_mflo,  MgDisassembler::mthi_mtlo,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
@@ -29,7 +29,7 @@ impl MgDisassembler{
 
         SPECIAL_MAP[(context.machine_code & 0b111111) as usize](self, context)
     }
-    pub (super) fn regimm_opcode_map(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub (super) fn regimm_opcode_map(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let imm_order: usize;
         let rs: Option<FieldInfos>;
         static MENMONICS: [[Option<MgMnemonic>; 8]; 4] =
@@ -75,11 +75,11 @@ impl MgDisassembler{
 
         return MgDisassembler::imm_format(self, context, rs, None, Some(FieldInfos::default_imm_field(imm_order)))
     }
-    pub (super) fn special2_opcode_map(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub (super) fn special2_opcode_map(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let MgMipsVersion::M32(MgMips32::MgR6) = self.version else{
             return Err(MgError::throw_error(MgErrorCode::VersionError, context.opcode, context.address, context.machine_code))
         };
-        static SPECIAL2_MAP: [fn(disassembler: &MgDisassembler, &mut MgInstructionContext) -> Result<(), MgError>; 64] = 
+        static SPECIAL2_MAP: [fn(disassembler: &MgDisassembler, &mut MgInstructionPrototype) -> Result<(), MgError>; 64] = 
             [   MgDisassembler::madd_maddu,  MgDisassembler::madd_maddu,  MgDisassembler::mul,  MgDisassembler::no_instructions,  MgDisassembler::msub_msubu,  MgDisassembler::msub_msubu,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
                 MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
                 MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
@@ -90,8 +90,8 @@ impl MgDisassembler{
                 MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::sdbbp ];
         SPECIAL2_MAP[(context.machine_code & 0b111111) as usize](self, context)
     }
-    pub (super) fn special3_opcode_map(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
-        static SPECIAL3_MAP: [fn(disassembler: &MgDisassembler, &mut MgInstructionContext) -> Result<(), MgError>; 64] = 
+    pub (super) fn special3_opcode_map(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        static SPECIAL3_MAP: [fn(disassembler: &MgDisassembler, &mut MgInstructionPrototype) -> Result<(), MgError>; 64] = 
             [   MgDisassembler::ext,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::ins,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
                 MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
                 MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
@@ -103,8 +103,8 @@ impl MgDisassembler{
         
         SPECIAL3_MAP[(context.machine_code & 0b111111) as usize](self, context)
     }
-    pub (super) fn cop0_opcode_map(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
-        static COP0_MAP: [fn(disassembler: &MgDisassembler, &mut MgInstructionContext) -> Result<(), MgError>; 32] =
+    pub (super) fn cop0_opcode_map(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        static COP0_MAP: [fn(disassembler: &MgDisassembler, &mut MgInstructionPrototype) -> Result<(), MgError>; 32] =
             [   MgDisassembler::mov_cp0,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::mov_cp0,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
                 MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::gpr_shadowset,  MgDisassembler::mfmc0,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::gpr_shadowset,  MgDisassembler::no_instructions,
                 MgDisassembler::c0,  MgDisassembler::c0,  MgDisassembler::c0,  MgDisassembler::c0,  MgDisassembler::c0,  MgDisassembler::c0,  MgDisassembler::c0,  MgDisassembler::c0,
@@ -113,8 +113,8 @@ impl MgDisassembler{
         // context.coprocessor = MgCoprocessor::Cp0;
         COP0_MAP[(context.machine_code >> 21 & 0b11111) as usize](self, context)
     }
-    pub (super) fn cop1_opcode_map(&self, _instruction: &mut MgInstructionContext) -> Result<(), MgError>{
-        static _COP1_MAP: [fn(disassembler: &MgDisassembler, &mut MgInstructionContext) -> Result<(), MgError>; 64] =
+    pub (super) fn cop1_opcode_map(&self, _instruction: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        static _COP1_MAP: [fn(disassembler: &MgDisassembler, &mut MgInstructionPrototype) -> Result<(), MgError>; 64] =
         [   MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
             MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
             MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
@@ -127,8 +127,8 @@ impl MgDisassembler{
 
         // COP1_MAP[(context.machine_code >> 26) as usize](context)
     }
-    pub (super) fn cop2_opcode_map(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
-        static COP2_MAP: [fn(disassembler: &MgDisassembler, &mut MgInstructionContext) -> Result<(), MgError>; 64] = 
+    pub (super) fn cop2_opcode_map(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        static COP2_MAP: [fn(disassembler: &MgDisassembler, &mut MgInstructionPrototype) -> Result<(), MgError>; 64] = 
         [   MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
             MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::load_store_cp2,  MgDisassembler::load_store_cp2,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::load_store_cp2,  MgDisassembler::load_store_cp2,
             MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
@@ -139,11 +139,11 @@ impl MgDisassembler{
             MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions ];
         return COP2_MAP[(context.machine_code >> 21 & 0b11111) as usize](self, context)
     }
-    pub (super) fn cop1x_opcode_map(&self,context : &mut MgInstructionContext) -> Result<(), MgError>{
+    pub (super) fn cop1x_opcode_map(&self,context : &mut MgInstructionPrototype) -> Result<(), MgError>{
         let MgMipsVersion::M32(MgMips32::MgR6) = self.version else{
             return Err(MgError::throw_error(MgErrorCode::VersionError, context.opcode, context.address, context.machine_code))
         };
-        static _COP1X_MAP: [fn(disassembler: &MgDisassembler, &mut MgInstructionContext) -> Result<(), MgError>; 64] = 
+        static _COP1X_MAP: [fn(disassembler: &MgDisassembler, &mut MgInstructionPrototype) -> Result<(), MgError>; 64] = 
         [   MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
             MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
             MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
@@ -157,11 +157,11 @@ impl MgDisassembler{
         // context.coprocessor = MgCoprocessor::Cp1x;
         // _COP1X_MAP[(context.machine_code >> 26) as usize](context)
     }
-    pub (super) fn pcrel_opcode_map(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub (super) fn pcrel_opcode_map(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let MgMipsVersion::M32(MgMips32::MgR6) = self.version else{
             return Err(MgError::throw_error(MgErrorCode::VersionError, context.opcode, context.address, context.machine_code))
         };
-        static PCREL_MAP: [fn(disassembler: &MgDisassembler, &mut MgInstructionContext) -> Result<(), MgError>; 32] =[   
+        static PCREL_MAP: [fn(disassembler: &MgDisassembler, &mut MgInstructionPrototype) -> Result<(), MgError>; 32] =[   
             MgDisassembler::addiupc,  MgDisassembler::addiupc,  MgDisassembler::lwpc,  MgDisassembler::lwpc,  MgDisassembler::lwupc,  MgDisassembler::lwupc,  MgDisassembler::ldpc,  MgDisassembler::no_instructions,
             MgDisassembler::addiupc,  MgDisassembler::addiupc,  MgDisassembler::lwpc,  MgDisassembler::lwpc,  MgDisassembler::lwupc,  MgDisassembler::lwupc,  MgDisassembler::ldpc,  MgDisassembler::no_instructions,
             MgDisassembler::addiupc,  MgDisassembler::addiupc,  MgDisassembler::lwpc,  MgDisassembler::lwpc,  MgDisassembler::lwupc,  MgDisassembler::lwupc,  MgDisassembler::ldpc,  MgDisassembler::auipc,
@@ -181,15 +181,15 @@ impl MgDisassembler{
     //Opcode handlers
 
     //Default opcode field handlers
-    pub(super) fn j(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn j(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         context.mnemonic = Some(MgMnemonic::MgMneJ);
         MgDisassembler::jump_format(self, context)
     }
-    pub(super) fn jal(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn jal(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         context.mnemonic = Some(MgMnemonic::MgMneJal);
         MgDisassembler::jump_format(self, context)
     }
-    pub(super) fn beq(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn beq(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let rs: FieldInfos = FieldInfos::default_reg_field(0, MgCoprocessor::Cpu);    
         let rt: FieldInfos = FieldInfos::default_reg_field(1, MgCoprocessor::Cpu);    
 
@@ -200,7 +200,7 @@ impl MgDisassembler{
         
         return MgDisassembler::imm_format(self, context, Some(rs), Some(rt), Some(FieldInfos::default_imm_field(2)));
     }
-    pub(super) fn bne(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn bne(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let rs: FieldInfos = FieldInfos::default_reg_field(0, MgCoprocessor::Cpu);    
         let rt: FieldInfos = FieldInfos::default_reg_field(1, MgCoprocessor::Cpu);    
 
@@ -211,7 +211,7 @@ impl MgDisassembler{
         
         return MgDisassembler::imm_format(self, context, Some(rs), Some(rt), Some(FieldInfos::default_imm_field(2)));
     }
-    pub(super) fn blez_pop06(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn blez_pop06(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let rs: Option<FieldInfos>;
         let rt: Option<FieldInfos>;    
         let imm: Option<FieldInfos>;    
@@ -250,7 +250,7 @@ impl MgDisassembler{
         
         return MgDisassembler::imm_format(self, context, rs, rt, imm);
     }
-    pub(super) fn bgtz_pop07(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn bgtz_pop07(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let rs: Option<FieldInfos>;
         let rt: Option<FieldInfos>;    
         let imm: Option<FieldInfos>;    
@@ -289,7 +289,7 @@ impl MgDisassembler{
         
         return MgDisassembler::imm_format(self, context, rs, rt, imm);
     }
-    pub(super) fn addi_addiu(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn addi_addiu(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let rs: FieldInfos = FieldInfos::default_reg_field(1, MgCoprocessor::Cpu);    
         let rt: FieldInfos = FieldInfos::default_reg_field(0, MgCoprocessor::Cpu);    
         let sa: FieldInfos = FieldInfos::default_imm_field(2);
@@ -304,7 +304,7 @@ impl MgDisassembler{
         context.category = Some(MgInstructionCategory::Arithmetic);
         return MgDisassembler::imm_format(self, context, Some(rs), Some(rt), Some(sa));
     }
-    pub(super) fn slti_sltiu(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn slti_sltiu(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let rs: FieldInfos = FieldInfos::default_reg_field(1, MgCoprocessor::Cpu);    
         let rt: FieldInfos = FieldInfos::default_reg_field(0, MgCoprocessor::Cpu);    
         let sa: FieldInfos = FieldInfos::default_imm_field(2);
@@ -318,7 +318,7 @@ impl MgDisassembler{
 
         return MgDisassembler::imm_format(self, context, Some(rs), Some(rt), Some(sa));
     }
-    pub(super) fn andi(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn andi(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let rs: FieldInfos = FieldInfos::default_reg_field(1, MgCoprocessor::Cpu);    
         let rt: FieldInfos = FieldInfos::default_reg_field(0, MgCoprocessor::Cpu);    
         let sa: FieldInfos = FieldInfos::default_imm_field(2);
@@ -328,7 +328,7 @@ impl MgDisassembler{
 
         return MgDisassembler::imm_format(self, context, Some(rs), Some(rt), Some(sa));
     }
-    pub(super) fn ori(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn ori(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let rs: FieldInfos = FieldInfos::default_reg_field(1, MgCoprocessor::Cpu);    
         let rt: FieldInfos = FieldInfos::default_reg_field(0, MgCoprocessor::Cpu);    
         let sa: FieldInfos = FieldInfos::default_imm_field(2);
@@ -338,7 +338,7 @@ impl MgDisassembler{
         
         return MgDisassembler::imm_format(self, context, Some(rs), Some(rt), Some(sa));
     }
-    pub(super) fn xori(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn xori(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let rs: FieldInfos = FieldInfos::default_reg_field(1, MgCoprocessor::Cpu);    
         let rt: FieldInfos = FieldInfos::default_reg_field(0, MgCoprocessor::Cpu);    
         let sa: FieldInfos = FieldInfos::default_imm_field(2);
@@ -348,7 +348,7 @@ impl MgDisassembler{
         
         return MgDisassembler::imm_format(self, context, Some(rs), Some(rt), Some(sa));
     }
-    pub(super) fn lui(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn lui(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let rt: FieldInfos = FieldInfos::default_reg_field(0, MgCoprocessor::Cpu);    
         let sa: FieldInfos = FieldInfos::default_imm_field(1);
 
@@ -357,7 +357,7 @@ impl MgDisassembler{
 
         return MgDisassembler::imm_format(self, context, Some(FieldInfos::default_fixed_field()), Some(rt), Some(sa));
     }
-    pub(super) fn beql(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn beql(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let MgMipsVersion::M32(MgMips32::MgR6) = self.version else{
             return Err(MgError::throw_error(MgErrorCode::VersionError, context.opcode, context.address, context.machine_code))
         };
@@ -372,7 +372,7 @@ impl MgDisassembler{
         
         return MgDisassembler::imm_format(self, context, Some(rs), Some(rt), Some(imm));
     }
-    pub(super) fn bnel(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn bnel(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let MgMipsVersion::M32(MgMips32::MgR6) = self.version else{
             return Err(MgError::throw_error(MgErrorCode::VersionError, context.opcode, context.address, context.machine_code))
         };
@@ -387,7 +387,7 @@ impl MgDisassembler{
         
         return MgDisassembler::imm_format(self, context, Some(rs), Some(rt), Some(imm));
     }
-    pub(super) fn blezl(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn blezl(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let MgMipsVersion::M32(MgMips32::MgR6) = self.version else{
             return Err(MgError::throw_error(MgErrorCode::VersionError, context.opcode, context.address, context.machine_code))
         };
@@ -398,7 +398,7 @@ impl MgDisassembler{
         let rs: FieldInfos = FieldInfos::default_reg_field(0, MgCoprocessor::Cpu);    
         return MgDisassembler::imm_format(self, context, Some(rs), Some(FieldInfos::default_fixed_field()), Some(FieldInfos::default_imm_field(1)));
     }
-    pub(super) fn bgtzl(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn bgtzl(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let MgMipsVersion::M32(MgMips32::MgR6) = self.version else{
             return Err(MgError::throw_error(MgErrorCode::VersionError, context.opcode, context.address, context.machine_code))
         };
@@ -409,14 +409,14 @@ impl MgDisassembler{
         let rs: FieldInfos = FieldInfos::default_reg_field(0, MgCoprocessor::Cpu);    
         return MgDisassembler::imm_format(self, context, Some(rs), Some(FieldInfos::default_fixed_field()), Some(FieldInfos::default_imm_field(1)));
     }
-    pub(super) fn jalx(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn jalx(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let MgMipsVersion::M32(MgMips32::MgR6) = self.version else{
             return Err(MgError::throw_error(MgErrorCode::VersionError, context.opcode, context.address, context.machine_code))
         };
         context.mnemonic = Some(MgMnemonic::MgMneJalx);
         MgDisassembler::jump_format(self, context)
     }
-    pub (super) fn lwr_swr_lwl_swl(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub (super) fn lwr_swr_lwl_swl(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let mnemonics_id: [[Option<MgMnemonic>; 2]; 2]=[[Some(MgMnemonic::MgMneLwl), Some(MgMnemonic::MgMneSwl)], [Some(MgMnemonic::MgMneLwr), Some(MgMnemonic::MgMneSwr)]];
         let base: FieldInfos = FieldInfos::default_reg_field(2, MgCoprocessor::Cpu);
         let rt = FieldInfos::default_reg_field(0, MgCoprocessor::Cpu);
@@ -435,7 +435,7 @@ impl MgDisassembler{
 
         return MgDisassembler::imm_format(self, context, Some(base), Some(rt), Some(FieldInfos::default_imm_field(1)))
     }
-    pub(super) fn bovc_bnvc(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn bovc_bnvc(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         if let MgMipsVersion::M32(MgMips32::MgPreR6) = self.version{
             return if context.opcode & 0b010000 == 0{
                 self.addi_addiu(context)
@@ -454,7 +454,7 @@ impl MgDisassembler{
         context.category = Some(MgInstructionCategory::BranchJump);
         return MgDisassembler::imm_format(self, context, Some(FieldInfos::default_reg_field(0, MgCoprocessor::Cpu)), Some(FieldInfos::default_reg_field(1, MgCoprocessor::Cpu)), Some(FieldInfos::default_imm_field(2)))
     }
-    pub(super) fn jic_jialc(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn jic_jialc(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         if let MgMipsVersion::M32(MgMips32::MgPreR6) = self.version{
             return self.load_store_cp2(context)
         };
@@ -467,7 +467,7 @@ impl MgDisassembler{
         context.category = Some(MgInstructionCategory::BranchJump);
         return MgDisassembler::imm_format(self, context, Some(FieldInfos::default_fixed_field()), Some(FieldInfos::default_reg_field(0, MgCoprocessor::Cpu)), Some(FieldInfos::default_imm_field(1)))
     }
-    pub(super) fn bc_balc(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn bc_balc(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         if let MgMipsVersion::M32(MgMips32::MgPreR6) = self.version{
             return self.load_store_cp2(context)
         };
@@ -487,15 +487,15 @@ impl MgDisassembler{
 
         Ok(())
     }
-    pub(super) fn load_store_cp2(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
-        let mnemonic_id: [[Option<MgMnemonic>; 2]; 2] = [[Some(MgMnemonic::MgMneLwc2), Some(MgMnemonic::MgMneSwc2)], [Some(MgMnemonic::MgMneLdc2), Some(MgMnemonic::MgMneSdc2)]];
+    pub(super) fn load_store_cp2(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        let mnemonic: [[Option<MgMnemonic>; 2]; 2] = [[Some(MgMnemonic::MgMneLwc2), Some(MgMnemonic::MgMneSwc2)], [Some(MgMnemonic::MgMneLdc2), Some(MgMnemonic::MgMneSdc2)]];
         let base: FieldInfos = FieldInfos::default_reg_field(2, MgCoprocessor::Cpu);
         let rt = FieldInfos::default_reg_field(0, MgCoprocessor::Cp2);
         let imm: Option<FieldInfos>;
 
          match self.version{
             MgMipsVersion::M32(MgMips32::MgR6)=> {
-                (context.mnemonic, context.category) = (mnemonic_id[(context.machine_code >> 23 & 1) as usize][(context.machine_code >> 21 & 1) as usize], Some(if context.machine_code >> 21 & 1 == 0{
+                (context.mnemonic, context.category) = (mnemonic[(context.machine_code >> 23 & 1) as usize][(context.machine_code >> 21 & 1) as usize], Some(if context.machine_code >> 21 & 1 == 0{
                     MgInstructionCategory::Load
                 }else{
                     MgInstructionCategory::Store
@@ -506,7 +506,7 @@ impl MgDisassembler{
                 if context.opcode == 0b010010{
                     return Err(MgError::throw_error(MgErrorCode::VersionError, context.opcode, context.address, context.machine_code))
                 }
-                context.mnemonic = mnemonic_id[(context.opcode >> 2 & 1) as usize][(context.opcode >> 3 & 1) as usize];
+                context.mnemonic = mnemonic[(context.opcode >> 2 & 1) as usize][(context.opcode >> 3 & 1) as usize];
                 context.category = if context.opcode >> 3 & 1 == 0{
                     Some(MgInstructionCategory::Load)
                 }else{
@@ -519,7 +519,7 @@ impl MgDisassembler{
 
         return MgDisassembler::imm_format(self, context, Some(base), Some(rt), imm)
     }
-    pub (super) fn sc_ll(&self, context : &mut MgInstructionContext) -> Result<(), MgError>{
+    pub (super) fn sc_ll(&self, context : &mut MgInstructionPrototype) -> Result<(), MgError>{
         let base: FieldInfos = FieldInfos::default_reg_field(2, MgCoprocessor::Cpu);
         let rt = FieldInfos::default_reg_field(0, MgCoprocessor::Cp2);
         let imm: Option<FieldInfos>;
@@ -560,7 +560,7 @@ impl MgDisassembler{
 
         return MgDisassembler::imm_format(self, context, Some(base), Some(rt), imm)
     }
-    pub(super) fn cpu_loadstore(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn cpu_loadstore(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let base: FieldInfos = FieldInfos::default_reg_field(2, MgCoprocessor::Cpu);
         let rt: FieldInfos;
         let mnemonics: [[Option<MgMnemonic>; 7]; 4] = [
@@ -589,7 +589,7 @@ impl MgDisassembler{
 
         return MgDisassembler::imm_format(self, context, Some(base), Some(rt), Some(FieldInfos::default_imm_field(1)))
     }
-    pub(super) fn cache_pref(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn cache_pref(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let base: FieldInfos = FieldInfos::default_reg_field(2, MgCoprocessor::Cpu);
         let op: FieldInfos = FieldInfos::imm_field(0, 0b11111);
 
@@ -630,7 +630,7 @@ impl MgDisassembler{
     }
 
     //Special
-    pub(super) fn sll(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn sll(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let rs: FieldInfos = FieldInfos::default_fixed_field();
         let rt: FieldInfos;
         let rd: FieldInfos;
@@ -661,7 +661,7 @@ impl MgDisassembler{
         
         MgDisassembler::reg_format(self, context, Some(rs), Some(rt), Some(rd), Some(sa))
     }
-    pub(super) fn movci(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn movci(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         //Reserved Instruction, Coprocessor Unusable
         if (context.machine_code >> 6 & 0b11111) != 0
         ||(context.machine_code >> 17 & 1) != 0{
@@ -681,7 +681,7 @@ impl MgDisassembler{
 
         Ok(())
     }
-    pub(super) fn srl_sra(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn srl_sra(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let rs: FieldInfos = FieldInfos::fixed_field(4, 0b1111);
         let rt: FieldInfos = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
         let rd: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
@@ -702,7 +702,7 @@ impl MgDisassembler{
         context.category = Some(MgInstructionCategory::Shift);
         return MgDisassembler::reg_format(self, context, Some(rs), Some(rt), Some(rd), Some(sa))
     }
-    pub(super) fn sllv(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn sllv(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         context.mnemonic = Some(MgMnemonic::MgMneSllv);
         context.category = Some(MgInstructionCategory::Shift);
 
@@ -713,7 +713,7 @@ impl MgDisassembler{
 
         return MgDisassembler::reg_format(self, context, Some(rs), Some(rt), Some(rd), Some(sa))
     }
-    pub(super) fn srlv_srav(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn srlv_srav(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let sa: FieldInfos = FieldInfos::fixed_field(4, 0b1111);
         let rt: FieldInfos = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
         let rd: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
@@ -734,7 +734,7 @@ impl MgDisassembler{
         context.category = Some(MgInstructionCategory::Shift);
         return MgDisassembler::reg_format(self, context, Some(rs), Some(rt), Some(rd), Some(sa))
     }
-    pub(super) fn jr(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn jr(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let rd: FieldInfos = FieldInfos::fixed_field(4, 0b1111111111);
         let rs: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
 
@@ -749,7 +749,7 @@ impl MgDisassembler{
 
         MgDisassembler::reg_format(self, context, Some(rs), None, Some(rd), None)
     }
-    pub(super) fn jalr(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn jalr(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let rt: FieldInfos = FieldInfos::default_fixed_field();
         let rd: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
         let rs: FieldInfos = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
@@ -765,7 +765,7 @@ impl MgDisassembler{
 
         MgDisassembler::reg_format(self, context, Some(rs), Some(rt), Some(rd), None)
     }
-    pub(super) fn movn_movz(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn movn_movz(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let rs: FieldInfos = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
         let rt: FieldInfos = FieldInfos::reg_field(2, MgCoprocessor::Cpu, MgOperandType::Reg);
         let rd: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
@@ -781,7 +781,7 @@ impl MgDisassembler{
         }
         return MgDisassembler::reg_format(self, context, Some(rs), Some(rt), Some(rd), Some(FieldInfos::default_fixed_field()))
     }
-    pub(super) fn syscall_break(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn syscall_break(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         context.mnemonic = match context.machine_code & 1{
             1 => Some(MgMnemonic::MgMneBreak),
             0 => Some(MgMnemonic::MgMneSyscall),
@@ -793,7 +793,7 @@ impl MgDisassembler{
 
         Ok(())
     }
-    pub(super) fn sync(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn sync(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let rd: FieldInfos = FieldInfos::fixed_field(4, 0b111111111111111);
         let sa: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Imm);
 
@@ -802,7 +802,7 @@ impl MgDisassembler{
         context.category = Some(MgInstructionCategory::MemoryControl);
         MgDisassembler::reg_format(self, context, None, None, Some(rd), Some(sa))
     }
-    pub(super) fn mfhi_mflo(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn mfhi_mflo(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         if let MgMipsVersion::M32(MgMips32::MgR6) = self.version{
             return if context.machine_code & 2 != 0{
                 Err(MgError::throw_error(MgErrorCode::VersionError, context.opcode, context.address, context.machine_code))
@@ -818,7 +818,7 @@ impl MgDisassembler{
 
         MgDisassembler::reg_format(self, context, None, Some(FieldInfos::fixed_field(4, 0b1111111111)), Some(rd), Some(FieldInfos::default_fixed_field()))
     }
-    pub(super) fn mthi_mtlo(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn mthi_mtlo(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         if let MgMipsVersion::M32(MgMips32::MgR6) = self.version{
             return if context.machine_code & 2 != 0{
                 Err(MgError::throw_error(MgErrorCode::VersionError, context.opcode, context.address, context.machine_code))
@@ -834,7 +834,7 @@ impl MgDisassembler{
 
         MgDisassembler::reg_format(self, context, Some(rs), None, None, Some(FieldInfos::fixed_field(4, 0b111111111111111)))
     }
-    pub(super) fn mult_multu_div_divu(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn mult_multu_div_divu(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let rt: FieldInfos = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
         let rs: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
         let mnemonics = [[Some(MgMnemonic::MgMneMult), Some(MgMnemonic::MgMneMultu)], [Some(MgMnemonic::MgMneDiv), Some(MgMnemonic::MgMneDivu)]];
@@ -844,7 +844,7 @@ impl MgDisassembler{
 
         MgDisassembler::reg_format(self, context, Some(rs), Some(rt), None, Some(FieldInfos::fixed_field(4, 0b1111111111)))
     }
-    pub(super) fn add_addu_sub_subu_and_or_xor_nor(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn add_addu_sub_subu_and_or_xor_nor(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let rd: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
         let rt: FieldInfos = FieldInfos::reg_field(2, MgCoprocessor::Cpu, MgOperandType::Reg);
         let rs: FieldInfos = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
@@ -862,7 +862,7 @@ impl MgDisassembler{
 
         MgDisassembler::reg_format(self, context, Some(rs), Some(rt), Some(rd), Some(FieldInfos::default_fixed_field()))
     }
-    pub(super) fn slt_sltu(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn slt_sltu(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let rd: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
         let rt: FieldInfos = FieldInfos::reg_field(2, MgCoprocessor::Cpu, MgOperandType::Reg);
         let rs: FieldInfos = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
@@ -874,7 +874,7 @@ impl MgDisassembler{
 
         MgDisassembler::reg_format(self, context, Some(rs), Some(rt), Some(rd), Some(FieldInfos::default_fixed_field()))
     }
-    pub(super) fn tge_tgeu_tlt_tltu(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn tge_tgeu_tlt_tltu(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let rt: FieldInfos = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
         let rs: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
         let mnemonics = [[Some(MgMnemonic::MgMneTge), Some(MgMnemonic::MgMneTgeu)], [Some(MgMnemonic::MgMneTlt), Some(MgMnemonic::MgMneTltu)]];
@@ -884,7 +884,7 @@ impl MgDisassembler{
 
         MgDisassembler::reg_format(self, context, Some(rs), Some(rt), None, Some(FieldInfos::imm_field(2, 0b1111111111)))
     }
-    pub(super) fn seleqz_selnez(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn seleqz_selnez(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let rd: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
         let rt: FieldInfos = FieldInfos::reg_field(2, MgCoprocessor::Cpu, MgOperandType::Reg);
         let rs: FieldInfos = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
@@ -906,7 +906,7 @@ impl MgDisassembler{
         
         MgDisassembler::reg_format(self, context, Some(rs), Some(rt), Some(rd) , Some(FieldInfos::default_fixed_field()))
     }
-    pub(super) fn teq_tne(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn teq_tne(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let rt: FieldInfos = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
         let rs: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
         
@@ -921,7 +921,7 @@ impl MgDisassembler{
     }
 
     //Special2
-    pub(super) fn madd_maddu(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn madd_maddu(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let rs: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
         let rt: FieldInfos = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
 
@@ -934,7 +934,7 @@ impl MgDisassembler{
 
         MgDisassembler::reg_format(self, context, Some(rs), Some(rt), None, Some(FieldInfos::fixed_field(4, 0b1111111111)))
     }
-    pub(super) fn mul(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn mul(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let rs: FieldInfos = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
         let rt: FieldInfos = FieldInfos::reg_field(2, MgCoprocessor::Cpu, MgOperandType::Reg);
         let rd: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
@@ -944,7 +944,7 @@ impl MgDisassembler{
 
         MgDisassembler::reg_format(self, context, Some(rs), Some(rt), Some(rd), Some(FieldInfos::default_fixed_field()))
     }
-    pub(super) fn msub_msubu(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn msub_msubu(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let rs: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
         let rt: FieldInfos = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
 
@@ -957,7 +957,7 @@ impl MgDisassembler{
 
         MgDisassembler::reg_format(self, context, Some(rs), Some(rt), None, Some(FieldInfos::fixed_field(4, 0b1111111111)))
     }
-    pub(super) fn clz_clo(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn clz_clo(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let rd: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
         let rs: FieldInfos = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
 
@@ -978,7 +978,7 @@ impl MgDisassembler{
             MgDisassembler::reg_format(self, context, Some(rs), None, Some(rd), Some(FieldInfos::default_fixed_field()))
         }
     }
-    pub(super) fn sdbbp(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn sdbbp(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         context.mnemonic = Some(MgMnemonic::MgMneSdbbp);
         context.category = Some(MgInstructionCategory::Trap);
         context.format = Some(MgInstructionFormat::Other);
@@ -988,7 +988,7 @@ impl MgDisassembler{
     }
 
     //Special3 They need some testing
-    pub(super) fn ext(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn ext(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         context.mnemonic = Some(MgMnemonic::MgMneExt);
         context.category = Some(MgInstructionCategory::InsertExtract);
 
@@ -999,7 +999,7 @@ impl MgDisassembler{
         context.operand[3] = Some(MgOpImmediate::new_imm_opreand((context.machine_code >> 11 & 0b11111) as u64));
         Ok(())
     }
-    pub(super) fn ins(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn ins(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         context.mnemonic = Some(MgMnemonic::MgMneIns);
         context.category = Some(MgInstructionCategory::InsertExtract);
 
@@ -1010,7 +1010,7 @@ impl MgDisassembler{
         context.operand[3] = Some(MgOpImmediate::new_imm_opreand((context.machine_code >> 11 & 0b11111) as u64));
         Ok(())
     }
-    pub(super) fn bshfl(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn bshfl(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let rd: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
         let rt: FieldInfos = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
 
@@ -1023,7 +1023,7 @@ impl MgDisassembler{
         
         MgDisassembler::reg_format(self, context, Some(FieldInfos::default_fixed_field()), Some(rt), Some(rd), Some(FieldInfos::default_fixed_field()))
     }
-    pub(super) fn rdhwr(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn rdhwr(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let rt: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
         let rd: FieldInfos = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
         
@@ -1034,7 +1034,7 @@ impl MgDisassembler{
     }
 
     //CP0
-    pub(super) fn mov_cp0(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn mov_cp0(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let mnemonics = [Some(MgMnemonic::MgMneMfc0), Some(MgMnemonic::MgMneMtc0)];
         if (context.machine_code >> 3 & 0b11111111) != 0{
             return Err(MgError::throw_error(MgErrorCode::FieldBadValue, context.opcode, context.address, context.machine_code))
@@ -1050,14 +1050,14 @@ impl MgDisassembler{
         context.operand[2] = Some(MgOpImmediate::new_imm_opreand((context.machine_code & 7) as u64));
         Ok(())
     }
-    pub(super) fn gpr_shadowset(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn gpr_shadowset(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let mnemonics = [Some(MgMnemonic::MgMneRdpgpr), Some(MgMnemonic::MgMneWrpgpr)];
 
         context.category = Some(MgInstructionCategory::Priviledge);
         context.mnemonic = mnemonics[(context.machine_code >> 23 & 1) as usize];
         MgDisassembler::cpx_cpu_transfer_format(self, context, FieldInfos::default_reg_field(1, MgCoprocessor::Cpu), FieldInfos::default_reg_field(0, MgCoprocessor::Cpu))
     }
-    pub(super) fn mfmc0(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn mfmc0(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let mnemonics = [Some(MgMnemonic::MgMneDi), Some(MgMnemonic::MgMneEi)];
 
         if context.machine_code & 0b11111 != 0 ||
@@ -1074,7 +1074,7 @@ impl MgDisassembler{
 
         Ok(())
     }
-    pub(super) fn c0(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub(super) fn c0(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let mnemonics: [[Option<MgMnemonic>; 8]; 8] = [
             [None,  Some(MgMnemonic::MgMneTlbr),  Some(MgMnemonic::MgMneTlbwi),  None,  None,  None,  Some(MgMnemonic::MgMneTlbwr),  None],
             [Some(MgMnemonic::MgMneTlbp),  None,  None,  None,  None,  None,  None,  None],
@@ -1097,32 +1097,32 @@ impl MgDisassembler{
     }
 
     //pcrel
-    pub (super) fn addiupc(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub (super) fn addiupc(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         context.mnemonic = Some(MgMnemonic::MgMneAddiupc);
         context.category = Some(MgInstructionCategory::Arithmetic);
         Ok(())
     }
-    pub (super) fn lwpc(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub (super) fn lwpc(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         context.mnemonic = Some(MgMnemonic::MgMneLwpc);
         context.category = Some(MgInstructionCategory::Load);
         Ok(())
     }
-    pub (super) fn lwupc(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub (super) fn lwupc(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         context.mnemonic = Some(MgMnemonic::MgMneLwupc);
         context.category = Some(MgInstructionCategory::Load);
         Ok(())
     }
-    pub (super) fn aluipc(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub (super) fn aluipc(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         context.mnemonic = Some(MgMnemonic::MgMneAluipc);
         context.category = Some(MgInstructionCategory::Logical);
         Ok(())
     }
-    pub (super) fn ldpc(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{      //The manual didn't have an entry 
+    pub (super) fn ldpc(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{      //The manual didn't have an entry 
         context.mnemonic = Some(MgMnemonic::MgMneLdpc);                                                   //for that instruction but it was mentionned in the Table A.13
         context.category = Some(MgInstructionCategory::Load);
         Ok(())
     }
-    pub (super) fn auipc(&self, context: &mut MgInstructionContext) -> Result<(), MgError>{
+    pub (super) fn auipc(&self, context: &mut MgInstructionPrototype) -> Result<(), MgError>{
         context.mnemonic = Some(MgMnemonic::MgMneAuipc);
         context.category = Some(MgInstructionCategory::Logical);
         Ok(())

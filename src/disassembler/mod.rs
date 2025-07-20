@@ -73,15 +73,41 @@ impl FieldInfos{
 }
 
 impl MgDisassembler{
+    ///Disassembler constructor
+    /// # Example
+    /// 
+    /// ```rust
+    /// use mips_goggles::{*, disassembler::MgDisassembler};
+    /// 
+    /// let decoder = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgPreR6));
+    /// ``````
+    /// 
     pub fn new_disassembler(version: MgMipsVersion) -> MgDisassembler{
         MgDisassembler{
             version
         }
     }
-    //Opcode handlers map
+    /// # Example
+    /// 
+    /// ```rust
+    /// use mips_goggles::{*, disassembler::MgDisassembler, instruction::mnemonics::*};
+    /// 
+    /// let mut decoder = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgPreR6));
+    /// match decoder.disassemble(0x23440050, 0x00400000){
+    ///     Ok(inst) => assert_eq!(inst.get_mnemonic(), MgMnemonic::MgMneAddi),                        //addi
+    ///     Err(e) => eprintln!("{}", e),
+    /// }
+    ///
+    /// decoder.version = MgMipsVersion::M32(MgMips32::MgR6);
+    /// match decoder.disassemble(0x23440050, 0x00400000){
+    ///     
+    ///     Ok(inst) => assert_eq!(inst.get_mnemonic(), MgMnemonic::MgMneBovc),                        //bovc
+    ///     Err(e) => eprintln!("{}", e),
+    /// }
+    /// ```
     pub fn disassemble(&self, memory: u32, address: u64) -> Result<MgInstruction, MgError>{
         //Une map qui réunit tous les handlers des opcodes, il y a d'autre map dans cette map
-        const OPCODE_MAP: [fn (disass: &MgDisassembler, instruction: &mut MgInstructionContext) -> Result<(), MgError>; 64] = [
+        const OPCODE_MAP: [fn (disass: &MgDisassembler, instruction: &mut MgInstructionPrototype) -> Result<(), MgError>; 64] = [
             MgDisassembler::special_opcode_map, MgDisassembler::regimm_opcode_map, MgDisassembler::j, MgDisassembler::jal, MgDisassembler::beq, MgDisassembler::bne,  MgDisassembler::blez_pop06,  MgDisassembler::bgtz_pop07,
             MgDisassembler::bovc_bnvc,  MgDisassembler::addi_addiu,  MgDisassembler::slti_sltiu,  MgDisassembler::slti_sltiu,  MgDisassembler::andi,  MgDisassembler::ori,  MgDisassembler::xori,  MgDisassembler::lui,
             MgDisassembler::cop0_opcode_map,  MgDisassembler::cop1_opcode_map,  MgDisassembler::cop2_opcode_map,  MgDisassembler::cop1x_opcode_map,  MgDisassembler::beql,  MgDisassembler::bnel,  MgDisassembler::blezl,  MgDisassembler::bgtzl,
@@ -91,7 +117,7 @@ impl MgDisassembler{
             MgDisassembler::sc_ll,  MgDisassembler::cpu_loadstore,  MgDisassembler::bc_balc,  MgDisassembler::cache_pref,  MgDisassembler::no_instructions, MgDisassembler::cpu_loadstore, MgDisassembler::jic_jialc,  MgDisassembler::no_instructions,
             MgDisassembler::sc_ll,  MgDisassembler::cpu_loadstore,  MgDisassembler::bc_balc,  MgDisassembler::pcrel_opcode_map,  MgDisassembler::no_instructions,  MgDisassembler::cpu_loadstore,  MgDisassembler::jic_jialc,  MgDisassembler::no_instructions];
 
-        let mut instruction: MgInstructionContext = MgInstructionContext{
+        let mut prototype: MgInstructionPrototype = MgInstructionPrototype{
             category: None,
             format: None,
             operand_num: 0,
@@ -114,33 +140,33 @@ impl MgDisassembler{
             address,
         };
         
-        return match OPCODE_MAP[(memory >> 26) as usize](self, &mut instruction) {
+        return match OPCODE_MAP[(memory >> 26) as usize](self, &mut prototype) {
             Err(e) => Err(e),
             Ok(()) => {
-                match MgInstruction::new_instruction(instruction){
+                match MgInstruction::new_instruction(prototype){
                     Ok(i) => Ok(i),
                     Err(e) => return Err(e),
                 }
             },
         }
     }
-    fn reg_format(&self, instruction: &mut MgInstructionContext, rs: Option<FieldInfos>, rt: Option<FieldInfos>, rd: Option<FieldInfos>, sa: Option<FieldInfos>) -> Result<(), MgError>{
-        instruction.format = Some(MgInstructionFormat::Reg);
+    fn reg_format(&self, prototype: &mut MgInstructionPrototype, rs: Option<FieldInfos>, rt: Option<FieldInfos>, rd: Option<FieldInfos>, sa: Option<FieldInfos>) -> Result<(), MgError>{
+        prototype.format = Some(MgInstructionFormat::Reg);
 
         //Rs field
         if let Some(field) = rs{
-            let field_mask_result = instruction.machine_code >> 21 & field.mask;
+            let field_mask_result = prototype.machine_code >> 21 & field.mask;
             if field.fixed == false{
                 if let Some(op_type) = field.op_type {
-                    instruction.operand[field.operand_order] = match op_type{
+                    prototype.operand[field.operand_order] = match op_type{
                         MgOperandType::Imm =>{
-                            instruction.operand_num += 1;
+                            prototype.operand_num += 1;
                             Some(MgOpImmediate::new_imm_opreand(field_mask_result as u64))
                         },
                         MgOperandType::Reg => {
-                            instruction.operand_num += 1;
+                            prototype.operand_num += 1;
                             let Some(cop) = field.coprocessor else{
-                                return Err(MgError::throw_error(MgErrorCode::DevError, instruction.opcode, instruction.address, instruction.machine_code))
+                                return Err(MgError::throw_error(MgErrorCode::DevError, prototype.opcode, prototype.address, prototype.machine_code))
                             };
                             Some(MgOpRegister::new_reg_opreand(field_mask_result as u8, cop))
                         },
@@ -148,23 +174,23 @@ impl MgDisassembler{
                 }
             }
             else if field_mask_result != 0{
-                return Err(MgError::throw_error(MgErrorCode::FieldBadValue, instruction.opcode, instruction.address, instruction.machine_code))
+                return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
             }
         }
         //Rt field
         if let Some(field) = rt{
-            let field_mask_result = instruction.machine_code >> 16 & field.mask;
+            let field_mask_result = prototype.machine_code >> 16 & field.mask;
             if field.fixed == false{
                 if let Some(op_type) = field.op_type {
-                    instruction.operand[field.operand_order] = match op_type{
+                    prototype.operand[field.operand_order] = match op_type{
                         MgOperandType::Imm =>{
-                            instruction.operand_num += 1;
+                            prototype.operand_num += 1;
                             Some(MgOpImmediate::new_imm_opreand(field_mask_result as u64))
                         },
                         MgOperandType::Reg => {
-                            instruction.operand_num += 1;
+                            prototype.operand_num += 1;
                             let Some(cop) = field.coprocessor else{
-                                return Err(MgError::throw_error(MgErrorCode::DevError, instruction.opcode, instruction.address, instruction.machine_code))
+                                return Err(MgError::throw_error(MgErrorCode::DevError, prototype.opcode, prototype.address, prototype.machine_code))
                             };
                             Some(MgOpRegister::new_reg_opreand(field_mask_result as u8, cop))
                         },        
@@ -172,23 +198,23 @@ impl MgDisassembler{
                 }
             }
             else if field_mask_result != 0{
-                return Err(MgError::throw_error(MgErrorCode::FieldBadValue, instruction.opcode, instruction.address, instruction.machine_code))
+                return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
             }
         }
         //Rd field
         if let Some(field) = rd{
-            let field_mask_result = instruction.machine_code >> 11 & field.mask;
+            let field_mask_result = prototype.machine_code >> 11 & field.mask;
             if field.fixed == false{
                 if let Some(op_type) = field.op_type {
-                    instruction.operand[field.operand_order] = match op_type{
+                    prototype.operand[field.operand_order] = match op_type{
                         MgOperandType::Imm =>{
-                            instruction.operand_num += 1;
+                            prototype.operand_num += 1;
                             Some(MgOpImmediate::new_imm_opreand(field_mask_result as u64))
                         },
                         MgOperandType::Reg => {
-                            instruction.operand_num += 1;
+                            prototype.operand_num += 1;
                             let Some(cop) = field.coprocessor else{
-                                return Err(MgError::throw_error(MgErrorCode::DevError, instruction.opcode, instruction.address, instruction.machine_code))
+                                return Err(MgError::throw_error(MgErrorCode::DevError, prototype.opcode, prototype.address, prototype.machine_code))
                             };
                             Some(MgOpRegister::new_reg_opreand(field_mask_result as u8, cop))
                         },        
@@ -196,23 +222,23 @@ impl MgDisassembler{
                 }
             }
             else if field_mask_result != 0{
-                return Err(MgError::throw_error(MgErrorCode::FieldBadValue, instruction.opcode, instruction.address, instruction.machine_code))
+                return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
             }
         }
         //Sa field
         if let Some(field) = sa{
-            let field_mask_result = instruction.machine_code >> 6 & field.mask;
+            let field_mask_result = prototype.machine_code >> 6 & field.mask;
             if field.fixed == false{
                 if let Some(op_type) = field.op_type {
-                    instruction.operand[field.operand_order] = match op_type{
+                    prototype.operand[field.operand_order] = match op_type{
                         MgOperandType::Imm =>{
-                            instruction.operand_num += 1;
+                            prototype.operand_num += 1;
                             Some(MgOpImmediate::new_imm_opreand(field_mask_result as u64))
                         },
                         MgOperandType::Reg => {
-                            instruction.operand_num += 1;
+                            prototype.operand_num += 1;
                             let Some(cop) = field.coprocessor else{
-                                return Err(MgError::throw_error(MgErrorCode::DevError, instruction.opcode, instruction.address, instruction.machine_code))
+                                return Err(MgError::throw_error(MgErrorCode::DevError, prototype.opcode, prototype.address, prototype.machine_code))
                             };
                             Some(MgOpRegister::new_reg_opreand(field_mask_result as u8, cop))
                         },        
@@ -220,12 +246,12 @@ impl MgDisassembler{
                 }
             }
             else if field_mask_result != 0{
-                return Err(MgError::throw_error(MgErrorCode::FieldBadValue, instruction.opcode, instruction.address, instruction.machine_code))
+                return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
             }
         }
         Ok(())
     }
-    // fn basic_str_format(instruction: &mut MgInstructionContext) -> Result<(), MgError>{
+    // fn basic_str_format(instruction: &mut MgInstructionPrototype) -> Result<(), MgError>{
     //     let mut hex_num: MgString = MgString::new_lmstring();
     //     let comma: &str = ", ";
 
@@ -249,40 +275,40 @@ impl MgDisassembler{
     //     }
     //     Ok(())
     // }
-    fn cpx_cpu_transfer_format(&self, instruction: &mut MgInstructionContext, rt: FieldInfos, rd: FieldInfos) -> Result<(), MgError>{
-        if (instruction.machine_code & 0b11111111111) != 0{
-            return Err(MgError::throw_error(MgErrorCode::FieldBadValue, instruction.opcode, instruction.address, instruction.machine_code))
+    fn cpx_cpu_transfer_format(&self, prototype: &mut MgInstructionPrototype, rt: FieldInfos, rd: FieldInfos) -> Result<(), MgError>{
+        if (prototype.machine_code & 0b11111111111) != 0{
+            return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
         }
 
-        instruction.format = Some(MgInstructionFormat::CpxCpuTransfer);
+        prototype.format = Some(MgInstructionFormat::CpxCpuTransfer);
 
         let (Some(rd_cop), Some(rt_cop)) = (rd.coprocessor, rt.coprocessor) else{
-            return Err(MgError::throw_error(MgErrorCode::DevError, instruction.opcode, instruction.address, instruction.machine_code))
+            return Err(MgError::throw_error(MgErrorCode::DevError, prototype.opcode, prototype.address, prototype.machine_code))
         };
-        instruction.operand_num = 2;
-        instruction.operand[rd.operand_order] = Some(MgOpRegister::new_reg_opreand((instruction.machine_code >> 11 & rd.mask) as u8, rd_cop));
-        instruction.operand[rt.operand_order] = Some(MgOpRegister::new_reg_opreand((instruction.machine_code >> 16 & rt.mask) as u8, rt_cop));
+        prototype.operand_num = 2;
+        prototype.operand[rd.operand_order] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 11 & rd.mask) as u8, rd_cop));
+        prototype.operand[rt.operand_order] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 16 & rt.mask) as u8, rt_cop));
 
         Ok(())
     }
-    fn imm_format(&self, instruction: &mut MgInstructionContext, rs: Option<FieldInfos>, rt: Option<FieldInfos>, imm: Option<FieldInfos>) -> Result<(), MgError>{
+    fn imm_format(&self, prototype: &mut MgInstructionPrototype, rs: Option<FieldInfos>, rt: Option<FieldInfos>, imm: Option<FieldInfos>) -> Result<(), MgError>{
 
         //Some attributes about the instruction and setting the operands
-        instruction.format = Some(MgInstructionFormat::Imm);
+        prototype.format = Some(MgInstructionFormat::Imm);
         //Rs field
         if let Some(field) = rs{
-            let field_mask_result = instruction.machine_code >> 21 & field.mask;
+            let field_mask_result = prototype.machine_code >> 21 & field.mask;
             if field.fixed == false{
                 if let Some(op_type) = field.op_type {
-                    instruction.operand[field.operand_order] = match op_type{
+                    prototype.operand[field.operand_order] = match op_type{
                         MgOperandType::Imm =>{
-                            instruction.operand_num += 1;
+                            prototype.operand_num += 1;
                             Some(MgOpImmediate::new_imm_opreand(field_mask_result as u64))
                         },
                         MgOperandType::Reg => {
-                            instruction.operand_num += 1;
+                            prototype.operand_num += 1;
                             let Some(cop) = field.coprocessor else{
-                                return Err(MgError::throw_error(MgErrorCode::DevError, instruction.opcode, instruction.address, instruction.machine_code))
+                                return Err(MgError::throw_error(MgErrorCode::DevError, prototype.opcode, prototype.address, prototype.machine_code))
                             };
                             Some(MgOpRegister::new_reg_opreand(field_mask_result as u8, cop))
                         },        
@@ -290,23 +316,23 @@ impl MgDisassembler{
                 }
             }
             else if field_mask_result != 0{
-                return Err(MgError::throw_error(MgErrorCode::FieldBadValue, instruction.opcode, instruction.address, instruction.machine_code))
+                return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
             }
         }
         //Rt field
         if let Some(field) = rt{
-            let field_mask_result = instruction.machine_code >> 16 & field.mask;
+            let field_mask_result = prototype.machine_code >> 16 & field.mask;
             if field.fixed == false{
                 if let Some(op_type) = field.op_type {
-                    instruction.operand[field.operand_order] = match op_type{
+                    prototype.operand[field.operand_order] = match op_type{
                         MgOperandType::Imm =>{
-                            instruction.operand_num += 1;
+                            prototype.operand_num += 1;
                             Some(MgOpImmediate::new_imm_opreand(field_mask_result as u64))
                         },
                         MgOperandType::Reg => {
-                            instruction.operand_num += 1;
+                            prototype.operand_num += 1;
                             let Some(cop) = field.coprocessor else{
-                                return Err(MgError::throw_error(MgErrorCode::DevError, instruction.opcode, instruction.address, instruction.machine_code))
+                                return Err(MgError::throw_error(MgErrorCode::DevError, prototype.opcode, prototype.address, prototype.machine_code))
                             };
                             Some(MgOpRegister::new_reg_opreand(field_mask_result as u8, cop))
                         },        
@@ -314,17 +340,17 @@ impl MgDisassembler{
                 }
             }
             else if field_mask_result != 0{
-                return Err(MgError::throw_error(MgErrorCode::FieldBadValue, instruction.opcode, instruction.address, instruction.machine_code))
+                return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
             }
         }
         //Imm field
         if let Some(imm) = imm{
-            instruction.operand[imm.operand_order] = Some(MgOpImmediate::new_imm_opreand((instruction.machine_code & 0b1111111111111111) as u64));
-            instruction.operand_num += 1;
+            prototype.operand[imm.operand_order] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code & 0b1111111111111111) as u64));
+            prototype.operand_num += 1;
         }
         Ok(())
     }
-    // fn _imm_default_str_format(instruction: &mut MgInstructionContext) -> Result<(), MgError>{
+    // fn _imm_default_str_format(instruction: &mut MgInstructionPrototype) -> Result<(), MgError>{
     //     let mut hex_num: MgString = MgString::new_lmstring();
     //     let comma: &str = ", ";
 
@@ -348,7 +374,7 @@ impl MgDisassembler{
     //     }
     //     Ok(())
     // }
-    // fn _imm_loadstore_str_format(instruction: &mut MgInstructionContext) -> Result<(), MgError>{
+    // fn _imm_loadstore_str_format(instruction: &mut MgInstructionPrototype) -> Result<(), MgError>{
     //     let mut hex_num: MgString = MgString::new_lmstring();
     //     let comma: &str = ", ";
 
@@ -376,14 +402,14 @@ impl MgDisassembler{
     //     instruction.string.append_char(')');
     //     Ok(())
     // }
-    fn jump_format(&self, instruction: &mut MgInstructionContext) -> Result<(), MgError>{
+    fn jump_format(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
 
         //Some attributes about the instruction
-        instruction.format = Some(MgInstructionFormat::Jump);
-        instruction.operand_num = 1 ;
-        instruction.is_region = true;
-        instruction.category = Some(MgInstructionCategory::BranchJump);
-        instruction.operand[0] = Some(MgOpImmediate::new_imm_opreand((instruction.machine_code & 0x3FFFFFF) as u64));
+        prototype.format = Some(MgInstructionFormat::Jump);
+        prototype.operand_num = 1 ;
+        prototype.is_region = true;
+        prototype.category = Some(MgInstructionCategory::BranchJump);
+        prototype.operand[0] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code & 0x3FFFFFF) as u64));
 
         Ok(())
     }
