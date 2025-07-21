@@ -14,6 +14,28 @@ use crate::operands::*;
 use crate::instruction::mnemonics::*;
 
 #[test]
+fn test_ddiv_ddivu(){
+    let machine_code = [0x0044001e, 0x000A001f];
+
+    let mut decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
+
+    let ddiv = decoder.disassemble(machine_code[0], 0).unwrap();
+    let ddivu = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(ddiv.get_category(), MgInstructionCategory::Arithmetic);
+    assert_eq!(ddiv.get_operand_num(), 2);
+
+    assert_eq!(ddiv.get_mnemonic(), MgMnemonic::MgMneDdiv);
+    assert_eq!(ddivu.get_mnemonic(), MgMnemonic::MgMneDdivu);
+    assert_eq!(ddiv.get_mnemonic_str(), MG_MNE_DDIV);
+    assert_eq!(ddivu.get_mnemonic_str(), MG_MNE_DDIVU);
+
+    decoder.version = MgMipsVersion::M64(MgMips64::MgR6);
+    assert_eq!(decoder.disassemble(machine_code[0], 0).is_err(), true);
+    assert_eq!(decoder.disassemble(machine_code[1], 0).is_err(), true);
+}
+
+#[test]
 fn test_pop76(){
     let machine_code = [0xf934794A, 0xf80A794A];
     let mut decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgR6));

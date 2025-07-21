@@ -6,7 +6,7 @@ use crate::instruction::*;
 use crate::instruction::mnemonics::*;
 use crate::operands::*;
 use crate::disassembler::*;
-use crate::MgMips32;
+use crate::{MgMips32, MgMips64};
 use registers::*;
 use FieldInfos;
 
@@ -21,7 +21,7 @@ impl MgDisassembler{
         MgDisassembler::sll,  MgDisassembler::movci,  MgDisassembler::srl_sra,  MgDisassembler::srl_sra,  MgDisassembler::sllv,  MgDisassembler::no_instructions,  MgDisassembler::srlv_srav,  MgDisassembler::srlv_srav,
         MgDisassembler::jr,  MgDisassembler::jalr,  MgDisassembler::movn_movz,  MgDisassembler::movn_movz,  MgDisassembler::syscall_break,  MgDisassembler::syscall_break,  MgDisassembler::no_instructions,  MgDisassembler::sync,
         MgDisassembler::mfhi_mflo,  MgDisassembler::mthi_mtlo,  MgDisassembler::mfhi_mflo,  MgDisassembler::mthi_mtlo,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
-        MgDisassembler::mult_multu_div_divu,  MgDisassembler::mult_multu_div_divu,  MgDisassembler::mult_multu_div_divu,  MgDisassembler::mult_multu_div_divu,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
+        MgDisassembler::mult_multu_div_divu,  MgDisassembler::mult_multu_div_divu,  MgDisassembler::mult_multu_div_divu,  MgDisassembler::mult_multu_div_divu,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::ddiv_ddivu,  MgDisassembler::ddiv_ddivu,
         MgDisassembler::add_addu_sub_subu_and_or_xor_nor,  MgDisassembler::add_addu_sub_subu_and_or_xor_nor,  MgDisassembler::add_addu_sub_subu_and_or_xor_nor,  MgDisassembler::add_addu_sub_subu_and_or_xor_nor,  MgDisassembler::add_addu_sub_subu_and_or_xor_nor,  MgDisassembler::add_addu_sub_subu_and_or_xor_nor,  MgDisassembler::add_addu_sub_subu_and_or_xor_nor,  MgDisassembler::add_addu_sub_subu_and_or_xor_nor,
         MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::slt_sltu,  MgDisassembler::slt_sltu,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
         MgDisassembler::tge_tgeu_tlt_tltu,  MgDisassembler::tge_tgeu_tlt_tltu,  MgDisassembler::tge_tgeu_tlt_tltu,  MgDisassembler::tge_tgeu_tlt_tltu,  MgDisassembler::teq_tne,  MgDisassembler::seleqz_selnez,  MgDisassembler::teq_tne,  MgDisassembler::seleqz_selnez,
@@ -589,19 +589,6 @@ impl MgDisassembler{
  
         return MgDisassembler::imm_format(self, prototype, Some(rs), rt, Some(imm))
     }
-    pub(super) fn jic_jialc(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
-        if let MgMipsVersion::M32(MgMips32::MgPreR6) = self.version{
-            return self.load_store_cp2(prototype)
-        };
-
-        prototype.mnemonic = if prototype.opcode >> 3 & 1 == 1{
-            Some(MgMnemonic::MgMneJialc)
-        }else{
-            Some(MgMnemonic::MgMneJic)
-        };
-        prototype.category = Some(MgInstructionCategory::BranchJump);
-        return MgDisassembler::imm_format(self, prototype, Some(FieldInfos::default_fixed_field()), Some(FieldInfos::default_reg_field(0, MgCoprocessor::Cpu)), Some(FieldInfos::default_imm_field(1)))
-    }
     pub(super) fn bc_balc(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         if let MgMipsVersion::M32(MgMips32::MgPreR6) = self.version{
             return self.load_store_cp2(prototype)
@@ -795,6 +782,21 @@ impl MgDisassembler{
         }
         
         MgDisassembler::reg_format(self, prototype, Some(rs), Some(rt), Some(rd), Some(sa))
+    }
+    pub(super) fn ddiv_ddivu(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        let MgMipsVersion::M64(MgMips64::MgPreR6) = self.version else{
+            return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+        };
+
+        prototype.category = Some(MgInstructionCategory::Arithmetic);
+
+        prototype.mnemonic = if prototype.machine_code & 1 == 1{
+            Some(MgMnemonic::MgMneDdivu)
+        }else{
+            Some(MgMnemonic::MgMneDdiv)
+        };
+
+        self.reg_format(prototype, Some(FieldInfos::default_reg_field(0, MgCoprocessor::Cpu)), Some(FieldInfos::default_reg_field(1, MgCoprocessor::Cpu)), Some(FieldInfos::default_fixed_field()), Some(FieldInfos::default_fixed_field()))
     }
     pub(super) fn movci(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         //Reserved Instruction, Coprocessor Unusable
