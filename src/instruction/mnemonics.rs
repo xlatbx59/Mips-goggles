@@ -34,7 +34,11 @@ pub const MG_MNE_SDC1: &str = "sdc1"; pub const MG_MNE_SDC2: &str = "sdc2"; pub 
 pub const MG_MNE_BC: &str = "bc"; pub const MG_MNE_JIC: &str = "jic"; pub const MG_MNE_JIALC: &str = "jialc";
 pub const MG_MNE_BOVC: &str = "bovc"; pub const MG_MNE_BNVC: &str = "bnvc"; pub const MG_MNE_BGEUC: &str = "bgeuc";
 pub const MG_MNE_BLEZALC: &str = "blezalc"; pub const MG_MNE_BGEZALC: &str = "bgezalc"; pub const MG_MNE_BGTZALC: &str = "bgtzalc";
-pub const MG_MNE_BLTZALC: &str = "bltzalc"; pub const MG_MNE_BLTUC: &str = "bltuc";
+pub const MG_MNE_BLTZALC: &str = "bltzalc"; pub const MG_MNE_BLTUC: &str = "bltuc";pub const MG_MNE_BLEZC: &str = "blezc";
+pub const MG_MNE_BGEZC: &str = "bgezc"; pub const MG_MNE_BGEC: &str = "bgec";pub const MG_MNE_BGTZC: &str = "bgtzc";
+pub const MG_MNE_BLTZC: &str = "bltzc"; pub const MG_MNE_BLTC: &str = "bltc";pub const MG_MNE_BEQC: &str = "beqc";
+pub const MG_MNE_BEQZALC: &str = "beqzalc";  pub const MG_MNE_BNEZALC: &str = "bneqzalc"; pub const MG_MNE_BNEC: &str = "bnec";
+pub const MG_MNE_BEQZC: &str = "beqzc"; pub const MG_MNE_BNEZC: &str = "bnezc";
 
 //Special
 pub const MG_MNE_SSNOP: &str = "ssnop"; pub const MG_MNE_EHB: &str = "ehb"; pub const MG_MNE_PAUSE: &str = "pause";
@@ -100,7 +104,8 @@ pub enum MgMnemonic {
     MgMneMfc0, MgMneMtc0, MgMneRdpgpr, MgMneWrpgpr, MgMneDi, MgMneEi, MgMneTlbr, MgMneTlbwi, MgMneTlbwr, MgMneTlbp,
     MgMneEret, MgMneDeret, MgMneWait, MgMneAddiupc, MgMneLwpc, MgMneLdpc, MgMneAuipc, MgMneAluipc, MgMneLwupc, MgMneSeleqz,
     MgMneSelnez, MgMneBalc, MgMneBc,MgMneJic,MgMneJialc, MgMneBovc, MgMneBnvc, MgMneBgeuc, MgMneBlezalc, MgMneBgezalc, MgMneBgtzalc,
-    MgMneBltzalc, MgMneBltuc
+    MgMneBltzalc, MgMneBltuc, MgMneBlezc, MgMneBgezc, MgMneBgec, MgMneBgtzc, MgMneBltzc, MgMneBltc, MgMneBeqzalc, MgMneBeqc, MgMneBnezalc,
+    MgMneBnec, MgMneBeqzc, MgMneBnezc
 }
 
 const MG_MNEMONICS: &[&str] = &[
@@ -119,5 +124,6 @@ const MG_MNEMONICS: &[&str] = &[
     MG_MNE_MFC0, MG_MNE_MTC0, MG_MNE_RDPGPR, MG_MNE_WRPGPR, MG_MNE_DI, MG_MNE_EI, MG_MNE_TLBR, MG_MNE_TLBWI, MG_MNE_TLBWR, MG_MNE_TLBP,
     MG_MNE_ERET, MG_MNE_DERET, MG_MNE_WAIT, MG_MNE_ADDIUPC, MG_MNE_LWPC, MG_MNE_LDPC, MG_MNE_AUIPC, MG_MNE_ALUIPC, MG_MNE_LWUPC, MG_MNE_SELEQZ,
     MG_MNE_SELNEZ, MG_MNE_BALC, MG_MNE_BC, MG_MNE_JIC, MG_MNE_JIALC, MG_MNE_BOVC, MG_MNE_BNVC, MG_MNE_BGEUC, MG_MNE_BLEZALC,MG_MNE_BGEZALC,
-    MG_MNE_BGTZALC,MG_MNE_BLTZALC, MG_MNE_BLTUC
+    MG_MNE_BGTZALC,MG_MNE_BLTZALC, MG_MNE_BLTUC, MG_MNE_BLEZC, MG_MNE_BGEZC, MG_MNE_BGEC, MG_MNE_BGTZC, MG_MNE_BLTZC, MG_MNE_BLTC, MG_MNE_BEQZALC,
+    MG_MNE_BEQC, MG_MNE_BNEZALC, MG_MNE_BNEC, MG_MNE_BEQZC,MG_MNE_BNEZC
 ];

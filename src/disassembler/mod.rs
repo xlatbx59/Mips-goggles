@@ -109,13 +109,13 @@ impl MgDisassembler{
         //Une map qui réunit tous les handlers des opcodes, il y a d'autre map dans cette map
         const OPCODE_MAP: [fn (disass: &MgDisassembler, instruction: &mut MgInstructionPrototype) -> Result<(), MgError>; 64] = [
             MgDisassembler::special_opcode_map, MgDisassembler::regimm_opcode_map, MgDisassembler::j, MgDisassembler::jal, MgDisassembler::beq, MgDisassembler::bne,  MgDisassembler::blez_pop06,  MgDisassembler::bgtz_pop07,
-            MgDisassembler::bovc_bnvc,  MgDisassembler::addi_addiu,  MgDisassembler::slti_sltiu,  MgDisassembler::slti_sltiu,  MgDisassembler::andi,  MgDisassembler::ori,  MgDisassembler::xori,  MgDisassembler::lui,
-            MgDisassembler::cop0_opcode_map,  MgDisassembler::cop1_opcode_map,  MgDisassembler::cop2_opcode_map,  MgDisassembler::cop1x_opcode_map,  MgDisassembler::beql,  MgDisassembler::bnel,  MgDisassembler::blezl,  MgDisassembler::bgtzl,
-            MgDisassembler::bovc_bnvc,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::special2_opcode_map,  MgDisassembler::jalx,  MgDisassembler::no_instructions,  MgDisassembler::special3_opcode_map,
+            MgDisassembler::pop10,  MgDisassembler::addi_addiu,  MgDisassembler::slti_sltiu,  MgDisassembler::slti_sltiu,  MgDisassembler::andi,  MgDisassembler::ori,  MgDisassembler::xori,  MgDisassembler::lui,
+            MgDisassembler::cop0_opcode_map,  MgDisassembler::cop1_opcode_map,  MgDisassembler::cop2_opcode_map,  MgDisassembler::cop1x_opcode_map,  MgDisassembler::beql,  MgDisassembler::bnel,  MgDisassembler::blezl_pop26,  MgDisassembler::bgtzl_pop27,
+            MgDisassembler::pop30,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::special2_opcode_map,  MgDisassembler::jalx,  MgDisassembler::no_instructions,  MgDisassembler::special3_opcode_map,
             MgDisassembler::cpu_loadstore,  MgDisassembler::cpu_loadstore,  MgDisassembler::lwr_swr_lwl_swl,  MgDisassembler::cpu_loadstore,  MgDisassembler::cpu_loadstore,  MgDisassembler::cpu_loadstore,  MgDisassembler::lwr_swr_lwl_swl,  MgDisassembler::no_instructions,
             MgDisassembler::cpu_loadstore,  MgDisassembler::cpu_loadstore,  MgDisassembler::lwr_swr_lwl_swl,  MgDisassembler::cpu_loadstore,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::lwr_swr_lwl_swl,  MgDisassembler::cache_pref,
-            MgDisassembler::sc_ll,  MgDisassembler::cpu_loadstore,  MgDisassembler::bc_balc,  MgDisassembler::cache_pref,  MgDisassembler::no_instructions, MgDisassembler::cpu_loadstore, MgDisassembler::jic_jialc,  MgDisassembler::no_instructions,
-            MgDisassembler::sc_ll,  MgDisassembler::cpu_loadstore,  MgDisassembler::bc_balc,  MgDisassembler::pcrel_opcode_map,  MgDisassembler::no_instructions,  MgDisassembler::cpu_loadstore,  MgDisassembler::jic_jialc,  MgDisassembler::no_instructions];
+            MgDisassembler::sc_ll,  MgDisassembler::cpu_loadstore,  MgDisassembler::bc_balc,  MgDisassembler::cache_pref,  MgDisassembler::no_instructions, MgDisassembler::cpu_loadstore, MgDisassembler::pop66,  MgDisassembler::no_instructions,
+            MgDisassembler::sc_ll,  MgDisassembler::cpu_loadstore,  MgDisassembler::bc_balc,  MgDisassembler::pcrel_opcode_map,  MgDisassembler::no_instructions,  MgDisassembler::cpu_loadstore,  MgDisassembler::pop76,  MgDisassembler::no_instructions];
 
         let mut prototype: MgInstructionPrototype = MgInstructionPrototype{
             category: None,
@@ -142,12 +142,7 @@ impl MgDisassembler{
         
         return match OPCODE_MAP[(memory >> 26) as usize](self, &mut prototype) {
             Err(e) => Err(e),
-            Ok(()) => {
-                match MgInstruction::new_instruction(prototype){
-                    Ok(i) => Ok(i),
-                    Err(e) => return Err(e),
-                }
-            },
+            Ok(_) => MgInstruction::new_instruction(prototype),
         }
     }
     fn reg_format(&self, prototype: &mut MgInstructionPrototype, rs: Option<FieldInfos>, rt: Option<FieldInfos>, rd: Option<FieldInfos>, sa: Option<FieldInfos>) -> Result<(), MgError>{
@@ -345,7 +340,7 @@ impl MgDisassembler{
         }
         //Imm field
         if let Some(imm) = imm{
-            prototype.operand[imm.operand_order] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code & 0b1111111111111111) as u64));
+            prototype.operand[imm.operand_order] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code & imm.mask) as u64));
             prototype.operand_num += 1;
         }
         Ok(())
