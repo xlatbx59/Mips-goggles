@@ -3,6 +3,7 @@
 //Link to repo: https://github.com/xlatbx59/mips-goggles
 
 pub mod mnemonics;
+
 use mnemonics::MgMnemonic;
 use super::MgMipsVersion;
 use super::operands::*;
@@ -22,7 +23,8 @@ pub enum MgInstructionCategory{
     Store, Move, Priviledge,
     Logical, Arithmetic, Control,
     Trap, MemoryControl, _Ejtag,
-    InsertExtract, Shift,
+    InsertExtract, Shift, AddressComputation,
+    LargeConstant
 }
 
 #[derive(Copy, Clone, Debug, PartialEq)]
@@ -48,15 +50,14 @@ pub (crate) struct MgInstructionPrototype{
     pub operand: [Option<MgOperand>; 4],    //L'ordre des opérandes suit celui du format en chaîne de caractères 
 }
 
-//TODO: Version
 #[derive(Debug)]
 pub struct MgInstruction{
     address: u64,
-    mnemonic: MgMnemonic,
     operand: [Option<MgOperand>; 4],    //L'ordre des opérandes suit celui du format en chaîne de caractères 
     machine_code: u32,
     operand_num: usize,
     string: MgString,
+    mnemonic: MgMnemonic,
     category: MgInstructionCategory,
     format: MgInstructionFormat,
     coprocessor: MgCoprocessor,
@@ -99,7 +100,7 @@ impl MgInstruction{
         })
     }
     pub fn get_mnemonic_str(&self) -> &'static str{
-        mnemonics::get_mnemonic(self.mnemonic)
+        mnemonics::MG_MNEMONICS[self.mnemonic as usize]
     }
     pub fn get_mnemonic(&self) -> MgMnemonic{
         self.mnemonic

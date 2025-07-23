@@ -12,7 +12,7 @@
 /// assert_eq!(get_mnemonic(instruction.get_mnemonic()), MG_MNE_NOP);
 /// assert_eq!(get_mnemonic(MgMnemonic::MgMneAddi), MG_MNE_ADDI);
 /// ```
-pub fn get_mnemonic(mnemonic: MgMnemonic) -> &'static str{
+pub fn mg_get_mnemonic(mnemonic: MgMnemonic) -> &'static str{
     MG_MNEMONICS[mnemonic as usize]
 }
 
@@ -108,7 +108,7 @@ pub enum MgMnemonic {
     MgMneBnec, MgMneBeqzc, MgMneBnezc, MgMneDdiv, MgMneDdivu
 }
 
-const MG_MNEMONICS: &[&str] = &[
+pub(super)const MG_MNEMONICS: &[&str] = &[
     MG_MNE_J, MG_MNE_JAL, MG_MNE_BEQ, MG_MNE_BNE, MG_MNE_BLEZ, MG_MNE_BGTZ, MG_MNE_ADDI, MG_MNE_ADDIU, MG_MNE_SLTI, MG_MNE_SLTIU,
     MG_MNE_ANDI, MG_MNE_ORI, MG_MNE_XORI, MG_MNE_LUI, MG_MNE_BEQL, MG_MNE_BNEL, MG_MNE_BLEZL, MG_MNE_BGTZL, MG_MNE_JALX, MG_MNE_LB,
     MG_MNE_LH, MG_MNE_LWL, MG_MNE_LW, MG_MNE_LBU, MG_MNE_LHU, MG_MNE_LWR, MG_MNE_SB, MG_MNE_SH, MG_MNE_SWL, MG_MNE_SW,

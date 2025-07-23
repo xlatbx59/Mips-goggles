@@ -581,7 +581,7 @@ impl MgDisassembler{
             prototype.is_relative = true;
             prototype.is_conditional = true;
             prototype.mnemonic = Some(MgMnemonic::MgMneBeqzc);
-            (FieldInfos::default_reg_field(0, MgCoprocessor::Cpu), None, FieldInfos::imm_field(1, 0b111111111111111111111))
+            (FieldInfos::default_reg_field(0, MgCoprocessor::Cpu), None, FieldInfos::imm_field(1, 0x1fffff))
         }else{
             prototype.mnemonic = Some(MgMnemonic::MgMneJic);
             (FieldInfos::default_fixed_field(), Some(FieldInfos::default_reg_field(0, MgCoprocessor::Cpu)), FieldInfos::default_imm_field(1))

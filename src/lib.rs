@@ -11,6 +11,8 @@ pub mod disassembler;
 pub mod operands;
 ///Self explanatory
 pub mod error;
+
+#[cfg(test)]
 mod test;
 mod utils;
 
