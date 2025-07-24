@@ -45,6 +45,57 @@ fn imm_limit_reached(disass: &MgDisassembler, mne: MgMnemonic, mut machine_code:
 }
 
 #[test]
+fn test_lsa_dlsa(){
+    let machine_code = [0x00fa18c5, 0x00fa18d5];
+
+    let mut decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
+    assert_eq!(true, decoder.disassemble(machine_code[0], 0).is_err());
+    assert_eq!(true, decoder.disassemble(machine_code[1], 0).is_err());
+
+    decoder.version = MgMipsVersion::M32(MgMips32::MgPreR6);
+    assert_eq!(true, decoder.disassemble(machine_code[1], 0).is_err());
+    decoder.version = MgMipsVersion::M32(MgMips32::MgR6);
+    assert_eq!(true, decoder.disassemble(machine_code[1], 0).is_err());
+
+    decoder.version = MgMipsVersion::M64(MgMips64::MgR6);
+    let inst = decoder.disassemble(machine_code[0], 0).unwrap();
+    let inst1 = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(MgMnemonic::MgMneLsa, inst.get_mnemonic());
+    assert_eq!(MgMnemonic::MgMneDlsa, inst1.get_mnemonic());
+
+    assert_eq!(MG_MNE_LSA, inst.get_mnemonic_str());
+    assert_eq!(MG_MNE_DLSA, inst1.get_mnemonic_str());
+
+    assert_eq!(MgInstructionCategory::AddressComputation, inst.get_category());
+    assert_eq!(MgInstructionCategory::AddressComputation, inst1.get_category());
+
+    assert_eq!(4, inst.get_operand_num());
+    assert_eq!(4, inst1.get_operand_num());
+
+    imm_limit_reached(&decoder, MgMnemonic::MgMneLsa, machine_code[0], 6, 3, 3);
+    imm_limit_reached(&decoder, MgMnemonic::MgMneDlsa, machine_code[1], 6, 3, 3);
+
+    let Some(MgOperand::MgOpRegister(_)) = inst.get_operand(0) else {
+        panic!();
+    };
+    let Some(MgOperand::MgOpRegister(_)) = inst.get_operand(1) else {
+        panic!();
+    };
+    let Some(MgOperand::MgOpRegister(_)) = inst.get_operand(2) else {
+        panic!();
+    };
+    let Some(MgOperand::MgOpRegister(_)) = inst1.get_operand(0) else {
+        panic!();
+    };
+    let Some(MgOperand::MgOpRegister(_)) = inst1.get_operand(1) else {
+        panic!();
+    };
+    let Some(MgOperand::MgOpRegister(_)) = inst1.get_operand(2) else {
+        panic!();
+    };
+}
+#[test]
 fn test_ddiv_ddivu(){
     let machine_code = [0x0044001e, 0x000A001f];
 

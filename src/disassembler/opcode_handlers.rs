@@ -18,9 +18,9 @@ impl MgDisassembler{
     }
     pub (super) fn special_opcode_map(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         static SPECIAL_MAP: [fn(disassembler: &MgDisassembler, &mut MgInstructionPrototype) -> Result<(), MgError>; 64] = [
-        MgDisassembler::sll,  MgDisassembler::movci,  MgDisassembler::srl_sra,  MgDisassembler::srl_sra,  MgDisassembler::sllv,  MgDisassembler::no_instructions,  MgDisassembler::srlv_srav,  MgDisassembler::srlv_srav,
+        MgDisassembler::sll,  MgDisassembler::movci,  MgDisassembler::srl_sra,  MgDisassembler::srl_sra,  MgDisassembler::sllv,  MgDisassembler::lsa_dlsa,  MgDisassembler::srlv_srav,  MgDisassembler::srlv_srav,
         MgDisassembler::jr,  MgDisassembler::jalr,  MgDisassembler::movn_movz,  MgDisassembler::movn_movz,  MgDisassembler::syscall_break,  MgDisassembler::syscall_break,  MgDisassembler::no_instructions,  MgDisassembler::sync,
-        MgDisassembler::mfhi_mflo,  MgDisassembler::mthi_mtlo,  MgDisassembler::mfhi_mflo,  MgDisassembler::mthi_mtlo,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
+        MgDisassembler::mfhi_mflo,  MgDisassembler::mthi_mtlo,  MgDisassembler::mfhi_mflo,  MgDisassembler::mthi_mtlo,  MgDisassembler::no_instructions,  MgDisassembler::lsa_dlsa,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
         MgDisassembler::mult_multu_div_divu,  MgDisassembler::mult_multu_div_divu,  MgDisassembler::mult_multu_div_divu,  MgDisassembler::mult_multu_div_divu,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::ddiv_ddivu,  MgDisassembler::ddiv_ddivu,
         MgDisassembler::add_addu_sub_subu_and_or_xor_nor,  MgDisassembler::add_addu_sub_subu_and_or_xor_nor,  MgDisassembler::add_addu_sub_subu_and_or_xor_nor,  MgDisassembler::add_addu_sub_subu_and_or_xor_nor,  MgDisassembler::add_addu_sub_subu_and_or_xor_nor,  MgDisassembler::add_addu_sub_subu_and_or_xor_nor,  MgDisassembler::add_addu_sub_subu_and_or_xor_nor,  MgDisassembler::add_addu_sub_subu_and_or_xor_nor,
         MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::slt_sltu,  MgDisassembler::slt_sltu,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
@@ -782,6 +782,29 @@ impl MgDisassembler{
         }
         
         MgDisassembler::reg_format(self, prototype, Some(rs), Some(rt), Some(rd), Some(sa))
+    }
+    pub(super) fn lsa_dlsa(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        prototype.mnemonic = match self.version{
+            MgMipsVersion::M32(MgMips32::MgR6) => {
+                if prototype.machine_code >> 4 & 1 != 0{
+                    return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+                }
+                Some(MgMnemonic::MgMneLsa)
+            },
+            MgMipsVersion::M64(MgMips64::MgR6) => {
+                if prototype.machine_code >> 4 & 1 == 0{
+                    Some(MgMnemonic::MgMneLsa)
+                }else {
+                    Some(MgMnemonic::MgMneDlsa)
+                }
+            },
+            _ => return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+        };
+        if prototype.machine_code >> 8 & 0b111 != 0{
+            return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
+        }
+        prototype.category = Some(MgInstructionCategory::AddressComputation);
+        MgDisassembler::reg_format(self, prototype, Some(FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg)), Some(FieldInfos::reg_field(2, MgCoprocessor::Cpu, MgOperandType::Reg)), Some(FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg)), Some(FieldInfos::imm_field(3, 3)))
     }
     pub(super) fn ddiv_ddivu(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let MgMipsVersion::M64(MgMips64::MgPreR6) = self.version else{
