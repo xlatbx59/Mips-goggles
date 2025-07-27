@@ -99,7 +99,7 @@ impl MgDisassembler{
         return MgDisassembler::imm_format(self, prototype, rs, None, Some(FieldInfos::default_imm_field(imm_order)))
     }
     pub (super) fn special2_opcode_map(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
-        let MgMipsVersion::M32(MgMips32::MgR6) = self.version else{
+        if let MgMipsVersion::M32(MgMips32::MgR6) | MgMipsVersion::M64(MgMips64::MgR6) = self.version{
             return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
         };
         static SPECIAL2_MAP: [fn(disassembler: &MgDisassembler, &mut MgInstructionPrototype) -> Result<(), MgError>; 64] = 
@@ -344,7 +344,7 @@ impl MgDisassembler{
             (None, Some(FieldInfos::default_reg_field(0, MgCoprocessor::Cpu)), Some(FieldInfos::default_imm_field(1)))
         }else /*if let MgMipsVersion::M32(MgMips32::MgR6) = self.version*/{
             if prototype.machine_code >> 0x15 & 0b11111 == prototype.machine_code >> 0x10 & 0b11111 && prototype.machine_code >> 0x10 & 0b11111 != 0{
-                prototype.mnemonic = Some(MgMnemonic::MgMneBgtzalc);
+                prototype.mnemonic = Some(MgMnemonic::MgMneBltzalc);
                 (Some(FieldInfos::default_reg_field(0, MgCoprocessor::Cpu)),     //rt
                 None, Some(FieldInfos::default_imm_field(1)))   //rs
             }else if prototype.machine_code >> 0x15 & 0b11111 != prototype.machine_code >> 0x10 & 0b11111 && 
@@ -353,7 +353,7 @@ impl MgDisassembler{
                 (Some(FieldInfos::default_reg_field(1, MgCoprocessor::Cpu)),     //rt
                 Some(FieldInfos::default_reg_field(0, MgCoprocessor::Cpu)), Some(FieldInfos::default_imm_field(2)))   //rs
             }else if prototype.machine_code >> 0x15 & 0b11111 == 0x00 && prototype.machine_code >> 0x10 & 0b11111 != 0x00{
-                prototype.mnemonic = Some(MgMnemonic::MgMneBltzalc);
+                prototype.mnemonic = Some(MgMnemonic::MgMneBgtzalc);
                 (Some(FieldInfos::default_reg_field(0, MgCoprocessor::Cpu)), None, Some(FieldInfos::default_imm_field(1)))
             }else {
                 prototype.mnemonic = Some(MgMnemonic::MgMneBgtz);      
@@ -675,7 +675,7 @@ impl MgDisassembler{
                 if 0b011111 != prototype.opcode{
                     return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
                 }else{
-                    if prototype.machine_code >> 6 == 1{
+                    if prototype.machine_code >> 6 & 1 == 1{
                         return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
                     }
                     imm = None;

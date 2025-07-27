@@ -105,7 +105,7 @@ impl MgDisassembler{
     ///     Err(e) => eprintln!("{}", e),
     /// }
     /// ```
-    pub fn disassemble(&self, memory: u32, address: u64) -> Result<MgInstruction, MgError>{
+    pub fn disassemble(&self, machine_code: u32, address: u64) -> Result<MgInstruction, MgError>{
         //Une map qui réunit tous les handlers des opcodes, il y a d'autre map dans cette map
         const OPCODE_MAP: [fn (disass: &MgDisassembler, instruction: &mut MgInstructionPrototype) -> Result<(), MgError>; 64] = [
             MgDisassembler::special_opcode_map, MgDisassembler::regimm_opcode_map, MgDisassembler::j, MgDisassembler::jal, MgDisassembler::beq, MgDisassembler::bne,  MgDisassembler::blez_pop06,  MgDisassembler::bgtz_pop07,
@@ -122,15 +122,15 @@ impl MgDisassembler{
             format: None,
             operand_num: 0,
             is_conditional: false,
-            opcode: (memory >> 26) as u8,
-            coprocessor: match memory >> 26{
+            opcode: (machine_code >> 26) as u8,
+            coprocessor: match machine_code >> 26{
                 0x10 => Some(MgCoprocessor::Cp0),
                 0x11 => Some(MgCoprocessor::Cp1),
                 0x12 => Some(MgCoprocessor::Cp2),
                 0x13 => Some(MgCoprocessor::Cp1x),
                 _ => Some(MgCoprocessor::Cpu),
             },
-            machine_code: memory,
+            machine_code,
             operand: [None; 4],
             is_relative: false,
             is_region: false,
@@ -140,7 +140,7 @@ impl MgDisassembler{
             address,
         };
         
-        return match OPCODE_MAP[(memory >> 26) as usize](self, &mut prototype) {
+        return match OPCODE_MAP[(machine_code >> 26) as usize](self, &mut prototype) {
             Err(e) => Err(e),
             Ok(_) => MgInstruction::new_instruction(prototype),
         }
