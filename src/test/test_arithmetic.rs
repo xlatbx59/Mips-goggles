@@ -52,3 +52,55 @@ fn test_ddiv_ddivu(){
     assert_eq!(ddiv.get_mnemonic_str(), MG_MNE_DDIV);
     assert_eq!(ddivu.get_mnemonic_str(), MG_MNE_DDIVU);
 }
+#[test]
+fn test_daddi_daddiu(){
+    let machine_code: [u32; 2] = [0x63640038, 0x67640038];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
+
+    let daddi = decoder.disassemble(machine_code[0], 0).unwrap();
+    let daddiu = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneDaddi, machine_code[0], 0, 0xffff, 2));
+    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneDaddiu, machine_code[1], 0, 0xffff, 2));
+
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneDaddi, false, false, true, false));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneDaddiu, false, false, true, true));
+
+    assert_eq!(MgInstructionCategory::Arithmetic, daddi.get_category());
+    assert_eq!(MgInstructionCategory::Arithmetic, daddiu.get_category());
+    
+    assert_eq!(daddi.get_mnemonic(), MgMnemonic::MgMneDaddi);
+    assert_eq!(daddiu.get_mnemonic(), MgMnemonic::MgMneDaddiu);
+
+    assert_eq!(daddi.get_mnemonic_str(), MG_MNE_DADDI);
+    assert_eq!(daddiu.get_mnemonic_str(), MG_MNE_DADDIU);
+
+    assert_eq!(true, check_operands(&daddi, 3));
+    assert_eq!(true, check_operands(&daddiu, 3));
+}
+#[test]
+fn test_addi_addiu(){
+    let machine_code: [u32; 2] = [0x23640038, 0x27640038];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
+
+    let addi = decoder.disassemble(machine_code[0], 0).unwrap();
+    let addiu = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneAddi, machine_code[0], 0, 0xffff, 2));
+    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneAddiu, machine_code[1], 0, 0xffff, 2));
+
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneAddi, true, false, true, false));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneAddiu, true, true, true, true));
+
+    assert_eq!(MgInstructionCategory::Arithmetic, addi.get_category());
+    assert_eq!(MgInstructionCategory::Arithmetic, addiu.get_category());
+    
+    assert_eq!(addi.get_mnemonic(), MgMnemonic::MgMneAddi);
+    assert_eq!(addiu.get_mnemonic(), MgMnemonic::MgMneAddiu);
+
+    assert_eq!(addi.get_mnemonic_str(), MG_MNE_ADDI);
+    assert_eq!(addiu.get_mnemonic_str(), MG_MNE_ADDIU);
+
+    assert_eq!(true, check_operands(&addi, 3));
+    assert_eq!(true, check_operands(&addiu, 3));
+}

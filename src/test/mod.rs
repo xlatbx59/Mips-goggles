@@ -119,7 +119,7 @@ fn test_daui(){
     assert_eq!(MgMnemonic::MgMneDaui, daui.get_mnemonic());
     assert_eq!(MG_MNE_DAUI, daui.get_mnemonic_str());
 
-    assert_eq!(3, daui.get_operand_num());
+    assert_eq!(true, check_operands(&daui, 3));
     assert_eq!(MgInstructionCategory::LargeConstant, daui.get_category());
 
     let Some(MgOperand::MgOpRegister(_)) = daui.get_operand(0) else {
@@ -128,5 +128,6 @@ fn test_daui(){
     let Some(MgOperand::MgOpRegister(_)) = daui.get_operand(1) else {
         panic!();
     };
+    assert_eq!(true, check_field_zero_assert(&decoder, machine_code[0], 0b11111, MgMnemonic::MgMneDaui, 21));
     assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneDaui, machine_code[0], 0, 0xffff, 2));
 }
