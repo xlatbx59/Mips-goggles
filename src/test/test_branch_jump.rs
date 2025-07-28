@@ -4,7 +4,6 @@
 
 use super::*;
 use crate::*;
-use crate::instruction::*;
 use crate::disassembler::*;
 use crate::instruction::mnemonics::*;
 
@@ -21,9 +20,6 @@ fn test_bne_beq(){
 
     assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneBeq, machine_code[1], 0, 0xffff, 2));
     assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneBne, machine_code[0], 0, 0xffff, 2));
-
-    assert_eq!(MgInstructionCategory::BranchJump, bne.get_category());
-    assert_eq!(MgInstructionCategory::BranchJump, beq.get_category());
 }
 
 #[test]
@@ -49,11 +45,9 @@ fn test_bc_balc(){
     assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneBc, machine_code[0], 0, 0x3ffffff, 0));
     assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneBalc, machine_code[1], 0, 0x3ffffff, 0));
 
-    assert_eq!(bc.get_category(), MgInstructionCategory::BranchJump);
     assert_eq!(bc.is_conditional(), true);
     assert_ne!(bc.is_region(), true);
 
-    assert_eq!(balc.get_category(), MgInstructionCategory::BranchJump);
     assert_eq!(balc.is_conditional(), true);
     assert_ne!(balc.is_region(), true);
 }

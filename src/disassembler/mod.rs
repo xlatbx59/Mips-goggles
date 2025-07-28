@@ -118,8 +118,6 @@ impl MgDisassembler{
             MgDisassembler::sc_ll,  MgDisassembler::cpu_loadstore,  MgDisassembler::bc_balc,  MgDisassembler::pcrel_opcode_map,  MgDisassembler::no_instructions,  MgDisassembler::cpu_loadstore,  MgDisassembler::pop76,  MgDisassembler::no_instructions];
 
         let mut prototype: MgInstructionPrototype = MgInstructionPrototype{
-            category: None,
-            format: None,
             operand_num: 0,
             is_conditional: false,
             opcode: (machine_code >> 26) as u8,
@@ -146,7 +144,6 @@ impl MgDisassembler{
         }
     }
     fn reg_format(&self, prototype: &mut MgInstructionPrototype, rs: Option<FieldInfos>, rt: Option<FieldInfos>, rd: Option<FieldInfos>, sa: Option<FieldInfos>) -> Result<(), MgError>{
-        prototype.format = Some(MgInstructionFormat::Reg);
 
         //Rs field
         if let Some(field) = rs{
@@ -275,8 +272,6 @@ impl MgDisassembler{
             return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
         }
 
-        prototype.format = Some(MgInstructionFormat::CpxCpuTransfer);
-
         let (Some(rd_cop), Some(rt_cop)) = (rd.coprocessor, rt.coprocessor) else{
             return Err(MgError::throw_error(MgErrorCode::DevError, prototype.opcode, prototype.address, prototype.machine_code))
         };
@@ -289,7 +284,6 @@ impl MgDisassembler{
     fn imm_format(&self, prototype: &mut MgInstructionPrototype, rs: Option<FieldInfos>, rt: Option<FieldInfos>, imm: Option<FieldInfos>) -> Result<(), MgError>{
 
         //Some attributes about the instruction and setting the operands
-        prototype.format = Some(MgInstructionFormat::Imm);
         //Rs field
         if let Some(field) = rs{
             let field_mask_result = prototype.machine_code >> 21 & field.mask;
@@ -400,10 +394,8 @@ impl MgDisassembler{
     fn jump_format(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
 
         //Some attributes about the instruction
-        prototype.format = Some(MgInstructionFormat::Jump);
         prototype.operand_num = 1 ;
         prototype.is_region = true;
-        prototype.category = Some(MgInstructionCategory::BranchJump);
         prototype.operand[0] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code & 0x3FFFFFF) as u64));
 
         Ok(())

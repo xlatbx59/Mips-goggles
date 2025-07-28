@@ -124,9 +124,6 @@ fn test_ldr_ldl(){
     assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneLdr, false, false, true, false));
     assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneLdl, false, false, true, false));
 
-    assert_eq!(MgInstructionCategory::Load, ldr.get_category());
-    assert_eq!(MgInstructionCategory::Load, ldl.get_category());
-    
     assert_eq!(ldr.get_mnemonic(), MgMnemonic::MgMneLdr);
     assert_eq!(ldl.get_mnemonic(), MgMnemonic::MgMneLdl);
 

@@ -4,7 +4,6 @@
 
 use super::*;
 use crate::*;
-use crate::instruction::*;
 use crate::disassembler::*;
 use crate::instruction::mnemonics::*;
 
@@ -15,7 +14,6 @@ fn test_mul(){
     let mul = decoder.disassemble(machine_code, 0).unwrap();
 
     assert_eq!(true, version_test(machine_code, MgMnemonic::MgMneMul, true, false, true, false));
-    assert_eq!(mul.get_category(), MgInstructionCategory::Arithmetic);
 
     assert_eq!(true, check_operands(&mul, 3));
 
@@ -35,8 +33,6 @@ fn test_ddiv_ddivu(){
 
     assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneDdiv, false, false, true, false));
     assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneDdivu, false, false, true, false));
-
-    assert_eq!(ddiv.get_category(), MgInstructionCategory::Arithmetic);
 
     assert_eq!(true, check_operands(&ddiv, 2));
     assert_eq!(true, check_operands(&ddivu, 2));
@@ -66,8 +62,6 @@ fn test_daddi_daddiu(){
     assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneDaddi, false, false, true, false));
     assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneDaddiu, false, false, true, true));
 
-    assert_eq!(MgInstructionCategory::Arithmetic, daddi.get_category());
-    assert_eq!(MgInstructionCategory::Arithmetic, daddiu.get_category());
     
     assert_eq!(daddi.get_mnemonic(), MgMnemonic::MgMneDaddi);
     assert_eq!(daddiu.get_mnemonic(), MgMnemonic::MgMneDaddiu);
@@ -92,9 +86,6 @@ fn test_addi_addiu(){
     assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneAddi, true, false, true, false));
     assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneAddiu, true, true, true, true));
 
-    assert_eq!(MgInstructionCategory::Arithmetic, addi.get_category());
-    assert_eq!(MgInstructionCategory::Arithmetic, addiu.get_category());
-    
     assert_eq!(addi.get_mnemonic(), MgMnemonic::MgMneAddi);
     assert_eq!(addiu.get_mnemonic(), MgMnemonic::MgMneAddiu);
 

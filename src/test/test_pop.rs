@@ -4,7 +4,6 @@
 
 use super::*;
 use crate::*;
-use crate::instruction::*;
 use crate::disassembler::*;
 use crate::instruction::mnemonics::*;
 
@@ -25,7 +24,6 @@ fn test_pop76(){
     assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneBnezc, false, true, false, true));
     assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneJialc, false, true, false, true));
 
-    assert_eq!(bnezc.get_category(), MgInstructionCategory::BranchJump);
     assert_eq!(bnezc.is_region(), false);
     assert_eq!(bnezc.is_relative(), true);
     assert_eq!(bnezc.is_conditional(), true);
@@ -54,7 +52,6 @@ fn test_pop66(){
     assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneBeqzc, false, true, false, true));
     assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneJic, false, true, false, true));
 
-    assert_eq!(beqzc.get_category(), MgInstructionCategory::BranchJump);
     assert_eq!(beqzc.is_region(), false);
     assert_eq!(beqzc.is_relative(), true);
     assert_eq!(beqzc.is_conditional(), true);
@@ -106,10 +103,6 @@ fn test_pop30(){
     assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneBnec, false, true, false, true));
     assert_eq!(true, version_test(machine_code[2], MgMnemonic::MgMneBnvc, false, true, false, true));
 
-    assert_eq!(bnezalc.get_category(), MgInstructionCategory::BranchJump);
-    assert_eq!(bnvc.get_category(), MgInstructionCategory::BranchJump);
-    assert_eq!(bnec.get_category(), MgInstructionCategory::BranchJump);
-
     assert_eq!(bnec.is_region(), false);
     assert_eq!(bnec.is_relative(), true);
     assert_eq!(bnec.is_conditional(), true);
@@ -139,7 +132,6 @@ fn test_pop10(){
     assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneBeqc, false, true, false, true));
     assert_eq!(true, version_test(machine_code[2], MgMnemonic::MgMneBovc, false, true, false, true));
 
-    assert_eq!(beqzalc.get_category(), MgInstructionCategory::BranchJump);
     assert_eq!(beqc.is_region(), false);
     assert_eq!(beqc.is_relative(), true);
     assert_eq!(beqc.is_conditional(), true);
@@ -182,7 +174,6 @@ fn test_bgtzl_pop27(){
     assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneBltzc, false, true, false, true));
     assert_eq!(true, version_test(machine_code[2], MgMnemonic::MgMneBltc, false, true, false, true));
 
-    assert_eq!(bgtzc.get_category(), MgInstructionCategory::BranchJump);
     assert_eq!(bltzc.is_region(), false);
     assert_eq!(bltzc.is_relative(), true);
     assert_eq!(bltzc.is_conditional(), true);
@@ -239,7 +230,6 @@ fn test_blez_pop26(){
     assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneBgezc, false, true, false, true));
     assert_eq!(true, version_test(machine_code[2], MgMnemonic::MgMneBgec, false, true, false, true));
 
-    assert_eq!(blezc.get_category(), MgInstructionCategory::BranchJump);
     assert_eq!(bgezc.is_region(), false);
     assert_eq!(bgezc.is_relative(), true);
     assert_eq!(bgezc.is_conditional(), true);
@@ -299,7 +289,6 @@ fn test_pop07(){
     assert_eq!(true, version_test(machine_code[2], MgMnemonic::MgMneBltzalc, false, true, false, true));
     assert_eq!(true, version_test(machine_code[3], MgMnemonic::MgMneBgtz, true, true, true, true));
 
-    assert_eq!(bltuc.get_category(), MgInstructionCategory::BranchJump);
     assert_eq!(bltzalc.is_region(), false);
     assert_eq!(bltzalc.is_relative(), true);
     assert_eq!(bltzalc.is_conditional(), true);
@@ -374,7 +363,6 @@ fn test_blez_pop06(){
     assert_eq!(true, version_test(machine_code[2], MgMnemonic::MgMneBgezalc, false, true, false, true));
     assert_eq!(true, version_test(machine_code[3], MgMnemonic::MgMneBlez, true, true, true, true));
 
-    assert_eq!(bgeuc.get_category(), MgInstructionCategory::BranchJump);
     assert_eq!(blezalc.is_region(), false);
     assert_eq!(blezalc.is_relative(), true);
     assert_eq!(blezalc.is_conditional(), true);

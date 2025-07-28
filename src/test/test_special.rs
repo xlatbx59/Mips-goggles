@@ -5,7 +5,6 @@
 use super::*;
 use crate::*;
 use crate::operands::*;
-use crate::instruction::*;
 use crate::disassembler::*;
 use crate::instruction::mnemonics::*;
 
@@ -29,9 +28,6 @@ fn test_lsa_dlsa(){
 
     assert_eq!(MG_MNE_LSA, lsa.get_mnemonic_str());
     assert_eq!(MG_MNE_DLSA, dlsa.get_mnemonic_str());
-
-    assert_eq!(MgInstructionCategory::AddressComputation, lsa.get_category());
-    assert_eq!(MgInstructionCategory::AddressComputation, dlsa.get_category());
 
     assert_eq!(true, check_operands(&lsa, 4));
     assert_eq!(true, check_operands(&dlsa, 4));
@@ -102,9 +98,6 @@ fn test_dahi_dati(){
     assert_eq!(MgMnemonic::MgMneDahi, dahi.get_mnemonic());
     assert_eq!(MG_MNE_DATI, dati.get_mnemonic_str());
     assert_eq!(MG_MNE_DAHI, dahi.get_mnemonic_str());
-
-    assert_eq!(MgInstructionCategory::LargeConstant, dahi.get_category());
-    assert_eq!(MgInstructionCategory::LargeConstant, dati.get_category());
 
     assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneDahi, machine_code[0], 0, 0xffff, 1));
     assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneDati, machine_code[1], 0, 0xffff, 1));

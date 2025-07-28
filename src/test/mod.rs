@@ -120,7 +120,6 @@ fn test_daui(){
     assert_eq!(MG_MNE_DAUI, daui.get_mnemonic_str());
 
     assert_eq!(true, check_operands(&daui, 3));
-    assert_eq!(MgInstructionCategory::LargeConstant, daui.get_category());
 
     let Some(MgOperand::MgOpRegister(_)) = daui.get_operand(0) else {
         panic!();

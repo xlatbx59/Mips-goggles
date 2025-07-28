@@ -43,9 +43,8 @@ impl MgDisassembler{
             _ => return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
         };
 
-        prototype.category = Some(MgInstructionCategory::LargeConstant);
-            self.imm_format(prototype, Some(FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg)), None, Some(FieldInfos::default_imm_field(1)))
-        }
+        self.imm_format(prototype, Some(FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg)), None, Some(FieldInfos::default_imm_field(1)))
+    }
     pub (super) fn regimm_opcode_map(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let imm_order: usize;
         let rs: Option<FieldInfos>;
@@ -67,16 +66,14 @@ impl MgDisassembler{
         };
 
         prototype.mnemonic = MENMONICS[(prototype.machine_code >> 19 & 0b11) as usize][(prototype.machine_code >> 16 & 0b111) as usize];
-        prototype.category = Some(match prototype.machine_code >> 19 & 3{
-            3 => MgInstructionCategory::MemoryControl,
+        Some(match prototype.machine_code >> 19 & 3{
+            3 => (),
             1 => {
                 prototype.is_conditional = true;
-                MgInstructionCategory::Trap
             },
             _ => {
                 prototype.is_relative = true;
                 prototype.is_conditional = true;
-                MgInstructionCategory::BranchJump
             },
         });
 
@@ -192,7 +189,6 @@ impl MgDisassembler{
         ];
 
         prototype.is_relative = true;
-        prototype.format = Some(MgInstructionFormat::Imm);
         let imm = FieldInfos::imm_field(1, 0b1111111111111111);
         let rs = Some(FieldInfos::default_reg_field(0, MgCoprocessor::Cpu));
         if let Err(e) = PCREL_MAP[(prototype.machine_code >> 16 & 0b11111) as usize](self, prototype){
@@ -217,7 +213,6 @@ impl MgDisassembler{
         let rt: FieldInfos = FieldInfos::default_reg_field(1, MgCoprocessor::Cpu);    
 
         prototype.is_relative = true;
-        prototype.category = Some(MgInstructionCategory::BranchJump);
         prototype.mnemonic = Some(MgMnemonic::MgMneBeq);
         prototype.is_conditional = true;
         
@@ -228,7 +223,6 @@ impl MgDisassembler{
         let rt: FieldInfos = FieldInfos::default_reg_field(1, MgCoprocessor::Cpu);    
 
         prototype.is_relative = true;
-        prototype.category = Some(MgInstructionCategory::BranchJump);
         prototype.mnemonic = Some(MgMnemonic::MgMneBne);
         prototype.is_conditional = true;
         
@@ -241,7 +235,6 @@ impl MgDisassembler{
 
         prototype.is_relative = true;
         prototype.is_conditional = true;
-        prototype.category = Some(MgInstructionCategory::BranchJump);
         (rt, rs, imm) = match self.version{
             MgMipsVersion::M64(MgMips64::MgPreR6) => return self.daddi_daddiu(prototype),
             MgMipsVersion::M32(MgMips32::MgPreR6) => return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code)),
@@ -271,7 +264,6 @@ impl MgDisassembler{
 
         prototype.is_relative = true;
         prototype.is_conditional = true;
-        prototype.category = Some(MgInstructionCategory::BranchJump);
 
         (rt, rs, imm) = match self.version{
             MgMipsVersion::M64(MgMips64::MgPreR6) | MgMipsVersion::M32(MgMips32::MgPreR6) =>return self.addi_addiu(prototype),
@@ -300,7 +292,6 @@ impl MgDisassembler{
 
         prototype.is_relative = true;
         prototype.is_conditional = true;
-        prototype.category = Some(MgInstructionCategory::BranchJump);
 
         (rt, rs, imm) = if let MgMipsVersion::M32(MgMips32::MgPreR6) | MgMipsVersion::M64(MgMips64::MgPreR6) = self.version{
             if prototype.machine_code >> 0x10 & 0b11111 != 0{
@@ -337,7 +328,6 @@ impl MgDisassembler{
 
         prototype.is_relative = true;
         prototype.is_conditional = true;
-        prototype.category = Some(MgInstructionCategory::BranchJump);
 
         (rt, rs, imm) = if let MgMipsVersion::M32(MgMips32::MgPreR6) | MgMipsVersion::M64(MgMips64::MgPreR6) = self.version{
             if prototype.machine_code >> 0x10 & 0b11111 != 0{
@@ -381,7 +371,6 @@ impl MgDisassembler{
         }else {
             Some(MgMnemonic::MgMneLdl)
         };
-        prototype.category = Some(MgInstructionCategory::Load);
         return MgDisassembler::imm_format(self, prototype, Some(rs), Some(rt), Some(sa));
     }
     pub(super) fn daddi_daddiu(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
@@ -401,7 +390,6 @@ impl MgDisassembler{
             }
             Some(MgMnemonic::MgMneDaddi)
         };
-        prototype.category = Some(MgInstructionCategory::Arithmetic);
         return MgDisassembler::imm_format(self, prototype, Some(rs), Some(rt), Some(sa));
     }
     pub(super) fn addi_addiu(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
@@ -417,7 +405,6 @@ impl MgDisassembler{
             }
             Some(MgMnemonic::MgMneAddi)
         };
-        prototype.category = Some(MgInstructionCategory::Arithmetic);
         return MgDisassembler::imm_format(self, prototype, Some(rs), Some(rt), Some(sa));
     }
     pub(super) fn slti_sltiu(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
@@ -425,7 +412,6 @@ impl MgDisassembler{
         let rt: FieldInfos = FieldInfos::default_reg_field(0, MgCoprocessor::Cpu);    
         let sa: FieldInfos = FieldInfos::default_imm_field(2);
 
-        prototype.category = Some(MgInstructionCategory::Arithmetic);
         prototype.mnemonic = if prototype.machine_code >> 26 & 1 == 1{
             Some(MgMnemonic::MgMneSltiu)
         }else{
@@ -440,7 +426,6 @@ impl MgDisassembler{
         let sa: FieldInfos = FieldInfos::default_imm_field(2);
 
         prototype.mnemonic = Some(MgMnemonic::MgMneAndi);
-        prototype.category = Some(MgInstructionCategory::Logical);
 
         return MgDisassembler::imm_format(self, prototype, Some(rs), Some(rt), Some(sa));
     }
@@ -450,7 +435,6 @@ impl MgDisassembler{
         let sa: FieldInfos = FieldInfos::default_imm_field(2);
 
         prototype.mnemonic = Some(MgMnemonic::MgMneOri);
-        prototype.category = Some(MgInstructionCategory::Logical);
         
         return MgDisassembler::imm_format(self, prototype, Some(rs), Some(rt), Some(sa));
     }
@@ -460,7 +444,6 @@ impl MgDisassembler{
         let sa: FieldInfos = FieldInfos::default_imm_field(2);
 
         prototype.mnemonic = Some(MgMnemonic::MgMneXori);
-        prototype.category = Some(MgInstructionCategory::Logical);
         
         return MgDisassembler::imm_format(self, prototype, Some(rs), Some(rt), Some(sa));
     }
@@ -469,7 +452,6 @@ impl MgDisassembler{
         let sa: FieldInfos = FieldInfos::default_imm_field(1);
 
         prototype.mnemonic = Some(MgMnemonic::MgMneLui);
-        prototype.category = Some(MgInstructionCategory::Logical);
 
         return MgDisassembler::imm_format(self, prototype, Some(FieldInfos::default_fixed_field()), Some(rt), Some(sa));
     }
@@ -482,7 +464,6 @@ impl MgDisassembler{
         let imm: FieldInfos = FieldInfos::default_imm_field(2);
 
         prototype.is_relative = true;
-        prototype.category = Some(MgInstructionCategory::BranchJump);
         prototype.mnemonic = Some(MgMnemonic::MgMneBeql);
         prototype.is_conditional = true;
         
@@ -497,7 +478,6 @@ impl MgDisassembler{
         let imm: FieldInfos = FieldInfos::default_imm_field(2);
 
         prototype.is_relative = true;
-        prototype.category = Some(MgInstructionCategory::BranchJump);
         prototype.mnemonic = Some(MgMnemonic::MgMneBnel);
         prototype.is_conditional = true;
         
@@ -510,7 +490,6 @@ impl MgDisassembler{
 
         prototype.is_relative = true;
         prototype.is_conditional = true;
-        prototype.category = Some(MgInstructionCategory::BranchJump);
 
         (rt, rs, imm) = if let MgMipsVersion::M32(MgMips32::MgPreR6) | MgMipsVersion::M64(MgMips64::MgPreR6) = self.version{
             if prototype.machine_code >> 0x10 & 0b11111 != 0{
@@ -545,7 +524,6 @@ impl MgDisassembler{
 
         prototype.is_relative = true;
         prototype.is_conditional = true;
-        prototype.category = Some(MgInstructionCategory::BranchJump);
 
         (rt, rs, imm) = if let MgMipsVersion::M32(MgMips32::MgPreR6) | MgMipsVersion::M64(MgMips64::MgPreR6) = self.version{
             if prototype.machine_code >> 0x10 & 0b11111 != 0{
@@ -593,10 +571,10 @@ impl MgDisassembler{
             // _ => unimplemented!(),
         }
                 
-        (prototype.category,prototype.mnemonic) = if prototype.opcode >> 3 & 1 == 0{
-            (Some(MgInstructionCategory::Load), mnemonics_id[(prototype.opcode >> 2 & 1) as usize][0])
+        prototype.mnemonic = if prototype.opcode >> 3 & 1 == 0{
+            mnemonics_id[(prototype.opcode >> 2 & 1) as usize][0]
         }else{
-            (Some(MgInstructionCategory::Store), mnemonics_id[(prototype.opcode >> 2 & 1) as usize][1])
+            mnemonics_id[(prototype.opcode >> 2 & 1) as usize][1]
         };
 
         return MgDisassembler::imm_format(self, prototype, Some(base), Some(rt), Some(FieldInfos::default_imm_field(1)))
@@ -608,7 +586,6 @@ impl MgDisassembler{
         if let MgMipsVersion::M32(MgMips32::MgPreR6) | MgMipsVersion::M64(MgMips64::MgPreR6) = self.version{
             return self.load_store_cp2(prototype)
         }
-        prototype.category = Some(MgInstructionCategory::BranchJump);
         (rs, rt, imm) = if prototype.machine_code >> 21 & 0b11111 != 0{
             prototype.is_relative = true;
             prototype.is_conditional = true;
@@ -628,7 +605,6 @@ impl MgDisassembler{
         if let MgMipsVersion::M32(MgMips32::MgPreR6) | MgMipsVersion::M64(MgMips64::MgPreR6) = self.version{
             return self.load_store_cp2(prototype)
         }
-        prototype.category = Some(MgInstructionCategory::BranchJump);
         (rs, rt, imm) = if prototype.machine_code >> 21 & 0b11111 != 0{
             prototype.is_relative = true;
             prototype.is_conditional = true;
@@ -653,10 +629,8 @@ impl MgDisassembler{
         };
 
         //Some attributes about the instruction
-        prototype.format = Some(MgInstructionFormat::Jump);
         prototype.operand_num = 1 ;
         prototype.is_conditional = true;
-        prototype.category = Some(MgInstructionCategory::BranchJump);
         prototype.operand[0] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code & 0x3FFFFFF) as u64));
 
         Ok(())
@@ -667,29 +641,22 @@ impl MgDisassembler{
         let rt = FieldInfos::default_reg_field(0, MgCoprocessor::Cp2);
         let imm: Option<FieldInfos>;
 
-         match self.version{
+        imm = match self.version{
             MgMipsVersion::M32(MgMips32::MgR6) | MgMipsVersion::M64(MgMips64::MgR6)=> {
-                (prototype.mnemonic, prototype.category) = (mnemonic[(prototype.machine_code >> 23 & 1) as usize][(prototype.machine_code >> 21 & 1) as usize], Some(if prototype.machine_code >> 21 & 1 == 0{
-                    MgInstructionCategory::Load
-                }else{
-                    MgInstructionCategory::Store
-                }));
-
+                if prototype.opcode != 0b010010{
+                    return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+                }
+                prototype.mnemonic = mnemonic[(prototype.machine_code >> 23 & 1) as usize][(prototype.machine_code >> 21 & 1) as usize];
                 prototype.operand[1] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code >> 7 & 0b111111111) as u64));
                 prototype.operand_num+=1;
-                imm = None;
+                None
             },
             MgMipsVersion::M32(MgMips32::MgPreR6) | MgMipsVersion::M64(MgMips64::MgPreR6) => {
                 if prototype.opcode == 0b010010{
                     return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
                 }
                 prototype.mnemonic = mnemonic[(prototype.opcode >> 2 & 1) as usize][(prototype.opcode >> 3 & 1) as usize];
-                prototype.category = if prototype.opcode >> 3 & 1 == 0{
-                    Some(MgInstructionCategory::Load)
-                }else{
-                    Some(MgInstructionCategory::Store)
-                };
-                imm = Some(FieldInfos::default_imm_field(1));
+                Some(FieldInfos::default_imm_field(1))
             }
         };
 
@@ -701,16 +668,16 @@ impl MgDisassembler{
         let imm: Option<FieldInfos>;
 
         prototype.is_conditional = true;
-        (prototype.mnemonic, prototype.category) = match self.version{
+        prototype.mnemonic = match self.version{
             MgMipsVersion::M32(MgMips32::MgPreR6) | MgMipsVersion::M64(MgMips64::MgPreR6) => {
                 if 0b011111 == prototype.opcode{
                     return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
                 }else {
                     imm = Some(FieldInfos::default_imm_field(1));
                     if prototype.opcode >> 3 & 1 == 1{
-                        (Some(MgMnemonic::MgMneSc), Some(MgInstructionCategory::Store))
+                        Some(MgMnemonic::MgMneSc)
                     }else {
-                        (Some(MgMnemonic::MgMneLl), Some(MgInstructionCategory::Load))
+                        Some(MgMnemonic::MgMneLl)
                     }
                 }
             },
@@ -725,9 +692,9 @@ impl MgDisassembler{
                     prototype.operand[1] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code >> 7 & 0b111111111) as u64));
                     prototype.operand_num += 1;
                     if prototype.machine_code >> 4 & 1 != 1{
-                        (Some(MgMnemonic::MgMneSc), Some(MgInstructionCategory::Store))
+                        Some(MgMnemonic::MgMneSc)
                     }else {
-                        (Some(MgMnemonic::MgMneLl), Some(MgInstructionCategory::Load))
+                        Some(MgMnemonic::MgMneLl)
                     }
                 }
             },
@@ -756,12 +723,6 @@ impl MgDisassembler{
             rt = FieldInfos::default_reg_field(0, MgCoprocessor::Cpu);
         }
 
-        prototype.category = Some(match prototype.machine_code & 1{
-            0 => MgInstructionCategory::Load,
-            1 => MgInstructionCategory::Store,
-            _ => return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
-        });
-
         return MgDisassembler::imm_format(self, prototype, Some(base), Some(rt), Some(FieldInfos::default_imm_field(1)))
     }
     pub(super) fn cache_pref(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
@@ -772,10 +733,10 @@ impl MgDisassembler{
             if prototype.opcode == 0b011111{
                 Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
             } else{
-                (prototype.mnemonic, prototype.category) = if prototype.opcode == 0b110011{
-                    (Some(MgMnemonic::MgMnePref), Some(MgInstructionCategory::MemoryControl))
+                prototype.mnemonic = if prototype.opcode == 0b110011{
+                    Some(MgMnemonic::MgMnePref)
                 }else if prototype.opcode == 0b101111{
-                    (Some(MgMnemonic::MgMneCache), Some(MgInstructionCategory::Priviledge))
+                    Some(MgMnemonic::MgMneCache)
                 }else{
                     return Err(MgError::throw_error(MgErrorCode::DevError, prototype.opcode, prototype.address, prototype.machine_code))
                 };
@@ -787,10 +748,10 @@ impl MgDisassembler{
             } else  if prototype.machine_code >> 6 & 1 == 1{
                 Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
             } else{
-                (prototype.mnemonic, prototype.category) = if prototype.machine_code >> 4 & 1 == 1{
-                    (Some(MgMnemonic::MgMnePref), Some(MgInstructionCategory::MemoryControl))
+                prototype.mnemonic = if prototype.machine_code >> 4 & 1 == 1{
+                    Some(MgMnemonic::MgMnePref)
                 } else if prototype.machine_code >> 4 & 1 == 0{
-                    (Some(MgMnemonic::MgMneCache), Some(MgInstructionCategory::Priviledge))
+                    Some(MgMnemonic::MgMneCache)
                 }else{
                     return Err(MgError::throw_error(MgErrorCode::DevError, prototype.opcode, prototype.address, prototype.machine_code))
                 };
@@ -808,7 +769,6 @@ impl MgDisassembler{
             return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
         };
         prototype.mnemonic = Some(MgMnemonic::MgMneDaui);
-        prototype.category = Some(MgInstructionCategory::LargeConstant);
 
         self.imm_format(prototype, Some(FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg)), Some(FieldInfos::default_reg_field(0, MgCoprocessor::Cpu)), Some(FieldInfos::default_imm_field(2)))
     }
@@ -831,12 +791,9 @@ impl MgDisassembler{
             rt = FieldInfos::default_fixed_field();
             rd = FieldInfos::default_fixed_field();
             sa = FieldInfos::default_fixed_field();
-
-            prototype.category = Some(MgInstructionCategory::Control);
         }
         else{
             prototype.mnemonic = Some(MgMnemonic::MgMneSll);
-            prototype.category = Some(MgInstructionCategory::Shift);
 
             rt = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
             rd = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
@@ -865,7 +822,6 @@ impl MgDisassembler{
         if prototype.machine_code >> 8 & 0b111 != 0{
             return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
         }
-        prototype.category = Some(MgInstructionCategory::AddressComputation);
         MgDisassembler::reg_format(self, prototype, Some(FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg)), Some(FieldInfos::reg_field(2, MgCoprocessor::Cpu, MgOperandType::Reg)), Some(FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg)), Some(FieldInfos::imm_field(3, 3)))
     }
     pub(super) fn ddiv_ddivu(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
@@ -873,7 +829,6 @@ impl MgDisassembler{
             return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
         };
 
-        prototype.category = Some(MgInstructionCategory::Arithmetic);
 
         prototype.mnemonic = if prototype.machine_code & 1 == 1{
             Some(MgMnemonic::MgMneDdivu)
@@ -892,8 +847,6 @@ impl MgDisassembler{
         let mnemonics = [Some(MgMnemonic::MgMneMovf), Some(MgMnemonic::MgMneMovt)];
         let registers: [&str; 8] = [ MG_REG_FCC0, MG_REG_FCC1, MG_REG_FCC2, MG_REG_FCC3, MG_REG_FCC4, MG_REG_FCC5, MG_REG_FCC6, MG_REG_FCC7,];
         
-        prototype.format = Some(MgInstructionFormat::CoditionCodeFpu);
-        prototype.category = Some(MgInstructionCategory::Move);
         prototype.mnemonic = mnemonics[(prototype.machine_code >> 16 & 1) as usize];
 
         prototype.operand_num = 3;
@@ -921,12 +874,10 @@ impl MgDisassembler{
             _ => None
         };
 
-        prototype.category = Some(MgInstructionCategory::Shift);
         return MgDisassembler::reg_format(self, prototype, Some(rs), Some(rt), Some(rd), Some(sa))
     }
     pub(super) fn sllv(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         prototype.mnemonic = Some(MgMnemonic::MgMneSllv);
-        prototype.category = Some(MgInstructionCategory::Shift);
 
         let sa: FieldInfos = FieldInfos::default_fixed_field();
         let rt: FieldInfos = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
@@ -953,14 +904,12 @@ impl MgDisassembler{
             _ => None
         };
 
-        prototype.category = Some(MgInstructionCategory::Shift);
         return MgDisassembler::reg_format(self, prototype, Some(rs), Some(rt), Some(rd), Some(sa))
     }
     pub(super) fn jr(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let rd: FieldInfos = FieldInfos::fixed_field(4, 0b1111111111);
         let rs: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
 
-        prototype.category = Some(MgInstructionCategory::BranchJump);
 
         if (prototype.machine_code >> 6 & 0b10000) != 0{
             prototype.mnemonic = Some(MgMnemonic::MgMneJrhb);
@@ -976,8 +925,6 @@ impl MgDisassembler{
         let rd: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
         let rs: FieldInfos = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
         
-        prototype.category = Some(MgInstructionCategory::BranchJump);
-
         if (prototype.machine_code >> 6 & 0b10000) != 0{
             prototype.mnemonic = Some(MgMnemonic::MgMneJalrhb)
         }
@@ -992,7 +939,6 @@ impl MgDisassembler{
         let rt: FieldInfos = FieldInfos::reg_field(2, MgCoprocessor::Cpu, MgOperandType::Reg);
         let rd: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
 
-        prototype.category = Some(MgInstructionCategory::Move);
         prototype.is_conditional = true;
 
         if prototype.machine_code & 0b111111 == 0b001010{
@@ -1009,8 +955,6 @@ impl MgDisassembler{
             0 => Some(MgMnemonic::MgMneSyscall),
             _ => None
         };
-        prototype.category = Some(MgInstructionCategory::Trap);
-        prototype.format = Some(MgInstructionFormat::Other);
         prototype.operand[0] = Some(MgOpImmediate::new_imm_opreand(((prototype.machine_code >> 6) & 0xFFFFF) as u64));
 
         Ok(())
@@ -1021,7 +965,6 @@ impl MgDisassembler{
 
         //Setting the attributes
         prototype.mnemonic = Some(MgMnemonic::MgMneSync);
-        prototype.category = Some(MgInstructionCategory::MemoryControl);
         MgDisassembler::reg_format(self, prototype, None, None, Some(rd), Some(sa))
     }
     pub(super) fn mfhi_mflo(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
@@ -1036,8 +979,6 @@ impl MgDisassembler{
         let mnemonics = [Some(MgMnemonic::MgMneMfhi), Some(MgMnemonic::MgMneMflo)];
 
         prototype.mnemonic = mnemonics[(prototype.machine_code >> 1 & 1) as usize];
-        prototype.category = Some(MgInstructionCategory::Move);
-
         MgDisassembler::reg_format(self, prototype, None, Some(FieldInfos::fixed_field(4, 0b1111111111)), Some(rd), Some(FieldInfos::default_fixed_field()))
     }
     pub(super) fn mthi_mtlo(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
@@ -1052,8 +993,6 @@ impl MgDisassembler{
         let mnemonics = [Some(MgMnemonic::MgMneMthi), Some(MgMnemonic::MgMneMtlo)];
         
         prototype.mnemonic = mnemonics[(prototype.machine_code >> 1 & 1) as usize];
-        prototype.category = Some(MgInstructionCategory::Move);
-
         MgDisassembler::reg_format(self, prototype, Some(rs), None, None, Some(FieldInfos::fixed_field(4, 0b111111111111111)))
     }
     pub(super) fn mult_multu_div_divu(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
@@ -1061,9 +1000,7 @@ impl MgDisassembler{
         let rs: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
         let mnemonics = [[Some(MgMnemonic::MgMneMult), Some(MgMnemonic::MgMneMultu)], [Some(MgMnemonic::MgMneDiv), Some(MgMnemonic::MgMneDivu)]];
 
-        prototype.category = Some(MgInstructionCategory::Arithmetic);
         prototype.mnemonic = mnemonics[(prototype.machine_code >> 1 & 1) as usize][(prototype.machine_code & 1) as usize];
-
         MgDisassembler::reg_format(self, prototype, Some(rs), Some(rt), None, Some(FieldInfos::fixed_field(4, 0b1111111111)))
     }
     pub(super) fn add_addu_sub_subu_and_or_xor_nor(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
@@ -1074,10 +1011,8 @@ impl MgDisassembler{
 
         prototype.mnemonic = mnemonics[(prototype.machine_code >> 2 & 1) as usize][(prototype.machine_code >> 1 & 1) as usize][(prototype.machine_code & 1) as usize];
         if (prototype.machine_code >> 2 & 1) == 1{
-            prototype.category = Some(MgInstructionCategory::Logical);
         }
         else{
-            prototype.category = Some(MgInstructionCategory::Arithmetic);
             if (prototype.machine_code & 1) == 0{
             }
         }
@@ -1090,7 +1025,6 @@ impl MgDisassembler{
         let rs: FieldInfos = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
         let mnemonics = [Some(MgMnemonic::MgMneSlt), Some(MgMnemonic::MgMneSltu)];
 
-        prototype.category = Some(MgInstructionCategory::Arithmetic);
         prototype.is_conditional = true;
         prototype.mnemonic = mnemonics[(prototype.machine_code & 1) as usize];
 
@@ -1102,8 +1036,6 @@ impl MgDisassembler{
         let mnemonics = [[Some(MgMnemonic::MgMneTge), Some(MgMnemonic::MgMneTgeu)], [Some(MgMnemonic::MgMneTlt), Some(MgMnemonic::MgMneTltu)]];
         
         prototype.mnemonic = mnemonics[(prototype.machine_code >> 1 & 1) as usize][(prototype.machine_code & 1) as usize];
-        prototype.category = Some(MgInstructionCategory::Trap);
-
         MgDisassembler::reg_format(self, prototype, Some(rs), Some(rt), None, Some(FieldInfos::imm_field(2, 0b1111111111)))
     }
     pub(super) fn seleqz_selnez(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
@@ -1117,7 +1049,6 @@ impl MgDisassembler{
 
         prototype.is_conditional = true;
 
-        prototype.category = Some(MgInstructionCategory::Move);
         prototype.mnemonic = if prototype.machine_code >> 1 & 1 == 1{
             Some(MgMnemonic::MgMneSelnez)
         }else{
@@ -1130,7 +1061,6 @@ impl MgDisassembler{
         let rt: FieldInfos = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
         let rs: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
         
-        prototype.category = Some(MgInstructionCategory::Trap);
         prototype.mnemonic = if prototype.machine_code >> 1 & 1 == 0{
             Some(MgMnemonic::MgMneTeq)
         }else{
@@ -1145,7 +1075,6 @@ impl MgDisassembler{
         let rs: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
         let rt: FieldInfos = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
 
-        prototype.category = Some(MgInstructionCategory::Arithmetic);
         prototype.mnemonic = match prototype.machine_code & 1{
             0 => Some(MgMnemonic::MgMneMadd),
             1 => Some(MgMnemonic::MgMneMaddu),
@@ -1159,7 +1088,6 @@ impl MgDisassembler{
         let rt: FieldInfos = FieldInfos::reg_field(2, MgCoprocessor::Cpu, MgOperandType::Reg);
         let rd: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
 
-        prototype.category = Some(MgInstructionCategory::Arithmetic);
         prototype.mnemonic = Some(MgMnemonic::MgMneMul);
 
         MgDisassembler::reg_format(self, prototype, Some(rs), Some(rt), Some(rd), Some(FieldInfos::default_fixed_field()))
@@ -1168,7 +1096,6 @@ impl MgDisassembler{
         let rs: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
         let rt: FieldInfos = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
 
-        prototype.category = Some(MgInstructionCategory::Arithmetic);
         prototype.mnemonic = match prototype.machine_code & 1{
             0 => Some(MgMnemonic::MgMneMsub),
             1 => Some(MgMnemonic::MgMneMsubu),
@@ -1181,7 +1108,6 @@ impl MgDisassembler{
         let rd: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
         let rs: FieldInfos = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
 
-        prototype.category = Some(MgInstructionCategory::Arithmetic);
         prototype.mnemonic = match prototype.machine_code & 1{
             0 => Some(MgMnemonic::MgMneClz),
             1 => Some(MgMnemonic::MgMneClo),
@@ -1200,8 +1126,6 @@ impl MgDisassembler{
     }
     pub(super) fn sdbbp(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         prototype.mnemonic = Some(MgMnemonic::MgMneSdbbp);
-        prototype.category = Some(MgInstructionCategory::Trap);
-        prototype.format = Some(MgInstructionFormat::Other);
         prototype.operand[0] = Some(MgOpImmediate::new_imm_opreand(((prototype.machine_code >> 6) & 0xFFFFF) as u64));
 
         Ok(())
@@ -1210,7 +1134,6 @@ impl MgDisassembler{
     //Special3 They need some testing
     pub(super) fn ext(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         prototype.mnemonic = Some(MgMnemonic::MgMneExt);
-        prototype.category = Some(MgInstructionCategory::InsertExtract);
 
         prototype.operand_num = 4;
         prototype.operand[0] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 16 & 0b11111) as u8, MgCoprocessor::Cpu));
@@ -1221,7 +1144,6 @@ impl MgDisassembler{
     }
     pub(super) fn ins(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         prototype.mnemonic = Some(MgMnemonic::MgMneIns);
-        prototype.category = Some(MgInstructionCategory::InsertExtract);
 
         prototype.operand_num = 4;
         prototype.operand[0] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 16 & 0b11111) as u8, MgCoprocessor::Cpu));
@@ -1234,10 +1156,10 @@ impl MgDisassembler{
         let rd: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
         let rt: FieldInfos = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
 
-        (prototype.category, prototype.mnemonic) = match prototype.machine_code >> 6 & 0b11111{
-            0b00010 => (Some(MgInstructionCategory::InsertExtract), Some(MgMnemonic::MgMneWsbh)),
-            0b10000 => (Some(MgInstructionCategory::Arithmetic),Some(MgMnemonic::MgMneSeb)),
-            0b11000 => (Some(MgInstructionCategory::Arithmetic),Some(MgMnemonic::MgMneSeh)),
+        prototype.mnemonic = match prototype.machine_code >> 6 & 0b11111{
+            0b00010 => Some(MgMnemonic::MgMneWsbh),
+            0b10000 => Some(MgMnemonic::MgMneSeb),
+            0b11000 => Some(MgMnemonic::MgMneSeh),
             _ => return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
         };
         
@@ -1247,9 +1169,7 @@ impl MgDisassembler{
         let rt: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
         let rd: FieldInfos = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
         
-        prototype.category = Some(MgInstructionCategory::Move);
         prototype.mnemonic = Some(MgMnemonic::MgMneRdhwr);
-
         MgDisassembler::reg_format(self, prototype, Some(FieldInfos::default_fixed_field()), Some(rt), Some(rd), Some(FieldInfos::default_fixed_field()))
     }
 
@@ -1260,8 +1180,6 @@ impl MgDisassembler{
             return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
         }
 
-        prototype.category = Some(MgInstructionCategory::Priviledge);
-        prototype.format = Some(MgInstructionFormat::Other);
         prototype.mnemonic = mnemonics[(prototype.machine_code >> 23 & 1) as usize];
         prototype.operand_num = 3;
 
@@ -1273,7 +1191,6 @@ impl MgDisassembler{
     pub(super) fn gpr_shadowset(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let mnemonics = [Some(MgMnemonic::MgMneRdpgpr), Some(MgMnemonic::MgMneWrpgpr)];
 
-        prototype.category = Some(MgInstructionCategory::Priviledge);
         prototype.mnemonic = mnemonics[(prototype.machine_code >> 23 & 1) as usize];
         MgDisassembler::cpx_cpu_transfer_format(self, prototype, FieldInfos::default_reg_field(1, MgCoprocessor::Cpu), FieldInfos::default_reg_field(0, MgCoprocessor::Cpu))
     }
@@ -1286,8 +1203,6 @@ impl MgDisassembler{
             return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
         }
         
-        prototype.category = Some(MgInstructionCategory::Priviledge);
-        prototype.format = Some(MgInstructionFormat::Mfmc0);
         prototype.mnemonic = mnemonics[(prototype.machine_code >> 5 & 1) as usize];
         prototype.operand_num = 1;
         prototype.operand[0] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 16 & 0b11111) as u8, MgCoprocessor::Cpu));
@@ -1310,8 +1225,6 @@ impl MgDisassembler{
             return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
         }
 
-        prototype.category = Some(MgInstructionCategory::Priviledge);
-        prototype.format = Some(MgInstructionFormat::Other);
         prototype.mnemonic = mnemonics[(prototype.machine_code >> 3 & 0b111) as usize][(prototype.machine_code & 0b111) as usize];
         Ok(())
     }
@@ -1319,32 +1232,26 @@ impl MgDisassembler{
     //pcrel
     pub (super) fn addiupc(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         prototype.mnemonic = Some(MgMnemonic::MgMneAddiupc);
-        prototype.category = Some(MgInstructionCategory::Arithmetic);
         Ok(())
     }
     pub (super) fn lwpc(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         prototype.mnemonic = Some(MgMnemonic::MgMneLwpc);
-        prototype.category = Some(MgInstructionCategory::Load);
         Ok(())
     }
     pub (super) fn lwupc(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         prototype.mnemonic = Some(MgMnemonic::MgMneLwupc);
-        prototype.category = Some(MgInstructionCategory::Load);
         Ok(())
     }
     pub (super) fn aluipc(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         prototype.mnemonic = Some(MgMnemonic::MgMneAluipc);
-        prototype.category = Some(MgInstructionCategory::Logical);
         Ok(())
     }
     pub (super) fn ldpc(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{      //The manual didn't have an entry 
         prototype.mnemonic = Some(MgMnemonic::MgMneLdpc);                                                   //for that instruction but it was mentionned in the Table A.13
-        prototype.category = Some(MgInstructionCategory::Load);
         Ok(())
     }
     pub (super) fn auipc(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         prototype.mnemonic = Some(MgMnemonic::MgMneAuipc);
-        prototype.category = Some(MgInstructionCategory::Logical);
         Ok(())
     }
 }

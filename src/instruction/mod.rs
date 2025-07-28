@@ -11,23 +11,6 @@ use super::error::*;
 use super::utils::string::MgString;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
-pub enum MgInstructionFormat{
-    Imm, Reg, Jump, Other,
-    CoditionCodeFpu, CpxCpuTransfer,
-    Mfmc0, 
-}
-
-#[derive(Copy, Clone, Debug, PartialEq)]
-pub enum MgInstructionCategory{
-    BranchJump, Load,
-    Store, Move, Priviledge,
-    Logical, Arithmetic, Control,
-    Trap, MemoryControl, _Ejtag,
-    InsertExtract, Shift, AddressComputation,
-    LargeConstant
-}
-
-#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum MgCoprocessor{
     Cpu, Cp0, Cp1, Cp2, Cp1x
 }
@@ -39,8 +22,6 @@ pub (crate) struct MgInstructionPrototype{
     pub opcode: u8,
     pub machine_code: u32,
     pub string: MgString,
-    pub category: Option<MgInstructionCategory>,
-    pub format: Option<MgInstructionFormat>,
     pub coprocessor: Option<MgCoprocessor>,
     pub version: Option<MgMipsVersion>,
     pub is_conditional: bool,
@@ -58,8 +39,6 @@ pub struct MgInstruction{
     operand_num: usize,
     string: MgString,
     mnemonic: MgMnemonic,
-    category: MgInstructionCategory,
-    format: MgInstructionFormat,
     coprocessor: MgCoprocessor,
     is_conditional: bool,
     is_relative: bool,
@@ -71,9 +50,6 @@ pub struct MgInstruction{
 impl MgInstruction{
     pub (crate) fn new_instruction(context: MgInstructionPrototype) -> Result<MgInstruction, MgError>{
         let Some(mnemonic) = context.mnemonic else{
-            return Err(MgError::throw_error(MgErrorCode::DevError, context.opcode, context.address, context.machine_code))
-        };
-        let (Some(category), Some(format)) = (context.category, context.format) else{
             return Err(MgError::throw_error(MgErrorCode::DevError, context.opcode, context.address, context.machine_code))
         };
         let Some(version) = context.version else{
@@ -88,8 +64,6 @@ impl MgInstruction{
             machine_code: context.machine_code,
             mnemonic,
             string: context.string,
-            category,
-            format,
             coprocessor,
             is_conditional: context.is_conditional,
             is_relative: context.is_relative,
@@ -122,12 +96,6 @@ impl MgInstruction{
     }
     pub fn get_address(&self) -> u64{
         self.address
-    }
-    pub fn get_category(&self) -> MgInstructionCategory{
-        self.category
-    }
-    pub fn get_format(&self) -> MgInstructionFormat{
-        self.format
     }
     pub fn get_string(&self) -> &[char]{
         self.string.data()
