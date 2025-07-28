@@ -9,6 +9,8 @@ mod test_special;
 mod test_load_store;
 mod test_arithmetic;
 mod test_branch_jump;
+mod test_moves;
+mod test_logic;
 
 use crate::*;
 use crate::operands::*;
@@ -129,4 +131,27 @@ fn test_daui(){
     };
     assert_eq!(true, check_field_zero_assert(&decoder, machine_code[0], 0b11111, MgMnemonic::MgMneDaui, 21));
     assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneDaui, machine_code[0], 0, 0xffff, 2));
+}
+#[test]
+fn test_stli_stliu(){
+    let machine_code = [0x2B640058, 0x2F640058];
+
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
+
+    let slti = decoder.disassemble(machine_code[0], 0).unwrap();
+    let sltiu = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(slti.get_mnemonic(), MgMnemonic::MgMneSlti);
+    assert_eq!(sltiu.get_mnemonic(), MgMnemonic::MgMneSltiu);
+    assert_eq!(slti.get_mnemonic_str(), MG_MNE_SLTI);
+    assert_eq!(sltiu.get_mnemonic_str(), MG_MNE_SLTIU);
+
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneSlti, true, true, true, true));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneSltiu, true, true, true, true));
+
+    assert_eq!(true, check_operands(&slti, 3));
+    assert_eq!(true, check_operands(&sltiu, 3));
+
+    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneSlti, machine_code[0], 0, 0xffff, 2));
+    assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneSltiu, machine_code[1], 0, 0xffff, 2));
 }

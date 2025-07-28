@@ -55,6 +55,40 @@ fn test_sc_ll(){
     assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneLl, machine_code[3], 7, 0b111111111, 1));
 }
 #[test]
+fn test_load_store_cp1(){
+    let machine_code: [u32; 4] = [0xC4410454, 0xE4410454, 0xD4400454, 0xF4400454];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgPreR6));
+    let lwc1 = decoder.disassemble(machine_code[0], 0).unwrap();
+    let swc1 = decoder.disassemble(machine_code[1], 0).unwrap();
+    let ldc1 = decoder.disassemble(machine_code[2], 0).unwrap();
+    let sdc1 = decoder.disassemble(machine_code[3], 0).unwrap();
+
+    assert_eq!(lwc1.get_mnemonic(), MgMnemonic::MgMneLwc1);
+    assert_eq!(swc1.get_mnemonic(), MgMnemonic::MgMneSwc1);
+    assert_eq!(ldc1.get_mnemonic(), MgMnemonic::MgMneLdc1);
+    assert_eq!(sdc1.get_mnemonic(), MgMnemonic::MgMneSdc1);
+
+    assert_eq!(lwc1.get_mnemonic_str(), MG_MNE_LWC1);
+    assert_eq!(swc1.get_mnemonic_str(), MG_MNE_SWC1);
+    assert_eq!(ldc1.get_mnemonic_str(), MG_MNE_LDC1);
+    assert_eq!(sdc1.get_mnemonic_str(), MG_MNE_SDC1);
+
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneLwc1, true, true, true, true));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneSwc1, true, true, true, true));
+    assert_eq!(true, version_test(machine_code[2], MgMnemonic::MgMneLdc1, true, true, true, true));
+    assert_eq!(true, version_test(machine_code[3], MgMnemonic::MgMneSdc1, true, true, true, true));
+
+    assert_eq!(true, check_operands(&lwc1, 3));
+    assert_eq!(true, check_operands(&swc1, 3));
+    assert_eq!(true, check_operands(&ldc1, 3));
+    assert_eq!(true, check_operands(&sdc1, 3));
+
+    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneLwc1, machine_code[0], 0, 0xffff, 1));
+    assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneSwc1, machine_code[1], 0, 0xffff, 1));
+    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneLdc1, machine_code[2], 0, 0xffff, 1));
+    assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneSdc1, machine_code[3], 0, 0xffff, 1));
+}
+#[test]
 fn test_load_store_cp2(){
     let machine_code: [u32; 8] = [0xC8020050, 0xE8020050, 0xD8020050, 0xF8020050, 0x49C00000,0x49400000, 0x49E00000,0x49600000];
     let mut decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgPreR6));
@@ -76,6 +110,11 @@ fn test_load_store_cp2(){
     assert_eq!(swc2.get_mnemonic(), MgMnemonic::MgMneSwc2);
     assert_eq!(ldc2.get_mnemonic(), MgMnemonic::MgMneLdc2);
     assert_eq!(sdc2.get_mnemonic(), MgMnemonic::MgMneSdc2);
+
+    assert_eq!(lwc2.get_mnemonic_str(), MG_MNE_LWC2);
+    assert_eq!(swc2.get_mnemonic_str(), MG_MNE_SWC2);
+    assert_eq!(ldc2.get_mnemonic_str(), MG_MNE_LDC2);
+    assert_eq!(sdc2.get_mnemonic_str(), MG_MNE_SDC2);
 
     assert_eq!(true, check_operands(&lwc2, 3));
     assert_eq!(true, check_operands(&swc2, 3));

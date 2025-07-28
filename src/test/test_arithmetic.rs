@@ -95,3 +95,21 @@ fn test_addi_addiu(){
     assert_eq!(true, check_operands(&addi, 3));
     assert_eq!(true, check_operands(&addiu, 3));
 }
+
+#[test]
+fn test_lui_aui(){
+    let machine_code: [u32; 2] = [0x3d1B9c58, 0x3C1B0058];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgR6));
+    let aui = decoder.disassemble(machine_code[0], 0).unwrap();
+    let lui = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(aui.get_mnemonic(), MgMnemonic::MgMneAui);
+    assert_eq!(lui.get_mnemonic(), MgMnemonic::MgMneLui);
+    assert_eq!(aui.get_mnemonic_str(), MG_MNE_AUI);
+    assert_eq!(lui.get_mnemonic_str(), MG_MNE_LUI);
+
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneAui, false, true, false, true));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneLui, true, true, true, true));
+
+    assert_eq!(true, check_operands(&aui, 3));
+}
