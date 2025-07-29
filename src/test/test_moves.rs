@@ -8,6 +8,30 @@ use crate::disassembler::*;
 use crate::instruction::mnemonics::*;
 
 #[test]
+fn test_movci(){
+    let machine_code: [u32; 2] = [0x01204001,0x01214001];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgPreR6));
+    let movf = decoder.disassemble(machine_code[0], 0).unwrap();
+    let movt = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(MgMnemonic::MgMneMovt, movt.get_mnemonic());
+    assert_eq!(MgMnemonic::MgMneMovf, movf.get_mnemonic());
+
+    assert_eq!(MG_MNE_MOVF, movf.get_mnemonic_str());
+    assert_eq!(MG_MNE_MOVT, movt.get_mnemonic_str());
+
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneMovf, true, false, true, false));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneMovt, true, false, true, false));
+
+    assert_eq!(true, check_field(&decoder, machine_code[0], 0x1f, MgMnemonic::MgMneMovf, 6));
+    assert_eq!(true, check_field(&decoder, machine_code[0], 1, MgMnemonic::MgMneMovf, 17));
+    assert_eq!(true, check_field(&decoder, machine_code[1], 0x1f, MgMnemonic::MgMneMovt, 6));
+    assert_eq!(true, check_field(&decoder, machine_code[1], 1, MgMnemonic::MgMneMovt, 17));
+
+    assert_eq!(true, check_operands(&movf, 3));
+    assert_eq!(true, check_operands(&movt, 3));
+}
+#[test]
 fn test_mfhi_mflo(){
     let machine_code: [u32; 2] = [0x00002010, 0x00002012];
     let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgPreR6));
