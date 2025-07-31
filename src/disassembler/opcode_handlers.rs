@@ -116,9 +116,9 @@ impl MgDisassembler{
                 MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
                 MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
                 MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
-                MgDisassembler::bshfl,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::cache_pref,  MgDisassembler::sc_ll,  MgDisassembler::no_instructions,
+                MgDisassembler::bshfl,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::cache_pref,  MgDisassembler::sc_ll,  MgDisassembler::scd_lld,
                 MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
-                MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::cache_pref,  MgDisassembler::sc_ll,  MgDisassembler::no_instructions,
+                MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::cache_pref,  MgDisassembler::sc_ll,  MgDisassembler::scd_lld,
                 MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::rdhwr,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions ];
         
         SPECIAL3_MAP[(prototype.machine_code & 0b111111) as usize](self, prototype)
@@ -683,12 +683,85 @@ impl MgDisassembler{
 
         return MgDisassembler::imm_format(self, prototype, Some(base), Some(rt), imm)
     }
+    pub (super) fn sdl_sdr(&self, prototype : &mut MgInstructionPrototype) -> Result<(), MgError>{
+        let base: FieldInfos = FieldInfos::default_reg_field(2, MgCoprocessor::Cpu);
+        let rt = FieldInfos::default_reg_field(0, MgCoprocessor::Cpu);
+        let imm: Option<FieldInfos> = Some(FieldInfos::default_imm_field(1));
+
+        let MgMipsVersion::M64(MgMips64::MgPreR6) = self.version else {
+            return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+        };
+
+        prototype.mnemonic = if prototype.opcode & 1 == 1{
+            Some(MgMnemonic::MgMneSdr)
+        }else {
+            Some(MgMnemonic::MgMneSdl)
+        };
+
+        return MgDisassembler::imm_format(self, prototype, Some(base), Some(rt), imm)
+    }
+    pub (super) fn sd_ld(&self, prototype : &mut MgInstructionPrototype) -> Result<(), MgError>{
+        let base: FieldInfos = FieldInfos::default_reg_field(2, MgCoprocessor::Cpu);
+        let rt = FieldInfos::default_reg_field(0, MgCoprocessor::Cpu);
+        let imm: Option<FieldInfos> = Some(FieldInfos::default_imm_field(1));
+
+        if let MgMipsVersion::M32(_) = self.version{
+            return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+        }
+
+        prototype.mnemonic = if prototype.opcode >> 3 & 1 == 1{
+            Some(MgMnemonic::MgMneSd)
+        }else {
+            Some(MgMnemonic::MgMneLd)
+        };
+
+        return MgDisassembler::imm_format(self, prototype, Some(base), Some(rt), imm)
+    }
+    pub (super) fn scd_lld(&self, prototype : &mut MgInstructionPrototype) -> Result<(), MgError>{
+        let base: FieldInfos = FieldInfos::default_reg_field(2, MgCoprocessor::Cpu);
+        let rt = FieldInfos::default_reg_field(0, MgCoprocessor::Cpu);
+        let imm: Option<FieldInfos>;
+
+        prototype.mnemonic = match self.version{
+            MgMipsVersion::M64(MgMips64::MgPreR6) => {
+                if 0b011111 == prototype.opcode{
+                    return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+                }
+                imm = Some(FieldInfos::default_imm_field(1));
+                if prototype.opcode >> 3 & 1 == 1{
+                    prototype.is_conditional = true;
+                    Some(MgMnemonic::MgMneScd)
+                }else {
+                    Some(MgMnemonic::MgMneLld)
+                }
+            },
+            MgMipsVersion::M64(MgMips64::MgR6)=>{
+                if 0b011111 != prototype.opcode{
+                    return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+                };
+                if prototype.machine_code >> 6 & 1 == 1{
+                    return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
+                }
+                imm = None;
+                prototype.operand[1] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code >> 7 & 0x1ff) as u64));
+                prototype.operand_num += 1;
+                if prototype.machine_code >> 4 & 1 != 1{
+                    prototype.is_conditional = true;
+                    Some(MgMnemonic::MgMneScd)
+                }else {
+                    Some(MgMnemonic::MgMneLld)
+                }
+            },
+            _ => return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+        };
+
+        return MgDisassembler::imm_format(self, prototype, Some(base), Some(rt), imm)
+    }
     pub (super) fn sc_ll(&self, prototype : &mut MgInstructionPrototype) -> Result<(), MgError>{
         let base: FieldInfos = FieldInfos::default_reg_field(2, MgCoprocessor::Cpu);
         let rt = FieldInfos::default_reg_field(0, MgCoprocessor::Cpu);
         let imm: Option<FieldInfos>;
 
-        prototype.is_conditional = true;
         prototype.mnemonic = match self.version{
             MgMipsVersion::M32(MgMips32::MgPreR6) | MgMipsVersion::M64(MgMips64::MgPreR6) => {
                 if 0b011111 == prototype.opcode{
@@ -696,6 +769,7 @@ impl MgDisassembler{
                 }else {
                     imm = Some(FieldInfos::default_imm_field(1));
                     if prototype.opcode >> 3 & 1 == 1{
+                        prototype.is_conditional = true;
                         Some(MgMnemonic::MgMneSc)
                     }else {
                         Some(MgMnemonic::MgMneLl)
@@ -713,6 +787,7 @@ impl MgDisassembler{
                     prototype.operand[1] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code >> 7 & 0b111111111) as u64));
                     prototype.operand_num += 1;
                     if prototype.machine_code >> 4 & 1 != 1{
+                        prototype.is_conditional = true;
                         Some(MgMnemonic::MgMneSc)
                     }else {
                         Some(MgMnemonic::MgMneLl)
@@ -725,16 +800,14 @@ impl MgDisassembler{
     }
     pub(super) fn cpu_loadstore(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let base: FieldInfos = FieldInfos::default_reg_field(2, MgCoprocessor::Cpu);
-        let rt: FieldInfos;
+        let rt = FieldInfos::default_reg_field(0, MgCoprocessor::Cpu);
         let mnemonics: [[Option<MgMnemonic>; 7]; 4] = [
             [Some(MgMnemonic::MgMneLb), Some(MgMnemonic::MgMneLh), None, Some(MgMnemonic::MgMneLw), Some(MgMnemonic::MgMneLbu), Some(MgMnemonic::MgMneLhu), None],
             [Some(MgMnemonic::MgMneSb), Some(MgMnemonic::MgMneSh), None, Some(MgMnemonic::MgMneSw), None, None, None],
             [None, None, None, None, None, None, None],
             [None, None, None, None, None, None, None]
         ];
-
         prototype.mnemonic = mnemonics[(prototype.machine_code >> 29 & 3) as usize][(prototype.machine_code >> 26 & 7) as usize];
-        rt = FieldInfos::default_reg_field(0, MgCoprocessor::Cpu);
 
         return MgDisassembler::imm_format(self, prototype, Some(base), Some(rt), Some(FieldInfos::default_imm_field(1)))
     }
@@ -878,16 +951,13 @@ impl MgDisassembler{
         let sa: FieldInfos = FieldInfos::reg_field(2, MgCoprocessor::Cpu, MgOperandType::Imm);
 
 
+        if prototype.machine_code >> 22 & 0xf != 0{
+            return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
+        }
         if prototype.machine_code & 1 == 1{
-            if prototype.machine_code >> 22 & 0xf != 0{
-                return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
-            }
             prototype.mnemonic = Some(MgMnemonic::MgMneSra);
         }else if let MgMipsVersion::M32(MgMips32::MgPreR6) | MgMipsVersion::M64(MgMips64::MgPreR6) = self.version{
             if prototype.machine_code >> 21 & 1 == 1{
-                if prototype.machine_code >> 22 & 0xf != 0{
-                    return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
-                }
                 prototype.mnemonic = Some(MgMnemonic::MgMneRotr);
             }else{
                 prototype.mnemonic = Some(MgMnemonic::MgMneSrl);
@@ -910,7 +980,6 @@ impl MgDisassembler{
         let rt: FieldInfos = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
         let rd: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
         let rs: FieldInfos = FieldInfos::reg_field(2, MgCoprocessor::Cpu, MgOperandType::Imm);
-
 
         prototype.mnemonic = if prototype.machine_code & 1 == 1{
             if prototype.machine_code >> 6 & 0x1f != 0{
