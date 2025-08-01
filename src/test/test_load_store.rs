@@ -129,6 +129,28 @@ fn test_sdr_sdl(){
     }
 }
 #[test]
+fn test_lwu(){
+    let machine_code: u32 = 0x9CA40004;
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
+    let lwu= decoder.disassemble(machine_code, 0).unwrap();
+
+    assert_eq!(lwu.get_mnemonic(), MgMnemonic::MgMneLwu);
+    assert_eq!(mg_get_mnemonic(lwu.get_mnemonic()), MG_MNE_LWU);
+    assert_eq!(true, version_test(machine_code, MgMnemonic::MgMneLwu, false, false, true, true));
+    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneLwu, machine_code, 0, 0xffff, 1));
+    assert_eq!(true, check_operands(&lwu, 3));
+
+
+    match lwu.get_operand(0){
+        Some(MgOperand::MgOpRegister(_)) => (),
+        _ => panic!(),
+    }
+    match lwu.get_operand(2){
+        Some(MgOperand::MgOpRegister(_)) => (),
+        _ => panic!(),
+    }
+}
+#[test]
 fn test_ld_sd(){
     let machine_code: [u32; 2] = [0xDF640050, 0xFF640050];
     let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));

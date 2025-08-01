@@ -5,9 +5,9 @@
 pub mod string{
     #[derive(Clone, Debug, PartialEq)]
     pub struct MgString{
-        buffer: [char; 48],
         capacity: usize,
-        size: usize
+        size: usize,
+        buffer: [char; 48],
     }
 
     impl MgString{

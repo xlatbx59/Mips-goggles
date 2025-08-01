@@ -8,6 +8,56 @@ use crate::disassembler::*;
 use crate::instruction::mnemonics::*;
 
 #[test]
+fn test_clz_clo(){
+    let machine_code: [u32; 4] = [0x00000050, 0x00000051, 0x70A42020, 0x70A42021 ];
+    let mut decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgR6));
+    
+    let mut clz = decoder.disassemble(machine_code[0], 0).unwrap();
+    let mut clo = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(false, clo.is_conditional());
+    assert_eq!(false, clo.is_relative());
+    assert_eq!(false, clo.is_region());
+    assert_eq!(false, clz.is_conditional());
+    assert_eq!(false, clz.is_relative());
+    assert_eq!(false, clz.is_region());
+
+    assert_eq!(MgMnemonic::MgMneClz, clz.get_mnemonic());
+    assert_eq!(MgMnemonic::MgMneClo, clo.get_mnemonic());
+    assert_eq!(MG_MNE_CLZ, clz.get_mnemonic_str());
+    assert_eq!(MG_MNE_CLO, clo.get_mnemonic_str());
+
+    assert_eq!(true, check_operands(&clz, 2));
+    assert_eq!(true, check_operands(&clo, 2));
+
+    assert_eq!(true, check_field(&decoder, machine_code[0], 0b11110, MgMnemonic::MgMneClz, 6));
+    assert_eq!(true, check_field(&decoder, machine_code[1], 0b11110, MgMnemonic::MgMneClo, 6));
+    assert_eq!(true, check_field(&decoder, machine_code[0], 0b11111, MgMnemonic::MgMneClz, 16));
+    assert_eq!(true, check_field(&decoder, machine_code[1], 0b11111, MgMnemonic::MgMneClo, 16));
+
+    decoder.version = MgMipsVersion::M64(MgMips64::MgPreR6);
+    clz = decoder.disassemble(machine_code[2], 0).unwrap();
+    clo = decoder.disassemble(machine_code[3], 0).unwrap();
+
+    assert_eq!(MgMnemonic::MgMneClz, clz.get_mnemonic());
+    assert_eq!(MgMnemonic::MgMneClo, clo.get_mnemonic());
+    assert_eq!(MG_MNE_CLZ, clz.get_mnemonic_str());
+    assert_eq!(MG_MNE_CLO, clo.get_mnemonic_str());
+
+    assert_eq!(false, clo.is_conditional());
+    assert_eq!(false, clo.is_relative());
+    assert_eq!(false, clo.is_region());
+    assert_eq!(false, clz.is_conditional());
+    assert_eq!(false, clz.is_relative());
+    assert_eq!(false, clz.is_region());
+
+    assert_eq!(true, check_operands(&clz, 2));
+    assert_eq!(true, check_operands(&clo, 2));
+
+    assert_eq!(true, check_field(&decoder, machine_code[2], 0b11111, MgMnemonic::MgMneClz, 6));
+    assert_eq!(true, check_field(&decoder, machine_code[3], 0b11111, MgMnemonic::MgMneClo, 6));
+}
+#[test]
 fn test_mul(){
     let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
     let machine_code = 0x70f34802;
@@ -16,7 +66,6 @@ fn test_mul(){
     assert_eq!(true, version_test(machine_code, MgMnemonic::MgMneMul, true, false, true, false));
 
     assert_eq!(true, check_operands(&mul, 3));
-
     assert_eq!(true, check_field(&decoder, machine_code, 0b11111, MgMnemonic::MgMneMul, 6));
 
     assert_eq!(mul.get_mnemonic(), MgMnemonic::MgMneMul);
@@ -47,6 +96,70 @@ fn test_ddiv_ddivu(){
     assert_eq!(ddivu.get_mnemonic(), MgMnemonic::MgMneDdivu);
     assert_eq!(ddiv.get_mnemonic_str(), MG_MNE_DDIV);
     assert_eq!(ddivu.get_mnemonic_str(), MG_MNE_DDIVU);
+}
+#[test]
+fn test_msub_msubu(){
+    let machine_code: [u32; 2] = [0x70850004, 0x70850005];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
+
+    let msub = decoder.disassemble(machine_code[0], 0).unwrap();
+    let msubu = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneMsub, true, false, true, false));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneMsubu, true, false, true, false));
+
+    assert_eq!(false, msubu.is_conditional());
+    assert_eq!(false, msubu.is_relative());
+    assert_eq!(false, msubu.is_region());
+    assert_eq!(false, msub.is_conditional());
+    assert_eq!(false, msub.is_relative());
+    assert_eq!(false, msub.is_region());
+    
+    assert_eq!(true, check_field(&decoder, machine_code[0], 0b11111, MgMnemonic::MgMneMsub, 6));
+    assert_eq!(true, check_field(&decoder, machine_code[0], 0b11111, MgMnemonic::MgMneMsub, 11));
+    assert_eq!(true, check_field(&decoder, machine_code[1], 0b11111, MgMnemonic::MgMneMsubu, 6));
+    assert_eq!(true, check_field(&decoder, machine_code[1], 0b11111, MgMnemonic::MgMneMsubu, 11));
+
+    assert_eq!(msub.get_mnemonic(), MgMnemonic::MgMneMsub);
+    assert_eq!(msubu.get_mnemonic(), MgMnemonic::MgMneMsubu);
+
+    assert_eq!(msub.get_mnemonic_str(), MG_MNE_MSUB);
+    assert_eq!(msubu.get_mnemonic_str(), MG_MNE_MSUBU);
+
+    assert_eq!(true, check_operands(&msub, 2));
+    assert_eq!(true, check_operands(&msubu, 2));
+}
+#[test]
+fn test_madd_maddu(){
+    let machine_code: [u32; 2] = [0x70850000, 0x70850001];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
+
+    let madd = decoder.disassemble(machine_code[0], 0).unwrap();
+    let maddu = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneMadd, true, false, true, false));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneMaddu, true, false, true, false));
+
+    assert_eq!(false, maddu.is_conditional());
+    assert_eq!(false, maddu.is_relative());
+    assert_eq!(false, maddu.is_region());
+    assert_eq!(false, madd.is_conditional());
+    assert_eq!(false, madd.is_relative());
+    assert_eq!(false, madd.is_region());
+    
+    assert_eq!(true, check_field(&decoder, machine_code[0], 0b11111, MgMnemonic::MgMneMadd, 6));
+    assert_eq!(true, check_field(&decoder, machine_code[0], 0b11111, MgMnemonic::MgMneMadd, 11));
+    assert_eq!(true, check_field(&decoder, machine_code[1], 0b11111, MgMnemonic::MgMneMaddu, 6));
+    assert_eq!(true, check_field(&decoder, machine_code[1], 0b11111, MgMnemonic::MgMneMaddu, 11));
+
+    assert_eq!(madd.get_mnemonic(), MgMnemonic::MgMneMadd);
+    assert_eq!(maddu.get_mnemonic(), MgMnemonic::MgMneMaddu);
+
+    assert_eq!(madd.get_mnemonic_str(), MG_MNE_MADD);
+    assert_eq!(maddu.get_mnemonic_str(), MG_MNE_MADDU);
+
+    assert_eq!(true, check_operands(&madd, 2));
+    assert_eq!(true, check_operands(&maddu, 2));
 }
 #[test]
 fn test_daddi_daddiu(){

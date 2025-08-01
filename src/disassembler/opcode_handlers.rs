@@ -798,6 +798,15 @@ impl MgDisassembler{
 
         return MgDisassembler::imm_format(self, prototype, Some(base), Some(rt), imm)
     }
+    pub(super) fn lwu(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        let base: FieldInfos = FieldInfos::default_reg_field(2, MgCoprocessor::Cpu);
+        let rt = FieldInfos::default_reg_field(0, MgCoprocessor::Cpu);
+        if let MgMipsVersion::M32(_) = self.version {
+            return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+        }
+        prototype.mnemonic = Some(MgMnemonic::MgMneLwu);
+        return MgDisassembler::imm_format(self, prototype, Some(base), Some(rt), Some(FieldInfos::default_imm_field(1)))
+    }
     pub(super) fn cpu_loadstore(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let base: FieldInfos = FieldInfos::default_reg_field(2, MgCoprocessor::Cpu);
         let rt = FieldInfos::default_reg_field(0, MgCoprocessor::Cpu);
@@ -1169,10 +1178,10 @@ impl MgDisassembler{
         let rs: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
         let rt: FieldInfos = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
 
-        prototype.mnemonic = match prototype.machine_code & 1{
-            0 => Some(MgMnemonic::MgMneMadd),
-            1 => Some(MgMnemonic::MgMneMaddu),
-            _ => None
+        prototype.mnemonic = if prototype.machine_code & 1 == 0{
+            Some(MgMnemonic::MgMneMadd)
+        }else{
+            Some(MgMnemonic::MgMneMaddu)
         };
 
         MgDisassembler::reg_format(self, prototype, Some(rs), Some(rt), None, Some(FieldInfos::fixed_field(4, 0b1111111111)))
@@ -1190,10 +1199,10 @@ impl MgDisassembler{
         let rs: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
         let rt: FieldInfos = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
 
-        prototype.mnemonic = match prototype.machine_code & 1{
-            0 => Some(MgMnemonic::MgMneMsub),
-            1 => Some(MgMnemonic::MgMneMsubu),
-            _ => None
+        prototype.mnemonic = if prototype.machine_code & 1 == 0{
+            Some(MgMnemonic::MgMneMsub)
+        }else{
+            Some(MgMnemonic::MgMneMsubu)
         };
 
         MgDisassembler::reg_format(self, prototype, Some(rs), Some(rt), None, Some(FieldInfos::fixed_field(4, 0b1111111111)))
@@ -1202,14 +1211,14 @@ impl MgDisassembler{
         let rd: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
         let rs: FieldInfos = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
 
-        prototype.mnemonic = match prototype.machine_code & 1{
-            0 => Some(MgMnemonic::MgMneClz),
-            1 => Some(MgMnemonic::MgMneClo),
-            _ => None
+        prototype.mnemonic = if prototype.machine_code & 1 == 0{
+            Some(MgMnemonic::MgMneClz)
+        }else{
+            Some(MgMnemonic::MgMneClo)
         };
 
-        return if let MgMipsVersion::M32(MgMips32::MgR6) = self.version{
-            if prototype.machine_code >> 6 & 1 == 0{
+        return if let MgMipsVersion::M32(MgMips32::MgR6) | MgMipsVersion::M64(MgMips64::MgR6) = self.version{
+            if prototype.machine_code >> 6 & 0b11111 != 1 || prototype.machine_code >> 16 & 0b11111 != 0{
                 Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
             }else{
                 MgDisassembler::reg_format(self, prototype, Some(rs), Some(FieldInfos::default_fixed_field()), Some(rd), None)
