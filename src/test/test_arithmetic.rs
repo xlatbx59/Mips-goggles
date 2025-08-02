@@ -8,6 +8,56 @@ use crate::disassembler::*;
 use crate::instruction::mnemonics::*;
 
 #[test]
+fn test_dclz_dclo(){
+    let machine_code: [u32; 4] = [0x00002052, 0x00800053, 0x70A42024, 0x70A42025];
+    let mut decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgR6));
+    
+    let mut dclz = decoder.disassemble(machine_code[0], 0).unwrap();
+    let mut dclo = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(false, dclo.is_conditional());
+    assert_eq!(false, dclo.is_relative());
+    assert_eq!(false, dclo.is_region());
+    assert_eq!(false, dclz.is_conditional());
+    assert_eq!(false, dclz.is_relative());
+    assert_eq!(false, dclz.is_region());
+
+    assert_eq!(MgMnemonic::MgMneDclz, dclz.get_mnemonic());
+    assert_eq!(MgMnemonic::MgMneDclo, dclo.get_mnemonic());
+    assert_eq!(MG_MNE_DCLZ, dclz.get_mnemonic_str());
+    assert_eq!(MG_MNE_DCLO, dclo.get_mnemonic_str());
+
+    assert_eq!(true, check_operands(&dclz, 2));
+    assert_eq!(true, check_operands(&dclo, 2));
+
+    assert_eq!(true, check_field(&decoder, machine_code[0], 0b11110, MgMnemonic::MgMneDclz, 6));
+    assert_eq!(true, check_field(&decoder, machine_code[1], 0b11110, MgMnemonic::MgMneDclo, 6));
+    assert_eq!(true, check_field(&decoder, machine_code[0], 0b11111, MgMnemonic::MgMneDclz, 16));
+    assert_eq!(true, check_field(&decoder, machine_code[1], 0b11111, MgMnemonic::MgMneDclo, 16));
+
+    decoder.version = MgMipsVersion::M64(MgMips64::MgPreR6);
+    dclz = decoder.disassemble(machine_code[2], 0).unwrap();
+    dclo = decoder.disassemble(machine_code[3], 0).unwrap();
+
+    assert_eq!(MgMnemonic::MgMneDclz, dclz.get_mnemonic());
+    assert_eq!(MgMnemonic::MgMneDclo, dclo.get_mnemonic());
+    assert_eq!(MG_MNE_DCLZ, dclz.get_mnemonic_str());
+    assert_eq!(MG_MNE_DCLO, dclo.get_mnemonic_str());
+
+    assert_eq!(false, dclo.is_conditional());
+    assert_eq!(false, dclo.is_relative());
+    assert_eq!(false, dclo.is_region());
+    assert_eq!(false, dclz.is_conditional());
+    assert_eq!(false, dclz.is_relative());
+    assert_eq!(false, dclz.is_region());
+
+    assert_eq!(true, check_operands(&dclz, 2));
+    assert_eq!(true, check_operands(&dclo, 2));
+
+    assert_eq!(true, check_field(&decoder, machine_code[2], 0b11111, MgMnemonic::MgMneDclz, 6));
+    assert_eq!(true, check_field(&decoder, machine_code[3], 0b11111, MgMnemonic::MgMneDclo, 6));
+}
+#[test]
 fn test_clz_clo(){
     let machine_code: [u32; 4] = [0x00000050, 0x00000051, 0x70A42020, 0x70A42021 ];
     let mut decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgR6));

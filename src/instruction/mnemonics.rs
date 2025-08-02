@@ -67,7 +67,8 @@ pub const MG_MNE_LSA: &str = "lsa"; pub const MG_MNE_DLSA: &str = "dlsa";
 //Special2
 pub const MG_MNE_MADD: &str = "madd"; pub const MG_MNE_MADDU: &str = "maddu"; pub const MG_MNE_MUL: &str = "mul";
 pub const MG_MNE_MSUB: &str = "msub"; pub const MG_MNE_MSUBU: &str = "msubu"; pub const MG_MNE_CLZ: &str = "clz";
-pub const MG_MNE_CLO: &str = "clo"; pub const MG_MNE_SDBBP: &str = "sdbbp";
+pub const MG_MNE_CLO: &str = "clo"; pub const MG_MNE_SDBBP: &str = "sdbbp"; pub const MG_MNE_DCLO: &str = "dclo";
+pub const MG_MNE_DCLZ: &str = "dclz";
 
 //Special3
 pub const MG_MNE_EXT: &str = "ext"; pub const MG_MNE_INS: &str = "ins"; pub const MG_MNE_WSBH: &str = "wsbh";
@@ -111,7 +112,7 @@ pub enum MgMnemonic {
     MgMneSelnez, MgMneBalc, MgMneBc,MgMneJic,MgMneJialc, MgMneBovc, MgMneBnvc, MgMneBgeuc, MgMneBlezalc, MgMneBgezalc, MgMneBgtzalc,
     MgMneBltzalc, MgMneBltuc, MgMneBlezc, MgMneBgezc, MgMneBgec, MgMneBgtzc, MgMneBltzc, MgMneBltc, MgMneBeqzalc, MgMneBeqc, MgMneBnezalc,
     MgMneBnec, MgMneBeqzc, MgMneBnezc, MgMneDdiv, MgMneDdivu, MgMneLsa, MgMneDlsa, MgMneDaui, MgMneDahi, MgMneDati, MgMneLdr, MgMneLdl,
-    MgMneDaddi, MgMneDaddiu, MgMneAui, MgMneLd, MgMneSd, MgMneSdl, MgMneSdr, MgMneLld, MgMneScd, MgMneLwu
+    MgMneDaddi, MgMneDaddiu, MgMneAui, MgMneLd, MgMneSd, MgMneSdl, MgMneSdr, MgMneLld, MgMneScd, MgMneLwu, MgMneDclz, MgMneDclo
 }
 
 pub(super)const MG_MNEMONICS: &[&str] = &[
@@ -132,5 +133,6 @@ pub(super)const MG_MNEMONICS: &[&str] = &[
     MG_MNE_SELNEZ, MG_MNE_BALC, MG_MNE_BC, MG_MNE_JIC, MG_MNE_JIALC, MG_MNE_BOVC, MG_MNE_BNVC, MG_MNE_BGEUC, MG_MNE_BLEZALC,MG_MNE_BGEZALC,
     MG_MNE_BGTZALC,MG_MNE_BLTZALC, MG_MNE_BLTUC, MG_MNE_BLEZC, MG_MNE_BGEZC, MG_MNE_BGEC, MG_MNE_BGTZC, MG_MNE_BLTZC, MG_MNE_BLTC, MG_MNE_BEQZALC,
     MG_MNE_BEQC, MG_MNE_BNEZALC, MG_MNE_BNEC, MG_MNE_BEQZC,MG_MNE_BNEZC, MG_MNE_DDIV, MG_MNE_DDIVU, MG_MNE_LSA, MG_MNE_DLSA, MG_MNE_DAUI,
-    MG_MNE_DAHI, MG_MNE_DATI, MG_MNE_LDR, MG_MNE_LDL, MG_MNE_DADDI, MG_MNE_DADDIU, MG_MNE_AUI, MG_MNE_LD, MG_MNE_SD, MG_MNE_SDL, MG_MNE_SDR, MG_MNE_LLD, MG_MNE_SCD, MG_MNE_LWU
+    MG_MNE_DAHI, MG_MNE_DATI, MG_MNE_LDR, MG_MNE_LDL, MG_MNE_DADDI, MG_MNE_DADDIU, MG_MNE_AUI, MG_MNE_LD, MG_MNE_SD, MG_MNE_SDL, MG_MNE_SDR,
+    MG_MNE_LLD, MG_MNE_SCD, MG_MNE_LWU, MG_MNE_DCLZ, MG_MNE_DCLO
 ];
