@@ -18,14 +18,14 @@ impl MgDisassembler{
     }
     pub (super) fn special_opcode_map(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         static SPECIAL_MAP: [fn(disassembler: &MgDisassembler, &mut MgInstructionPrototype) -> Result<(), MgError>; 64] = [
-        MgDisassembler::sll,  MgDisassembler::movci,  MgDisassembler::srl_sra,  MgDisassembler::srl_sra,  MgDisassembler::sllv,  MgDisassembler::lsa_dlsa,  MgDisassembler::srlv_srav,  MgDisassembler::srlv_srav,
+        MgDisassembler::sll,  MgDisassembler::movci,  MgDisassembler::srl_sra,  MgDisassembler::srl_sra,  MgDisassembler::sllv_dsllv,  MgDisassembler::lsa_dlsa,  MgDisassembler::srlv_srav,  MgDisassembler::srlv_srav,
         MgDisassembler::jr,  MgDisassembler::jalr,  MgDisassembler::movn_movz,  MgDisassembler::movn_movz,  MgDisassembler::syscall_break,  MgDisassembler::syscall_break,  MgDisassembler::sdbbp,  MgDisassembler::sync,
-        MgDisassembler::mfhi_mthi,  MgDisassembler::mfhi_mthi,  MgDisassembler::mflo_mtlo,  MgDisassembler::mflo_mtlo,  MgDisassembler::no_instructions,  MgDisassembler::lsa_dlsa,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
+        MgDisassembler::mfhi_mthi,  MgDisassembler::mfhi_mthi,  MgDisassembler::mflo_mtlo,  MgDisassembler::mflo_mtlo,  MgDisassembler::sllv_dsllv,  MgDisassembler::lsa_dlsa,  MgDisassembler::dsrlv_dsrav,  MgDisassembler::dsrlv_dsrav,
         MgDisassembler::mult_multu_div_divu,  MgDisassembler::mult_multu_div_divu,  MgDisassembler::mult_multu_div_divu,  MgDisassembler::mult_multu_div_divu,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::ddiv_ddivu,  MgDisassembler::ddiv_ddivu,
         MgDisassembler::add_addu_sub_subu_and_or_xor_nor,  MgDisassembler::add_addu_sub_subu_and_or_xor_nor,  MgDisassembler::add_addu_sub_subu_and_or_xor_nor,  MgDisassembler::add_addu_sub_subu_and_or_xor_nor,  MgDisassembler::add_addu_sub_subu_and_or_xor_nor,  MgDisassembler::add_addu_sub_subu_and_or_xor_nor,  MgDisassembler::add_addu_sub_subu_and_or_xor_nor,  MgDisassembler::add_addu_sub_subu_and_or_xor_nor,
         MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::slt_sltu,  MgDisassembler::slt_sltu,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
         MgDisassembler::tge_tgeu_tlt_tltu,  MgDisassembler::tge_tgeu_tlt_tltu,  MgDisassembler::tge_tgeu_tlt_tltu,  MgDisassembler::tge_tgeu_tlt_tltu,  MgDisassembler::teq_tne,  MgDisassembler::seleqz_selnez,  MgDisassembler::teq_tne,  MgDisassembler::seleqz_selnez,
-        MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions ];
+        MgDisassembler::dsll,  MgDisassembler::no_instructions,  MgDisassembler::dsrl_dsra,  MgDisassembler::dsrl_dsra,  MgDisassembler::dsll32,  MgDisassembler::no_instructions,  MgDisassembler::dsrl32_dsra32,  MgDisassembler::dsrl32_dsra32 ];
 
         SPECIAL_MAP[(prototype.machine_code & 0b111111) as usize](self, prototype)
     }
@@ -869,6 +869,32 @@ impl MgDisassembler{
     }
 
     //Special
+    pub(super) fn dsll32(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        let rs: FieldInfos = FieldInfos::default_fixed_field();
+        let rt = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
+        let rd = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
+        let sa = FieldInfos::reg_field(2, MgCoprocessor::Cpu, MgOperandType::Imm);
+
+        let MgMipsVersion::M64(_) = self.version else{
+            return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+        };
+
+        prototype.mnemonic = Some(MgMnemonic::MgMneDsll32);
+        MgDisassembler::reg_format(self, prototype, Some(rs), Some(rt), Some(rd), Some(sa))
+    }
+    pub(super) fn dsll(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        let rs: FieldInfos = FieldInfos::default_fixed_field();
+        let rt = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
+        let rd = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
+        let sa = FieldInfos::reg_field(2, MgCoprocessor::Cpu, MgOperandType::Imm);
+
+        let MgMipsVersion::M64(_) = self.version else{
+            return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+        };
+
+        prototype.mnemonic = Some(MgMnemonic::MgMneDsll);
+        MgDisassembler::reg_format(self, prototype, Some(rs), Some(rt), Some(rd), Some(sa))
+    }
     pub(super) fn sll(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let rs: FieldInfos = FieldInfos::default_fixed_field();
         let rt: FieldInfos;
@@ -954,6 +980,50 @@ impl MgDisassembler{
 
         Ok(())
     }
+    pub(super) fn dsrl32_dsra32(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        let rt: FieldInfos = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
+        let rd: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
+        let sa: FieldInfos = FieldInfos::reg_field(2, MgCoprocessor::Cpu, MgOperandType::Imm);
+
+        let MgMipsVersion::M64(_) = self.version else{
+            return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+        };
+
+        if prototype.machine_code >> 22 & 0xf != 0{
+            return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
+        }
+        if prototype.machine_code & 1 == 1{
+            prototype.mnemonic = Some(MgMnemonic::MgMneDsra32);
+        }else if prototype.machine_code >> 21 & 1 == 1{
+            prototype.mnemonic = Some(MgMnemonic::MgMneDrotr32);
+        }else{
+            prototype.mnemonic = Some(MgMnemonic::MgMneDsrl32);
+        };
+
+        return MgDisassembler::reg_format(self, prototype, None, Some(rt), Some(rd), Some(sa))
+    }
+    pub(super) fn dsrl_dsra(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        let rt: FieldInfos = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
+        let rd: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
+        let sa: FieldInfos = FieldInfos::reg_field(2, MgCoprocessor::Cpu, MgOperandType::Imm);
+
+        let MgMipsVersion::M64(_) = self.version else{
+            return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+        };
+
+        if prototype.machine_code >> 22 & 0xf != 0{
+            return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
+        }
+        if prototype.machine_code & 1 == 1{
+            prototype.mnemonic = Some(MgMnemonic::MgMneDsra);
+        }else if prototype.machine_code >> 21 & 1 == 1{
+            prototype.mnemonic = Some(MgMnemonic::MgMneDrotr);
+        }else{
+            prototype.mnemonic = Some(MgMnemonic::MgMneDsrl);
+        };
+
+        return MgDisassembler::reg_format(self, prototype, None, Some(rt), Some(rd), Some(sa))
+    }
     pub(super) fn srl_sra(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let rt: FieldInfos = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
         let rd: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
@@ -965,25 +1035,58 @@ impl MgDisassembler{
         }
         if prototype.machine_code & 1 == 1{
             prototype.mnemonic = Some(MgMnemonic::MgMneSra);
-        }else if let MgMipsVersion::M32(MgMips32::MgPreR6) | MgMipsVersion::M64(MgMips64::MgPreR6) = self.version{
-            if prototype.machine_code >> 21 & 1 == 1{
-                prototype.mnemonic = Some(MgMnemonic::MgMneRotr);
-            }else{
-                prototype.mnemonic = Some(MgMnemonic::MgMneSrl);
-            };
+        }else if prototype.machine_code >> 21 & 1 == 1{
+            prototype.mnemonic = Some(MgMnemonic::MgMneRotr);
+        }else{
+            prototype.mnemonic = Some(MgMnemonic::MgMneSrl);
         };
 
         return MgDisassembler::reg_format(self, prototype, None, Some(rt), Some(rd), Some(sa))
     }
-    pub(super) fn sllv(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
-        prototype.mnemonic = Some(MgMnemonic::MgMneSllv);
-
+    pub(super) fn sllv_dsllv(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let sa: FieldInfos = FieldInfos::default_fixed_field();
         let rt: FieldInfos = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
         let rd: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
         let rs: FieldInfos = FieldInfos::reg_field(2, MgCoprocessor::Cpu, MgOperandType::Reg);
 
+        prototype.mnemonic = if prototype.machine_code >> 4 & 1 == 1{
+            let MgMipsVersion::M64(_) = self.version else{
+                return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+            };
+            Some(MgMnemonic::MgMneDsllv)
+        }else{
+            Some(MgMnemonic::MgMneSllv)
+        };
+
         return MgDisassembler::reg_format(self, prototype, Some(rs), Some(rt), Some(rd), Some(sa))
+    }
+    pub(super) fn dsrlv_dsrav(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        let rt: FieldInfos = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
+        let rd: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
+        let rs: FieldInfos = FieldInfos::reg_field(2, MgCoprocessor::Cpu, MgOperandType::Imm);
+
+        let MgMipsVersion::M64(_) = self.version else{
+            return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+        };
+
+        prototype.mnemonic = if prototype.machine_code & 1 == 1{
+            if prototype.machine_code >> 6 & 0x1f != 0{
+                return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
+            }
+            Some(MgMnemonic::MgMneDsrav)
+        }else if prototype.machine_code >> 6 & 1 == 1{
+            if prototype.machine_code >> 7 & 0xf != 0{
+                return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
+            }
+            Some(MgMnemonic::MgMneDrotrv)
+        }else{
+            if prototype.machine_code >> 6 & 0x1f != 0{
+                return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
+            }
+            Some(MgMnemonic::MgMneDsrlv)
+        };
+
+        return MgDisassembler::reg_format(self, prototype, Some(rs), Some(rt), Some(rd), None)
     }
     pub(super) fn srlv_srav(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let rt: FieldInfos = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
@@ -1121,34 +1224,6 @@ impl MgDisassembler{
         };
         MgDisassembler::reg_format(self, prototype, rs, rt, rd, sa)
     }
-    // pub(super) fn mfhi_mflo(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
-    //     if let MgMipsVersion::M32(MgMips32::MgR6) | MgMipsVersion::M64(MgMips64::MgR6) = self.version{
-    //         return if prototype.machine_code & 2 != 0{
-    //             Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
-    //         } else{
-    //             self.clz_clo(prototype)
-    //         }
-    //     }
-    //     let rd: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
-    //     let mnemonics = [Some(MgMnemonic::MgMneMfhi), Some(MgMnemonic::MgMneMflo)];
-
-    //     prototype.mnemonic = mnemonics[(prototype.machine_code >> 1 & 1) as usize];
-    //     MgDisassembler::reg_format(self, prototype, None, Some(FieldInfos::fixed_field(4, 0b1111111111)), Some(rd), Some(FieldInfos::default_fixed_field()))
-    // }
-    // pub(super) fn mthi_mtlo(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
-    //     if let MgMipsVersion::M32(MgMips32::MgR6) | MgMipsVersion::M64(MgMips64::MgR6) = self.version{
-    //         return if prototype.machine_code & 2 != 0{
-    //             Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
-    //         } else{
-    //             self.clz_clo(prototype)
-    //         }
-    //     }
-    //     let rs: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
-    //     let mnemonics = [Some(MgMnemonic::MgMneMthi), Some(MgMnemonic::MgMneMtlo)];
-        
-    //     prototype.mnemonic = mnemonics[(prototype.machine_code >> 1 & 1) as usize];
-    //     MgDisassembler::reg_format(self, prototype, Some(rs), None, None, )
-    // }
     pub(super) fn mult_multu_div_divu(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let rt: FieldInfos = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
         let rs: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);

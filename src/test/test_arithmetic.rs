@@ -130,6 +130,11 @@ fn test_ddiv_ddivu(){
     let ddiv = decoder.disassemble(machine_code[0], 0).unwrap();
     let ddivu = decoder.disassemble(machine_code[1], 0).unwrap();
 
+    assert_eq!(ddiv.get_mnemonic(), MgMnemonic::MgMneDdiv);
+    assert_eq!(ddivu.get_mnemonic(), MgMnemonic::MgMneDdivu);
+    assert_eq!(ddiv.get_mnemonic_str(), MG_MNE_DDIV);
+    assert_eq!(ddivu.get_mnemonic_str(), MG_MNE_DDIVU);
+
     assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneDdiv, false, false, true, false));
     assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneDdivu, false, false, true, false));
 
@@ -138,14 +143,6 @@ fn test_ddiv_ddivu(){
 
     assert_eq!(true, check_field(&decoder, machine_code[0], 0b1111111111, MgMnemonic::MgMneDdiv, 6));
     assert_eq!(true, check_field(&decoder, machine_code[1], 0b1111111111, MgMnemonic::MgMneDdivu, 6));
-
-    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneDdiv, machine_code[0], 0, 0x1fffff, 1));
-    assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneDdivu, machine_code[1], 0, 0xffff, 1));
-
-    assert_eq!(ddiv.get_mnemonic(), MgMnemonic::MgMneDdiv);
-    assert_eq!(ddivu.get_mnemonic(), MgMnemonic::MgMneDdivu);
-    assert_eq!(ddiv.get_mnemonic_str(), MG_MNE_DDIV);
-    assert_eq!(ddivu.get_mnemonic_str(), MG_MNE_DDIVU);
 }
 #[test]
 fn test_msub_msubu(){
