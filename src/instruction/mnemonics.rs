@@ -66,7 +66,8 @@ pub const MG_MNE_LSA: &str = "lsa"; pub const MG_MNE_DLSA: &str = "dlsa"; pub co
 pub const MG_MNE_DSRAV: &str = "dsrav"; pub const MG_MNE_DSRLV: &str = "dsrlv";pub const MG_MNE_DROTRV: &str = "drotrv";
 pub const MG_MNE_DSRA: &str = "dsra"; pub const MG_MNE_DSRL: &str = "dsrl";pub const MG_MNE_DROTR: &str = "drotr";
 pub const MG_MNE_DSRA32: &str = "dsra32"; pub const MG_MNE_DSRL32: &str = "dsrl32";pub const MG_MNE_DROTR32: &str = "drotr32";
-pub const MG_MNE_DSLL: &str = "dsll"; pub const MG_MNE_DSLL32: &str = "dsll32";
+pub const MG_MNE_DSLL: &str = "dsll"; pub const MG_MNE_DSLL32: &str = "dsll32"; pub const MG_MNE_DADD: &str = "dadd";
+pub const MG_MNE_DADDU: &str = "daddu"; pub const MG_MNE_DSUBU: &str = "dsubu"; pub const MG_MNE_DSUB: &str = "dsub";
 
 //Special2
 pub const MG_MNE_MADD: &str = "madd"; pub const MG_MNE_MADDU: &str = "maddu"; pub const MG_MNE_MUL: &str = "mul";
@@ -118,7 +119,7 @@ pub enum MgMnemonic {
     MgMneBnec, MgMneBeqzc, MgMneBnezc, MgMneDdiv, MgMneDdivu, MgMneLsa, MgMneDlsa, MgMneDaui, MgMneDahi, MgMneDati, MgMneLdr, MgMneLdl,
     MgMneDaddi, MgMneDaddiu, MgMneAui, MgMneLd, MgMneSd, MgMneSdl, MgMneSdr, MgMneLld, MgMneScd, MgMneLwu, MgMneDclz, MgMneDclo,
     MgMneDsllv, MgMneDsrav, MgMneDsrlv, MgMneDrotrv, MgMneDsra, MgMneDsrl, MgMneDrotr, MgMneDsll, MgMneDsll32, MgMneDsra32, MgMneDsrl32,
-    MgMneDrotr32
+    MgMneDrotr32, MgMneDadd, MgMneDaddu, MgMneDsub, MgMneDsubu
 }
 
 pub(super)const MG_MNEMONICS: &[&str] = &[
@@ -141,5 +142,5 @@ pub(super)const MG_MNEMONICS: &[&str] = &[
     MG_MNE_BEQC, MG_MNE_BNEZALC, MG_MNE_BNEC, MG_MNE_BEQZC,MG_MNE_BNEZC, MG_MNE_DDIV, MG_MNE_DDIVU, MG_MNE_LSA, MG_MNE_DLSA, MG_MNE_DAUI,
     MG_MNE_DAHI, MG_MNE_DATI, MG_MNE_LDR, MG_MNE_LDL, MG_MNE_DADDI, MG_MNE_DADDIU, MG_MNE_AUI, MG_MNE_LD, MG_MNE_SD, MG_MNE_SDL, MG_MNE_SDR,
     MG_MNE_LLD, MG_MNE_SCD, MG_MNE_LWU, MG_MNE_DCLZ, MG_MNE_DCLO, MG_MNE_DSLLV, MG_MNE_DSRAV, MG_MNE_DSRLV, MG_MNE_DROTRV, MG_MNE_DSRA, MG_MNE_DSRL,
-    MG_MNE_DROTR, MG_MNE_DSLL, MG_MNE_DSLL32, MG_MNE_DSRA32, MG_MNE_DSRL32, MG_MNE_DROTR32
+    MG_MNE_DROTR, MG_MNE_DSLL, MG_MNE_DSLL32, MG_MNE_DSRA32, MG_MNE_DSRL32, MG_MNE_DROTR32, MG_MNE_DADD, MG_MNE_DADDU, MG_MNE_DSUB, MG_MNE_DSUBU
 ];

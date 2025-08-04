@@ -8,6 +8,36 @@ use crate::disassembler::*;
 use crate::instruction::mnemonics::*;
 
 #[test]
+fn test_slt_sltu(){
+    let machine_code: [u32; 2] = [0x00A2202A, 0x00A2202B];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
+
+    let slt = decoder.disassemble(machine_code[0], 0).unwrap();
+    let sltu = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(slt.get_mnemonic(), MgMnemonic::MgMneSlt);
+    assert_eq!(sltu.get_mnemonic(), MgMnemonic::MgMneSltu);
+
+    assert_eq!(slt.get_mnemonic_str(), MG_MNE_SLT);
+    assert_eq!(sltu.get_mnemonic_str(), MG_MNE_SLTU);
+
+    assert_eq!(true, sltu.is_conditional());
+    assert_eq!(false, sltu.is_relative());
+    assert_eq!(false, sltu.is_region());
+    assert_eq!(true, slt.is_conditional());
+    assert_eq!(false, slt.is_relative());
+    assert_eq!(false, slt.is_region());
+
+    assert_eq!(true, check_operands(&slt, 3));
+    assert_eq!(true, check_operands(&sltu, 3));
+    
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneSlt, true, true, true, true));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneSltu, true, true, true, true));
+
+    assert_eq!(true, check_field(&decoder, machine_code[0], 0b11111, MgMnemonic::MgMneSlt, 6));
+    assert_eq!(true, check_field(&decoder, machine_code[1], 0b11111, MgMnemonic::MgMneSltu, 6));
+}
+#[test]
 fn test_sll_dsll(){
     let machine_code: [u32; 2] = [0x000527C0, 0x000527F8];
     let mut decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgPreR6));

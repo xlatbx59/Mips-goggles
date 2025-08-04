@@ -23,7 +23,7 @@ impl MgDisassembler{
         MgDisassembler::mfhi_mthi,  MgDisassembler::mfhi_mthi,  MgDisassembler::mflo_mtlo,  MgDisassembler::mflo_mtlo,  MgDisassembler::sllv_dsllv,  MgDisassembler::lsa_dlsa,  MgDisassembler::dsrlv_dsrav,  MgDisassembler::dsrlv_dsrav,
         MgDisassembler::mult_multu_div_divu,  MgDisassembler::mult_multu_div_divu,  MgDisassembler::mult_multu_div_divu,  MgDisassembler::mult_multu_div_divu,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::ddiv_ddivu,  MgDisassembler::ddiv_ddivu,
         MgDisassembler::add_addu_sub_subu_and_or_xor_nor,  MgDisassembler::add_addu_sub_subu_and_or_xor_nor,  MgDisassembler::add_addu_sub_subu_and_or_xor_nor,  MgDisassembler::add_addu_sub_subu_and_or_xor_nor,  MgDisassembler::add_addu_sub_subu_and_or_xor_nor,  MgDisassembler::add_addu_sub_subu_and_or_xor_nor,  MgDisassembler::add_addu_sub_subu_and_or_xor_nor,  MgDisassembler::add_addu_sub_subu_and_or_xor_nor,
-        MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::slt_sltu,  MgDisassembler::slt_sltu,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
+        MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::slt_sltu,  MgDisassembler::slt_sltu,  MgDisassembler::dadd_daddu,  MgDisassembler::dadd_daddu,  MgDisassembler::dsub_dsubu,  MgDisassembler::dsub_dsubu,
         MgDisassembler::tge_tgeu_tlt_tltu,  MgDisassembler::tge_tgeu_tlt_tltu,  MgDisassembler::tge_tgeu_tlt_tltu,  MgDisassembler::tge_tgeu_tlt_tltu,  MgDisassembler::teq_tne,  MgDisassembler::seleqz_selnez,  MgDisassembler::teq_tne,  MgDisassembler::seleqz_selnez,
         MgDisassembler::dsll,  MgDisassembler::no_instructions,  MgDisassembler::dsrl_dsra,  MgDisassembler::dsrl_dsra,  MgDisassembler::dsll32,  MgDisassembler::no_instructions,  MgDisassembler::dsrl32_dsra32,  MgDisassembler::dsrl32_dsra32 ];
 
@@ -1232,20 +1232,47 @@ impl MgDisassembler{
         prototype.mnemonic = mnemonics[(prototype.machine_code >> 1 & 1) as usize][(prototype.machine_code & 1) as usize];
         MgDisassembler::reg_format(self, prototype, Some(rs), Some(rt), None, Some(FieldInfos::fixed_field(4, 0b1111111111)))
     }
+    pub(super) fn dsub_dsubu(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        let rd: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
+        let rt: FieldInfos = FieldInfos::reg_field(2, MgCoprocessor::Cpu, MgOperandType::Reg);
+        let rs: FieldInfos = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
+
+        let MgMipsVersion::M64(_) = self.version else{
+            return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+        };
+
+        prototype.mnemonic = if prototype.machine_code & 1 == 1{
+            Some(MgMnemonic::MgMneDsubu)
+        }
+        else{
+            Some(MgMnemonic::MgMneDsub)
+        };
+
+        MgDisassembler::reg_format(self, prototype, Some(rs), Some(rt), Some(rd), Some(FieldInfos::default_fixed_field()))
+    }
+    pub(super) fn dadd_daddu(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        let rd: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
+        let rt: FieldInfos = FieldInfos::reg_field(2, MgCoprocessor::Cpu, MgOperandType::Reg);
+        let rs: FieldInfos = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
+
+        let MgMipsVersion::M64(_) = self.version else{
+            return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+        };
+
+        prototype.mnemonic = if prototype.machine_code & 1 == 1{
+            Some(MgMnemonic::MgMneDaddu)
+        }
+        else{
+            Some(MgMnemonic::MgMneDadd)
+        };
+
+        MgDisassembler::reg_format(self, prototype, Some(rs), Some(rt), Some(rd), Some(FieldInfos::default_fixed_field()))
+    }
     pub(super) fn add_addu_sub_subu_and_or_xor_nor(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let rd: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
         let rt: FieldInfos = FieldInfos::reg_field(2, MgCoprocessor::Cpu, MgOperandType::Reg);
         let rs: FieldInfos = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
-        let mnemonics = [[[Some(MgMnemonic::MgMneAdd), Some(MgMnemonic::MgMneAddu)], [Some(MgMnemonic::MgMneSub), Some(MgMnemonic::MgMneSubu)]], [[Some(MgMnemonic::MgMneAnd), Some(MgMnemonic::MgMneOr)], [Some(MgMnemonic::MgMneXor), Some(MgMnemonic::MgMneNor)]]];
-
-        prototype.mnemonic = mnemonics[(prototype.machine_code >> 2 & 1) as usize][(prototype.machine_code >> 1 & 1) as usize][(prototype.machine_code & 1) as usize];
-        if (prototype.machine_code >> 2 & 1) == 1{
-        }
-        else{
-            if (prototype.machine_code & 1) == 0{
-            }
-        }
-
+        prototype.mnemonic = [[[Some(MgMnemonic::MgMneAdd), Some(MgMnemonic::MgMneAddu)], [Some(MgMnemonic::MgMneSub), Some(MgMnemonic::MgMneSubu)]], [[Some(MgMnemonic::MgMneAnd), Some(MgMnemonic::MgMneOr)], [Some(MgMnemonic::MgMneXor), Some(MgMnemonic::MgMneNor)]]][(prototype.machine_code >> 2 & 1) as usize][(prototype.machine_code >> 1 & 1) as usize][(prototype.machine_code & 1) as usize];
         MgDisassembler::reg_format(self, prototype, Some(rs), Some(rt), Some(rd), Some(FieldInfos::default_fixed_field()))
     }
     pub(super) fn slt_sltu(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
