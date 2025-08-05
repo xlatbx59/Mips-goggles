@@ -8,6 +8,25 @@ use crate::disassembler::*;
 use crate::instruction::mnemonics::*;
 
 #[test]
+fn test_sync() {
+    let machine_code = 0x0000000f;
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgR6));
+    let sync = decoder.disassemble(machine_code, 0).unwrap();
+    
+    assert_eq!(sync.get_mnemonic(), MgMnemonic::MgMneSync);
+    assert_eq!(MG_MNE_SYNC, sync.get_mnemonic_str());
+
+    assert_eq!(false, sync.is_conditional());
+    assert_eq!(false, sync.is_relative());
+    assert_eq!(false, sync.is_region());
+
+    assert_eq!(0, sync.get_opcode());
+    assert_eq!(true, check_field(&decoder, machine_code, 0x7fff, MgMnemonic::MgMneSync, 11));
+    assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneSync, machine_code, 6, 0x1f, 0));
+    assert_eq!(true, check_operands(&sync, 1));
+    assert_eq!(true, version_test(machine_code, MgMnemonic::MgMneSync, true, true, true, true));
+}
+#[test]
 fn test_scd_lld(){
     let machine_code: [u32; 4] = [0xF3640050, 0xD3640050, 0x7DAD6B27, 0x7DAD6B37];
     let mut decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));

@@ -68,6 +68,11 @@ pub const MG_MNE_DSRA: &str = "dsra"; pub const MG_MNE_DSRL: &str = "dsrl";pub c
 pub const MG_MNE_DSRA32: &str = "dsra32"; pub const MG_MNE_DSRL32: &str = "dsrl32";pub const MG_MNE_DROTR32: &str = "drotr32";
 pub const MG_MNE_DSLL: &str = "dsll"; pub const MG_MNE_DSLL32: &str = "dsll32"; pub const MG_MNE_DADD: &str = "dadd";
 pub const MG_MNE_DADDU: &str = "daddu"; pub const MG_MNE_DSUBU: &str = "dsubu"; pub const MG_MNE_DSUB: &str = "dsub";
+pub const MG_MNE_DMULTU: &str = "dmultu"; pub const MG_MNE_DMULT: &str = "dmult"; pub const MG_MNE_MUH: &str = "muh";
+pub const MG_MNE_MULU: &str = "mulu"; pub const MG_MNE_MUHU: &str = "muhu"; pub const MG_MNE_DMUL: &str = "dmul";
+pub const MG_MNE_DMUH: &str = "dmuh";pub const MG_MNE_DMULU: &str = "dmulu"; pub const MG_MNE_DMUHU: &str = "dmuhu";
+pub const MG_MNE_MOD: &str = "mod";pub const MG_MNE_MODU: &str = "modu";pub const MG_MNE_DMOD: &str = "dmod";
+pub const MG_MNE_DMODU: &str = "dmodu";
 
 //Special2
 pub const MG_MNE_MADD: &str = "madd"; pub const MG_MNE_MADDU: &str = "maddu"; pub const MG_MNE_MUL: &str = "mul";
@@ -119,7 +124,8 @@ pub enum MgMnemonic {
     MgMneBnec, MgMneBeqzc, MgMneBnezc, MgMneDdiv, MgMneDdivu, MgMneLsa, MgMneDlsa, MgMneDaui, MgMneDahi, MgMneDati, MgMneLdr, MgMneLdl,
     MgMneDaddi, MgMneDaddiu, MgMneAui, MgMneLd, MgMneSd, MgMneSdl, MgMneSdr, MgMneLld, MgMneScd, MgMneLwu, MgMneDclz, MgMneDclo,
     MgMneDsllv, MgMneDsrav, MgMneDsrlv, MgMneDrotrv, MgMneDsra, MgMneDsrl, MgMneDrotr, MgMneDsll, MgMneDsll32, MgMneDsra32, MgMneDsrl32,
-    MgMneDrotr32, MgMneDadd, MgMneDaddu, MgMneDsub, MgMneDsubu
+    MgMneDrotr32, MgMneDadd, MgMneDaddu, MgMneDsub, MgMneDsubu, MgMneDmult, MgMneDmultu, MgMneMuh, MgMneMulu, MgMneMuhu, MgMneDmul, 
+    MgMneDmuh, MgMneDmulu,MgMneDmuhu, MgMneMod, MgMneModu, MgMneDmod, MgMneDmodu
 }
 
 pub(super)const MG_MNEMONICS: &[&str] = &[
@@ -142,5 +148,7 @@ pub(super)const MG_MNEMONICS: &[&str] = &[
     MG_MNE_BEQC, MG_MNE_BNEZALC, MG_MNE_BNEC, MG_MNE_BEQZC,MG_MNE_BNEZC, MG_MNE_DDIV, MG_MNE_DDIVU, MG_MNE_LSA, MG_MNE_DLSA, MG_MNE_DAUI,
     MG_MNE_DAHI, MG_MNE_DATI, MG_MNE_LDR, MG_MNE_LDL, MG_MNE_DADDI, MG_MNE_DADDIU, MG_MNE_AUI, MG_MNE_LD, MG_MNE_SD, MG_MNE_SDL, MG_MNE_SDR,
     MG_MNE_LLD, MG_MNE_SCD, MG_MNE_LWU, MG_MNE_DCLZ, MG_MNE_DCLO, MG_MNE_DSLLV, MG_MNE_DSRAV, MG_MNE_DSRLV, MG_MNE_DROTRV, MG_MNE_DSRA, MG_MNE_DSRL,
-    MG_MNE_DROTR, MG_MNE_DSLL, MG_MNE_DSLL32, MG_MNE_DSRA32, MG_MNE_DSRL32, MG_MNE_DROTR32, MG_MNE_DADD, MG_MNE_DADDU, MG_MNE_DSUB, MG_MNE_DSUBU
+    MG_MNE_DROTR, MG_MNE_DSLL, MG_MNE_DSLL32, MG_MNE_DSRA32, MG_MNE_DSRL32, MG_MNE_DROTR32, MG_MNE_DADD, MG_MNE_DADDU, MG_MNE_DSUB, MG_MNE_DSUBU,
+    MG_MNE_DMULT, MG_MNE_DMULTU, MG_MNE_MUH, MG_MNE_MULU, MG_MNE_MUHU, MG_MNE_DMUL, MG_MNE_DMUH, MG_MNE_DMULU, MG_MNE_DMUHU, MG_MNE_MOD, MG_MNE_MODU,
+    MG_MNE_DMOD, MG_MNE_DMODU
 ];

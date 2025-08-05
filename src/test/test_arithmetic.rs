@@ -122,6 +122,260 @@ fn test_mul(){
     assert_eq!(mul.get_mnemonic_str(), MG_MNE_MUL);
 }
 #[test]
+fn sop30(){
+    let machine_code = [0x2E75098, 0x2E750D8];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgR6));
+
+    let mul = decoder.disassemble(machine_code[0], 0).unwrap();
+    let muh = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(mul.get_mnemonic(), MgMnemonic::MgMneMul);
+    assert_eq!(muh.get_mnemonic(), MgMnemonic::MgMneMuh);
+    assert_eq!(mul.get_mnemonic_str(), MG_MNE_MUL);
+    assert_eq!(muh.get_mnemonic_str(), MG_MNE_MUH);
+
+    assert_eq!(false, muh.is_conditional());
+    assert_eq!(false, muh.is_relative());
+    assert_eq!(false, muh.is_region());
+    assert_eq!(false, mul.is_conditional());
+    assert_eq!(false, mul.is_relative());
+    assert_eq!(false, mul.is_region());
+
+    assert_eq!(0b00010, mul.get_machine_code() >> 6 & 0b11111);
+    assert_eq!(0b00011, muh.get_machine_code() >> 6 & 0b11111);
+
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneMul, false, true, false, true));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneMuh, false, true, false, true));
+
+    assert_eq!(true, check_operands(&mul, 3));
+    assert_eq!(true, check_operands(&muh, 3));
+}
+#[test]
+fn sop31(){
+    let machine_code = [0x2E75099, 0x2E750D9];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgR6));
+
+    let mulu = decoder.disassemble(machine_code[0], 0).unwrap();
+    let muhu = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(mulu.get_mnemonic(), MgMnemonic::MgMneMulu);
+    assert_eq!(muhu.get_mnemonic(), MgMnemonic::MgMneMuhu);
+    assert_eq!(mulu.get_mnemonic_str(), MG_MNE_MULU);
+    assert_eq!(muhu.get_mnemonic_str(), MG_MNE_MUHU);
+
+    assert_eq!(false, muhu.is_conditional());
+    assert_eq!(false, muhu.is_relative());
+    assert_eq!(false, muhu.is_region());
+    assert_eq!(false, mulu.is_conditional());
+    assert_eq!(false, mulu.is_relative());
+    assert_eq!(false, mulu.is_region());
+
+    assert_eq!(0b00010, mulu.get_machine_code() >> 6 & 0b11111);
+    assert_eq!(0b00011, muhu.get_machine_code() >> 6 & 0b11111);
+
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneMulu, false, true, false, true));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneMuhu, false, true, false, true));
+
+    assert_eq!(true, check_operands(&mulu, 3));
+    assert_eq!(true, check_operands(&muhu, 3));
+}
+#[test]
+fn sop32(){
+    let machine_code = [0x2E7509a, 0x2E750Da];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgR6));
+
+    let div = decoder.disassemble(machine_code[0], 0).unwrap();
+    let mod_i = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(div.get_mnemonic(), MgMnemonic::MgMneDiv);
+    assert_eq!(mod_i.get_mnemonic(), MgMnemonic::MgMneMod);
+    assert_eq!(div.get_mnemonic_str(), MG_MNE_DIV);
+    assert_eq!(mod_i.get_mnemonic_str(), MG_MNE_MOD);
+
+    assert_eq!(false, mod_i.is_conditional());
+    assert_eq!(false, mod_i.is_relative());
+    assert_eq!(false, mod_i.is_region());
+    assert_eq!(false, div.is_conditional());
+    assert_eq!(false, div.is_relative());
+    assert_eq!(false, div.is_region());
+
+    assert_eq!(0b00010, div.get_machine_code() >> 6 & 0b11111);
+    assert_eq!(0b00011, mod_i.get_machine_code() >> 6 & 0b11111);
+
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneDiv, false, true, false, true));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneMod, false, true, false, true));
+
+    assert_eq!(true, check_operands(&div, 3));
+    assert_eq!(true, check_operands(&mod_i, 3));
+}
+#[test]
+fn sop33(){
+    let machine_code = [0x2E7509b, 0x2E750Db];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgR6));
+
+    let divu = decoder.disassemble(machine_code[0], 0).unwrap();
+    let modu = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(divu.get_mnemonic(), MgMnemonic::MgMneDivu);
+    assert_eq!(modu.get_mnemonic(), MgMnemonic::MgMneModu);
+    assert_eq!(divu.get_mnemonic_str(), MG_MNE_DIVU);
+    assert_eq!(modu.get_mnemonic_str(), MG_MNE_MODU);
+
+    assert_eq!(false, modu.is_conditional());
+    assert_eq!(false, modu.is_relative());
+    assert_eq!(false, modu.is_region());
+    assert_eq!(false, divu.is_conditional());
+    assert_eq!(false, divu.is_relative());
+    assert_eq!(false, divu.is_region());
+
+    assert_eq!(0b00010, divu.get_machine_code() >> 6 & 0b11111);
+    assert_eq!(0b00011, modu.get_machine_code() >> 6 & 0b11111);
+
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneDivu, false, true, false, true));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneModu, false, true, false, true));
+
+    assert_eq!(true, check_operands(&divu, 3));
+    assert_eq!(true, check_operands(&modu, 3));
+}
+#[test]
+fn sop34(){
+    let machine_code = [0x2E7509c, 0x2E750Dc];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgR6));
+
+    let dmul = decoder.disassemble(machine_code[0], 0).unwrap();
+    let dmuh = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(dmul.get_mnemonic(), MgMnemonic::MgMneDmul);
+    assert_eq!(dmuh.get_mnemonic(), MgMnemonic::MgMneDmuh);
+    assert_eq!(dmul.get_mnemonic_str(), MG_MNE_DMUL);
+    assert_eq!(dmuh.get_mnemonic_str(), MG_MNE_DMUH);
+
+    assert_eq!(false, dmuh.is_conditional());
+    assert_eq!(false, dmuh.is_relative());
+    assert_eq!(false, dmuh.is_region());
+    assert_eq!(false, dmul.is_conditional());
+    assert_eq!(false, dmul.is_relative());
+    assert_eq!(false, dmul.is_region());
+
+    assert_eq!(0b00010, dmul.get_machine_code() >> 6 & 0b11111);
+    assert_eq!(0b00011, dmuh.get_machine_code() >> 6 & 0b11111);
+
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneDmul, false, false, false, true));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneDmuh, false, false, false, true));
+
+    assert_eq!(true, check_operands(&dmul, 3));
+    assert_eq!(true, check_operands(&dmuh, 3));
+}
+#[test]
+fn sop35(){
+    let machine_code = [0x2E7509d, 0x2E750Dd];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgR6));
+
+    let dmulu = decoder.disassemble(machine_code[0], 0).unwrap();
+    let dmuhu = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(dmulu.get_mnemonic(), MgMnemonic::MgMneDmulu);
+    assert_eq!(dmuhu.get_mnemonic(), MgMnemonic::MgMneDmuhu);
+    assert_eq!(dmulu.get_mnemonic_str(), MG_MNE_DMULU);
+    assert_eq!(dmuhu.get_mnemonic_str(), MG_MNE_DMUHU);
+
+    assert_eq!(false, dmuhu.is_conditional());
+    assert_eq!(false, dmuhu.is_relative());
+    assert_eq!(false, dmuhu.is_region());
+    assert_eq!(false, dmulu.is_conditional());
+    assert_eq!(false, dmulu.is_relative());
+    assert_eq!(false, dmulu.is_region());
+
+    assert_eq!(0b00010, dmulu.get_machine_code() >> 6 & 0b11111);
+    assert_eq!(0b00011, dmuhu.get_machine_code() >> 6 & 0b11111);
+
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneDmulu, false, false, false, true));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneDmuhu, false, false, false, true));
+
+    assert_eq!(true, check_operands(&dmulu, 3));
+    assert_eq!(true, check_operands(&dmuhu, 3));
+}
+#[test]
+fn sop36(){
+    let machine_code = [0x2E7509e, 0x2E750De];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgR6));
+
+    let ddiv = decoder.disassemble(machine_code[0], 0).unwrap();
+    let dmod = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(ddiv.get_mnemonic(), MgMnemonic::MgMneDdiv);
+    assert_eq!(dmod.get_mnemonic(), MgMnemonic::MgMneDmod);
+    assert_eq!(ddiv.get_mnemonic_str(), MG_MNE_DDIV);
+    assert_eq!(dmod.get_mnemonic_str(), MG_MNE_DMOD);
+
+    assert_eq!(false, dmod.is_conditional());
+    assert_eq!(false, dmod.is_relative());
+    assert_eq!(false, dmod.is_region());
+    assert_eq!(false, ddiv.is_conditional());
+    assert_eq!(false, ddiv.is_relative());
+    assert_eq!(false, ddiv.is_region());
+
+    assert_eq!(0b00010, ddiv.get_machine_code() >> 6 & 0b11111);
+    assert_eq!(0b00011, dmod.get_machine_code() >> 6 & 0b11111);
+
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneDdiv, false, false, false, true));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneDmod, false, false, false, true));
+
+    assert_eq!(true, check_operands(&ddiv, 3));
+    assert_eq!(true, check_operands(&dmod, 3));
+}
+#[test]
+fn sop37(){
+    let machine_code = [0x2E7509f, 0x2E750Df];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgR6));
+
+    let ddivu = decoder.disassemble(machine_code[0], 0).unwrap();
+    let dmodu = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(ddivu.get_mnemonic(), MgMnemonic::MgMneDdivu);
+    assert_eq!(dmodu.get_mnemonic(), MgMnemonic::MgMneDmodu);
+    assert_eq!(ddivu.get_mnemonic_str(), MG_MNE_DDIVU);
+    assert_eq!(dmodu.get_mnemonic_str(), MG_MNE_DMODU);
+
+    assert_eq!(false, dmodu.is_conditional());
+    assert_eq!(false, dmodu.is_relative());
+    assert_eq!(false, dmodu.is_region());
+    assert_eq!(false, ddivu.is_conditional());
+    assert_eq!(false, ddivu.is_relative());
+    assert_eq!(false, ddivu.is_region());
+
+    assert_eq!(0b00010, ddivu.get_machine_code() >> 6 & 0b11111);
+    assert_eq!(0b00011, dmodu.get_machine_code() >> 6 & 0b11111);
+
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneDdivu, false, false, false, true));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneDmodu, false, false, false, true));
+
+    assert_eq!(true, check_operands(&ddivu, 3));
+    assert_eq!(true, check_operands(&dmodu, 3));
+}
+#[test]
+fn test_dmult_dmultu(){
+    let machine_code = [0x0085001C, 0x0085001D];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
+
+    let dmult = decoder.disassemble(machine_code[0], 0).unwrap();
+    let dmultu = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(dmult.get_mnemonic(), MgMnemonic::MgMneDmult);
+    assert_eq!(dmultu.get_mnemonic(), MgMnemonic::MgMneDmultu);
+    assert_eq!(dmult.get_mnemonic_str(), MG_MNE_DMULT);
+    assert_eq!(dmultu.get_mnemonic_str(), MG_MNE_DMULTU);
+
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneDmult, false, false, true, false));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneDmultu, false, false, true, false));
+
+    assert_eq!(true, check_operands(&dmult, 2));
+    assert_eq!(true, check_operands(&dmultu, 2));
+
+    assert_eq!(true, check_field(&decoder, machine_code[0], 0b1111111111, MgMnemonic::MgMneDmult, 6));
+    assert_eq!(true, check_field(&decoder, machine_code[1], 0b1111111111, MgMnemonic::MgMneDmultu, 6));
+}
+#[test]
 fn test_ddiv_ddivu(){
     let machine_code = [0x0044001e, 0x000A001f];
 
@@ -135,8 +389,8 @@ fn test_ddiv_ddivu(){
     assert_eq!(ddiv.get_mnemonic_str(), MG_MNE_DDIV);
     assert_eq!(ddivu.get_mnemonic_str(), MG_MNE_DDIVU);
 
-    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneDdiv, false, false, true, false));
-    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneDdivu, false, false, true, false));
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneDdiv, false, false, true, true));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneDdivu, false, false, true, true));
 
     assert_eq!(true, check_operands(&ddiv, 2));
     assert_eq!(true, check_operands(&ddivu, 2));
