@@ -93,3 +93,43 @@ fn test_tne_teq() {
     assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneTne, true, true, true, true));
     assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneTeq, true, true, true, true));
 }
+#[test]
+fn test_tlt_tltu() {
+    let machine_code: [u32; 2] = [0x008514F2, 0x008504F3];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgR6));
+    let tlt = decoder.disassemble(machine_code[0], 0).unwrap();
+    let tltu = decoder.disassemble(machine_code[1], 0).unwrap();
+    
+    //No problem
+    assert_eq!(tlt.get_mnemonic(), MgMnemonic::MgMneTlt);
+    assert_eq!(tltu.get_mnemonic(), MgMnemonic::MgMneTltu);
+
+    assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneTlt, machine_code[0], 6, 0x3ff, 2));
+    assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneTltu, machine_code[1], 6, 0x3ff, 2));
+
+    assert_eq!(true, check_operands(&tlt, 3));
+    assert_eq!(true, check_operands(&tltu, 3));
+
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneTlt, true, true, true, true));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneTltu, true, true, true, true));
+}
+#[test]
+fn test_tge_tgeu() {
+    let machine_code: [u32; 2] = [0x008514F0, 0x008504F1];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgR6));
+    let tge = decoder.disassemble(machine_code[0], 0).unwrap();
+    let tgeu = decoder.disassemble(machine_code[1], 0).unwrap();
+    
+    //No problem
+    assert_eq!(tge.get_mnemonic(), MgMnemonic::MgMneTge);
+    assert_eq!(tgeu.get_mnemonic(), MgMnemonic::MgMneTgeu);
+
+    assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneTge, machine_code[0], 6, 0x3ff, 2));
+    assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneTgeu, machine_code[1], 6, 0x3ff, 2));
+
+    assert_eq!(true, check_operands(&tge, 3));
+    assert_eq!(true, check_operands(&tgeu, 3));
+
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneTge, true, true, true, true));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneTgeu, true, true, true, true));
+}

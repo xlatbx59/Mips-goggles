@@ -1141,6 +1141,9 @@ impl MgDisassembler{
         let rd: FieldInfos = FieldInfos::fixed_field(4, 0b1111111111);
         let rs: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
 
+        if let MgMipsVersion::M32(MgMips32::MgR6) | MgMipsVersion::M64(MgMips64::MgR6) = self.version{
+            return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+        };
 
         if (prototype.machine_code >> 6 & 0b10000) != 0{
             prototype.mnemonic = Some(MgMnemonic::MgMneJrhb);

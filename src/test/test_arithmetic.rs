@@ -108,18 +108,98 @@ fn test_clz_clo(){
     assert_eq!(true, check_field(&decoder, machine_code[3], 0b11111, MgMnemonic::MgMneClo, 6));
 }
 #[test]
+fn test_xor_nor(){
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
+    let machine_code = [0x00BB2026, 0x00BB2027];
+    let xor = decoder.disassemble(machine_code[0], 0).unwrap();
+    let nor = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(xor.get_mnemonic(), MgMnemonic::MgMneXor);
+    assert_eq!(nor.get_mnemonic(), MgMnemonic::MgMneNor);
+    assert_eq!(nor.get_mnemonic_str(), MG_MNE_NOR);
+    assert_eq!(xor.get_mnemonic_str(), MG_MNE_XOR);
+
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneXor, true, true, true, true));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneNor, true, true, true, true));
+
+    assert_eq!(true, check_operands(&xor, 3));
+    assert_eq!(true, check_operands(&nor, 3));
+    assert_eq!(true, check_field(&decoder, machine_code[0], 0b11111, MgMnemonic::MgMneXor, 6));
+    assert_eq!(true, check_field(&decoder, machine_code[1], 0b11111, MgMnemonic::MgMneNor, 6));
+}
+#[test]
+fn test_or_xor(){
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
+    let machine_code = [0x00BB2025, 0x00BB2024];
+    let or = decoder.disassemble(machine_code[0], 0).unwrap();
+    let and = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(or.get_mnemonic(), MgMnemonic::MgMneOr);
+    assert_eq!(and.get_mnemonic(), MgMnemonic::MgMneAnd);
+    assert_eq!(and.get_mnemonic_str(), MG_MNE_AND);
+    assert_eq!(or.get_mnemonic_str(), MG_MNE_OR);
+
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneOr, true, true, true, true));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneAnd, true, true, true, true));
+
+    assert_eq!(true, check_operands(&or, 3));
+    assert_eq!(true, check_operands(&and, 3));
+    assert_eq!(true, check_field(&decoder, machine_code[0], 0b11111, MgMnemonic::MgMneOr, 6));
+    assert_eq!(true, check_field(&decoder, machine_code[1], 0b11111, MgMnemonic::MgMneAnd, 6));
+}
+#[test]
+fn test_sub_subu(){
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
+    let machine_code = [0x00BB2022, 0x00BB2023];
+    let sub = decoder.disassemble(machine_code[0], 0).unwrap();
+    let subu = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(sub.get_mnemonic(), MgMnemonic::MgMneSub);
+    assert_eq!(subu.get_mnemonic(), MgMnemonic::MgMneSubu);
+    assert_eq!(subu.get_mnemonic_str(), MG_MNE_SUBU);
+    assert_eq!(sub.get_mnemonic_str(), MG_MNE_SUB);
+
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneSub, true, true, true, true));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneSubu, true, true, true, true));
+
+    assert_eq!(true, check_operands(&sub, 3));
+    assert_eq!(true, check_operands(&subu, 3));
+    assert_eq!(true, check_field(&decoder, machine_code[0], 0b11111, MgMnemonic::MgMneSub, 6));
+    assert_eq!(true, check_field(&decoder, machine_code[1], 0b11111, MgMnemonic::MgMneSubu, 6));
+}
+#[test]
+fn test_add_addu(){
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
+    let machine_code = [0x00BB2020, 0x00BB2021];
+    let add = decoder.disassemble(machine_code[0], 0).unwrap();
+    let addu = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(add.get_mnemonic(), MgMnemonic::MgMneAdd);
+    assert_eq!(addu.get_mnemonic(), MgMnemonic::MgMneAddu);
+    assert_eq!(addu.get_mnemonic_str(), MG_MNE_ADDU);
+    assert_eq!(add.get_mnemonic_str(), MG_MNE_ADD);
+
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneAdd, true, true, true, true));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneAddu, true, true, true, true));
+
+    assert_eq!(true, check_operands(&add, 3));
+    assert_eq!(true, check_operands(&addu, 3));
+    assert_eq!(true, check_field(&decoder, machine_code[0], 0b11111, MgMnemonic::MgMneAdd, 6));
+    assert_eq!(true, check_field(&decoder, machine_code[1], 0b11111, MgMnemonic::MgMneAddu, 6));
+}
+#[test]
 fn test_mul(){
     let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
     let machine_code = 0x70f34802;
     let mul = decoder.disassemble(machine_code, 0).unwrap();
 
+    assert_eq!(mul.get_mnemonic(), MgMnemonic::MgMneMul);
+    assert_eq!(mul.get_mnemonic_str(), MG_MNE_MUL);
+
     assert_eq!(true, version_test(machine_code, MgMnemonic::MgMneMul, true, false, true, false));
 
     assert_eq!(true, check_operands(&mul, 3));
     assert_eq!(true, check_field(&decoder, machine_code, 0b11111, MgMnemonic::MgMneMul, 6));
-
-    assert_eq!(mul.get_mnemonic(), MgMnemonic::MgMneMul);
-    assert_eq!(mul.get_mnemonic_str(), MG_MNE_MUL);
 }
 #[test]
 fn sop30(){
