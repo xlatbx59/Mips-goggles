@@ -8,6 +8,25 @@ use crate::disassembler::*;
 use crate::instruction::mnemonics::*;
 
 #[test]
+fn test_synci() {
+    let machine_code = 0x041f000f;
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgR6));
+    let synci = decoder.disassemble(machine_code, 0).unwrap();
+    
+    assert_eq!(synci.get_mnemonic(), MgMnemonic::MgMneSynci);
+    assert_eq!(MG_MNE_SYNCI, synci.get_mnemonic_str());
+    assert_eq!(MG_MNE_SYNCI, "synci");
+
+    assert_eq!(false, synci.is_conditional());
+    assert_eq!(false, synci.is_relative());
+    assert_eq!(false, synci.is_region());
+
+    assert_eq!(1, synci.get_opcode());
+    assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneSynci, machine_code, 0, 0xffff, 0));
+    assert_eq!(true, check_operands(&synci, 2));
+    assert_eq!(true, version_test(machine_code, MgMnemonic::MgMneSynci, true, true, true, true));
+}
+#[test]
 fn test_sync() {
     let machine_code = 0x0000000f;
     let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgR6));

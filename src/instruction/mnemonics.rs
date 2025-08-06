@@ -91,6 +91,7 @@ pub const MG_MNE_TLTI: &str = "tlti"; pub const MG_MNE_TLTIU: &str = "tltiu"; pu
 pub const MG_MNE_TNEI: &str = "tnei"; pub const MG_MNE_BLTZAL: &str = "bltzal"; pub const MG_MNE_BGEZAL: &str = "bgezal";
 pub const MG_MNE_BLTZALL: &str = "bltzall";pub const MG_MNE_BGEZALL: &str = "bgezall"; pub const MG_MNE_SYNCI: &str = "synci";
 pub const MG_MNE_BAL: &str = "bal"; pub const MG_MNE_DAHI: &str = "dahi"; pub const MG_MNE_DATI: &str = "dati";
+pub const MG_MNE_SIGRIE: &str = "sigrie";pub const MG_MNE_NAL: &str = "nal";
 
 //CP0
 pub const MG_MNE_MFC0: &str = "mfc0"; pub const MG_MNE_MTC0: &str = "mtc0"; pub const MG_MNE_RDPGPR: &str = "rdpgpr";
@@ -125,7 +126,7 @@ pub enum MgMnemonic {
     MgMneDaddi, MgMneDaddiu, MgMneAui, MgMneLd, MgMneSd, MgMneSdl, MgMneSdr, MgMneLld, MgMneScd, MgMneLwu, MgMneDclz, MgMneDclo,
     MgMneDsllv, MgMneDsrav, MgMneDsrlv, MgMneDrotrv, MgMneDsra, MgMneDsrl, MgMneDrotr, MgMneDsll, MgMneDsll32, MgMneDsra32, MgMneDsrl32,
     MgMneDrotr32, MgMneDadd, MgMneDaddu, MgMneDsub, MgMneDsubu, MgMneDmult, MgMneDmultu, MgMneMuh, MgMneMulu, MgMneMuhu, MgMneDmul, 
-    MgMneDmuh, MgMneDmulu,MgMneDmuhu, MgMneMod, MgMneModu, MgMneDmod, MgMneDmodu
+    MgMneDmuh, MgMneDmulu,MgMneDmuhu, MgMneMod, MgMneModu, MgMneDmod, MgMneDmodu, MgMneSigrie, MgMneNal
 }
 
 pub(super)const MG_MNEMONICS: &[&str] = &[
@@ -150,5 +151,5 @@ pub(super)const MG_MNEMONICS: &[&str] = &[
     MG_MNE_LLD, MG_MNE_SCD, MG_MNE_LWU, MG_MNE_DCLZ, MG_MNE_DCLO, MG_MNE_DSLLV, MG_MNE_DSRAV, MG_MNE_DSRLV, MG_MNE_DROTRV, MG_MNE_DSRA, MG_MNE_DSRL,
     MG_MNE_DROTR, MG_MNE_DSLL, MG_MNE_DSLL32, MG_MNE_DSRA32, MG_MNE_DSRL32, MG_MNE_DROTR32, MG_MNE_DADD, MG_MNE_DADDU, MG_MNE_DSUB, MG_MNE_DSUBU,
     MG_MNE_DMULT, MG_MNE_DMULTU, MG_MNE_MUH, MG_MNE_MULU, MG_MNE_MUHU, MG_MNE_DMUL, MG_MNE_DMUH, MG_MNE_DMULU, MG_MNE_DMUHU, MG_MNE_MOD, MG_MNE_MODU,
-    MG_MNE_DMOD, MG_MNE_DMODU
+    MG_MNE_DMOD, MG_MNE_DMODU, MG_MNE_SIGRIE, MG_MNE_NAL
 ];

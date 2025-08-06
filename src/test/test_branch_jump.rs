@@ -85,6 +85,163 @@ fn test_jr(){
     assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneJrhb, true, false, true, false));
 }
 #[test]
+fn test_bltzall_bgezall(){
+    let machine_code: [u32; 2] = [0x0492C00D, 0x0493C00D];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgPreR6));
+
+    let bltzall: MgInstruction= decoder.disassemble(machine_code[0], 0).unwrap();
+    let bgezall: MgInstruction= decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(MgMnemonic::MgMneBltzall, bltzall.get_mnemonic());
+    assert_eq!(MgMnemonic::MgMneBgezall, bgezall.get_mnemonic());
+    assert_eq!("bltzall", MG_MNE_BLTZALL);
+    assert_eq!("bgezall", MG_MNE_BGEZALL);
+
+    assert_eq!(MG_MNE_BLTZALL, bltzall.get_mnemonic_str());
+    assert_eq!(MG_MNE_BGEZALL, bgezall.get_mnemonic_str());
+
+    assert_eq!(true, check_operands(&bltzall, 2));
+    assert_eq!(true, check_operands(&bgezall, 2));
+
+    assert_eq!(true, bltzall.is_conditional());
+    assert_eq!(true, bltzall.is_relative());
+    assert_eq!(false, bltzall.is_region());
+    assert_eq!(true, bgezall.is_conditional());
+    assert_eq!(true, bgezall.is_relative());
+    assert_eq!(false, bgezall.is_region());
+
+    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneBgezall, machine_code[1], 0, 0xffff, 1));
+    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneBltzall, machine_code[0], 0, 0xffff, 1));
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneBltzall, true, false, true, false));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneBgezall, true, false, true, false));
+}
+#[test]
+fn test_nal_bal(){
+    let machine_code: [u32; 2] = [0x0410C00D, 0x0411C00D];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgR6));
+
+    let nal: MgInstruction= decoder.disassemble(machine_code[0], 0).unwrap();
+    let bal: MgInstruction= decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(MgMnemonic::MgMneNal, nal.get_mnemonic());
+    assert_eq!(MgMnemonic::MgMneBal, bal.get_mnemonic());
+    assert_eq!("nal", MG_MNE_NAL);
+    assert_eq!("bal", MG_MNE_BAL);
+
+    assert_eq!(MG_MNE_NAL, nal.get_mnemonic_str());
+    assert_eq!(MG_MNE_BAL, bal.get_mnemonic_str());
+
+    assert_eq!(true, check_operands(&nal, 1));
+    assert_eq!(true, check_operands(&bal, 1));
+
+    assert_eq!(false, nal.is_conditional());
+    assert_eq!(true, nal.is_relative());
+    assert_eq!(false, nal.is_region());
+    assert_eq!(false, bal.is_conditional());
+    assert_eq!(true, bal.is_relative());
+    assert_eq!(false, bal.is_region());
+
+    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneBal, machine_code[1], 0, 0xffff, 0));
+    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneNal, machine_code[0], 0, 0xffff, 0));
+    assert_eq!(true, check_field(&decoder, machine_code[0], 0x1f, MgMnemonic::MgMneNal, 21));
+    assert_eq!(true, check_field(&decoder, machine_code[1], 0x1f, MgMnemonic::MgMneBal, 21));
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneNal, false, true, false, true));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneBal, false, true, false, true));
+}
+#[test]
+fn test_bltzal_bgezal(){
+    let machine_code: [u32; 2] = [0x0490C00D, 0x0491C00D];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgPreR6));
+
+    let bltzal: MgInstruction= decoder.disassemble(machine_code[0], 0).unwrap();
+    let bgezal: MgInstruction= decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(MgMnemonic::MgMneBltzal, bltzal.get_mnemonic());
+    assert_eq!(MgMnemonic::MgMneBgezal, bgezal.get_mnemonic());
+    assert_eq!("bltzal", MG_MNE_BLTZAL);
+    assert_eq!("bgezal", MG_MNE_BGEZAL);
+
+    assert_eq!(MG_MNE_BLTZAL, bltzal.get_mnemonic_str());
+    assert_eq!(MG_MNE_BGEZAL, bgezal.get_mnemonic_str());
+
+    assert_eq!(true, check_operands(&bltzal, 2));
+    assert_eq!(true, check_operands(&bgezal, 2));
+
+    assert_eq!(true, bltzal.is_conditional());
+    assert_eq!(true, bltzal.is_relative());
+    assert_eq!(false, bltzal.is_region());
+    assert_eq!(true, bgezal.is_conditional());
+    assert_eq!(true, bgezal.is_relative());
+    assert_eq!(false, bgezal.is_region());
+
+    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneBgezal, machine_code[1], 0, 0xffff, 1));
+    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneBltzal, machine_code[0], 0, 0xffff, 1));
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneBltzal, true, false, true, false));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneBgezal, true, false, true, false));
+}
+#[test]
+fn test_bltz_bgez(){
+    let machine_code: [u32; 2] = [0x0480C00D, 0x0481C00D];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgPreR6));
+
+    let bltz: MgInstruction= decoder.disassemble(machine_code[0], 0).unwrap();
+    let bgez: MgInstruction= decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(MgMnemonic::MgMneBltz, bltz.get_mnemonic());
+    assert_eq!(MgMnemonic::MgMneBgez, bgez.get_mnemonic());
+    assert_eq!("bltz", MG_MNE_BLTZ);
+    assert_eq!("bgez", MG_MNE_BGEZ);
+
+    assert_eq!(MG_MNE_BLTZ, bltz.get_mnemonic_str());
+    assert_eq!(MG_MNE_BGEZ, bgez.get_mnemonic_str());
+
+    assert_eq!(true, check_operands(&bltz, 2));
+    assert_eq!(true, check_operands(&bgez, 2));
+
+    assert_eq!(true, bltz.is_conditional());
+    assert_eq!(true, bltz.is_relative());
+    assert_eq!(false, bltz.is_region());
+    assert_eq!(true, bgez.is_conditional());
+    assert_eq!(true, bgez.is_relative());
+    assert_eq!(false, bgez.is_region());
+
+    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneBgez, machine_code[1], 0, 0xffff, 1));
+    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneBltz, machine_code[0], 0, 0xffff, 1));
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneBltz, true, false, true, false));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneBgez, true, false, true, false));
+}
+#[test]
+fn test_bltzl_bgezl(){
+    let machine_code: [u32; 2] = [0x0482C00D, 0x0483C00D];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgPreR6));
+
+    let bltzl: MgInstruction= decoder.disassemble(machine_code[0], 0).unwrap();
+    let bgezl: MgInstruction= decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(MgMnemonic::MgMneBltzl, bltzl.get_mnemonic());
+    assert_eq!(MgMnemonic::MgMneBgezl, bgezl.get_mnemonic());
+    assert_eq!("bltzl", MG_MNE_BLTZL);
+    assert_eq!("bgezl", MG_MNE_BGEZL);
+
+    assert_eq!(MG_MNE_BLTZL, bltzl.get_mnemonic_str());
+    assert_eq!(MG_MNE_BGEZL, bgezl.get_mnemonic_str());
+
+    assert_eq!(true, check_operands(&bltzl, 2));
+    assert_eq!(true, check_operands(&bgezl, 2));
+
+    assert_eq!(true, bltzl.is_conditional());
+    assert_eq!(true, bltzl.is_relative());
+    assert_eq!(false, bltzl.is_region());
+    assert_eq!(true, bgezl.is_conditional());
+    assert_eq!(true, bgezl.is_relative());
+    assert_eq!(false, bgezl.is_region());
+
+    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneBgezl, machine_code[1], 0, 0xffff, 1));
+    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneBltzl, machine_code[0], 0, 0xffff, 1));
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneBltzl, true, false, true, false));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneBgezl, true, false, true, false));
+}
+#[test]
 fn test_jalr(){
     let machine_code = [0x03602009, 0x03602409];
     let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgPreR6));
