@@ -139,8 +139,8 @@ impl MgDisassembler{
         };
         
         return match OPCODE_MAP[(machine_code >> 26) as usize](self, &mut prototype) {
-            Err(e) => Err(e),
             Ok(_) => MgInstruction::new_instruction(prototype),
+            Err(e) => Err(e),
         }
     }
     fn reg_format(&self, prototype: &mut MgInstructionPrototype, rs: Option<FieldInfos>, rt: Option<FieldInfos>, rd: Option<FieldInfos>, sa: Option<FieldInfos>) -> Result<(), MgError>{

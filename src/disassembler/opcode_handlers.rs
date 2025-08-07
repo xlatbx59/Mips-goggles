@@ -29,129 +29,6 @@ impl MgDisassembler{
 
         SPECIAL_MAP[(prototype.machine_code & 0b111111) as usize](self, prototype)
     }
-    pub(super) fn dahi_dati(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
-        if prototype.machine_code >> 21 & 0b11111 == 0{
-            return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
-        };
-        let MgMipsVersion::M64(MgMips64::MgR6) = self.version else{
-            return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
-        };
-
-        prototype.mnemonic = match prototype.machine_code >> 16 & 0b11111{
-            0b00110 => Some(MgMnemonic::MgMneDahi),
-            0b11110 =>Some(MgMnemonic::MgMneDati),
-            _ => return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
-        };
-
-        MgDisassembler::imm_format(self, prototype, Some(FieldInfos::default_reg_field(0, MgCoprocessor::Cpu)), None, Some(FieldInfos::default_imm_field(1)))
-    }
-    pub (super) fn bltz_bgez(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
-        prototype.mnemonic = if prototype.machine_code >> 16 & 1 == 0{
-            Some(MgMnemonic::MgMneBltz)
-        }else {
-            Some(MgMnemonic::MgMneBgez)
-        };
-
-        if let MgMipsVersion::M32(MgMips32::MgR6) | MgMipsVersion::M64(MgMips64::MgR6) = self.version {
-            return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
-        };
-
-        prototype.is_conditional = true;
-        prototype.is_relative = true;
-
-        MgDisassembler::imm_format(self, prototype, Some(FieldInfos::default_reg_field(0, MgCoprocessor::Cpu)), None, Some(FieldInfos::default_imm_field(1)))
-    }
-    pub (super) fn bltzall_bgezall(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
-        prototype.mnemonic = if prototype.machine_code >> 16 & 1 == 0{
-            Some(MgMnemonic::MgMneBltzall)
-        }else {
-            Some(MgMnemonic::MgMneBgezall)
-        };
-
-        if let MgMipsVersion::M32(MgMips32::MgR6) | MgMipsVersion::M64(MgMips64::MgR6) = self.version {
-            return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
-        };
-
-        prototype.is_conditional = true;
-        prototype.is_relative = true;
-        MgDisassembler::imm_format(self, prototype, Some(FieldInfos::default_reg_field(0, MgCoprocessor::Cpu)), None, Some(FieldInfos::default_imm_field(1)))
-    }
-    pub (super) fn bltzal_bgezal_nal_bal(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
-        prototype.is_relative = true;
-        return if let MgMipsVersion::M32(MgMips32::MgPreR6) | MgMipsVersion::M64(MgMips64::MgPreR6) = self.version{
-            prototype.is_conditional = true;
-            prototype.mnemonic = if prototype.machine_code >> 16 & 1 == 0{
-                Some(MgMnemonic::MgMneBltzal)
-            }else {
-                Some(MgMnemonic::MgMneBgezal)
-            };
-            MgDisassembler::imm_format(self, prototype, Some(FieldInfos::default_reg_field(0, MgCoprocessor::Cpu)), None, Some(FieldInfos::default_imm_field(1)))
-        }else{
-            prototype.mnemonic = if prototype.machine_code >> 16 & 1 == 0{
-                Some(MgMnemonic::MgMneNal)
-            }else {
-                Some(MgMnemonic::MgMneBal)
-            };
-            MgDisassembler::imm_format(self, prototype, Some(FieldInfos::default_fixed_field()), None, Some(FieldInfos::default_imm_field(0)))
-        };
-    }
-    pub (super) fn bltzl_bgezl(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
-        prototype.mnemonic = if prototype.machine_code >> 16 & 1 == 0{
-            Some(MgMnemonic::MgMneBltzl)
-        }else {
-            Some(MgMnemonic::MgMneBgezl)
-        };
-
-        if let MgMipsVersion::M32(MgMips32::MgR6) | MgMipsVersion::M64(MgMips64::MgR6) = self.version {
-            return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
-        };
-
-        prototype.is_conditional = true;
-        prototype.is_relative = true;
-        MgDisassembler::imm_format(self, prototype, Some(FieldInfos::default_reg_field(0, MgCoprocessor::Cpu)), None, Some(FieldInfos::default_imm_field(1)))
-    }
-    pub (super) fn tlti_tltiu(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
-        prototype.mnemonic = if prototype.machine_code >> 16 & 1 == 0{
-            Some(MgMnemonic::MgMneTlti)
-        }else {
-            Some(MgMnemonic::MgMneTltiu)
-        };
-
-        if let MgMipsVersion::M32(MgMips32::MgR6) | MgMipsVersion::M64(MgMips64::MgR6) = self.version {
-            return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
-        };
-
-        prototype.is_conditional = true;
-        MgDisassembler::imm_format(self, prototype, Some(FieldInfos::default_reg_field(0, MgCoprocessor::Cpu)), None, Some(FieldInfos::default_imm_field(1)))
-    }
-    pub (super) fn teqi_tnei(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
-        prototype.mnemonic = if prototype.machine_code >> 17 & 1 == 0{
-            Some(MgMnemonic::MgMneTeqi)
-        }else {
-            Some(MgMnemonic::MgMneTnei)
-        };
-
-        if let MgMipsVersion::M32(MgMips32::MgR6) | MgMipsVersion::M64(MgMips64::MgR6) = self.version {
-            return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
-        };
-
-        prototype.is_conditional = true;
-        MgDisassembler::imm_format(self, prototype, Some(FieldInfos::default_reg_field(0, MgCoprocessor::Cpu)), None, Some(FieldInfos::default_imm_field(1)))
-    }
-    pub (super) fn tgei_tgeiu(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
-        prototype.mnemonic = if prototype.machine_code >> 16 & 1 == 0{
-            Some(MgMnemonic::MgMneTgei)
-        }else {
-            Some(MgMnemonic::MgMneTgeiu)
-        };
-
-        if let MgMipsVersion::M32(MgMips32::MgR6) | MgMipsVersion::M64(MgMips64::MgR6) = self.version {
-            return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
-        };
-
-        prototype.is_conditional = true;
-        MgDisassembler::imm_format(self, prototype, Some(FieldInfos::default_reg_field(0, MgCoprocessor::Cpu)), None, Some(FieldInfos::default_imm_field(1)))
-    }
     pub (super) fn regimm_opcode_map(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         static REGIMM_MAP: [fn(disassembler: &MgDisassembler, &mut MgInstructionPrototype) -> Result<(), MgError>; 32] = 
             [   MgDisassembler::bltz_bgez,  MgDisassembler::bltz_bgez,  MgDisassembler::bltzl_bgezl,  MgDisassembler::bltzl_bgezl,  MgDisassembler::msub_msubu,  MgDisassembler::msub_msubu,  MgDisassembler::dahi_dati,  MgDisassembler::no_instructions,
@@ -178,12 +55,12 @@ impl MgDisassembler{
     }
     pub (super) fn special3_opcode_map(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         static SPECIAL3_MAP: [fn(disassembler: &MgDisassembler, &mut MgInstructionPrototype) -> Result<(), MgError>; 64] = 
-            [   MgDisassembler::ext,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::ins,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
+            [   MgDisassembler::ext_dext,  MgDisassembler::dextm_dextu,  MgDisassembler::dextm_dextu,  MgDisassembler::ext_dext,  MgDisassembler::ins_dins,  MgDisassembler::dinsm_dinsu,  MgDisassembler::dinsm_dinsu,  MgDisassembler::ins_dins,
                 MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
                 MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
-                MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
-                MgDisassembler::bshfl,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::cache_pref,  MgDisassembler::sc_ll,  MgDisassembler::scd_lld,
-                MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
+                MgDisassembler::no_instructions,  MgDisassembler::lwle_lwre_swle_swre,  MgDisassembler::lwle_lwre_swle_swre,  MgDisassembler::cachee,  MgDisassembler::sbe_she_sce_swe,  MgDisassembler::sbe_she_sce_swe,  MgDisassembler::sbe_she_sce_swe,  MgDisassembler::sbe_she_sce_swe,
+                MgDisassembler::bshfl,  MgDisassembler::lwle_lwre_swle_swre,  MgDisassembler::lwle_lwre_swle_swre,  MgDisassembler::prefe,  MgDisassembler::no_instructions,  MgDisassembler::cache_pref,  MgDisassembler::sc_ll,  MgDisassembler::scd_lld,
+                MgDisassembler::lbue_lhue,  MgDisassembler::lbue_lhue,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::lbe_lhe_lce_lwe,  MgDisassembler::lbe_lhe_lce_lwe,  MgDisassembler::lbe_lhe_lce_lwe,  MgDisassembler::lbe_lhe_lce_lwe,
                 MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::cache_pref,  MgDisassembler::sc_ll,  MgDisassembler::scd_lld,
                 MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::rdhwr,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions ];
         
@@ -890,7 +767,7 @@ impl MgDisassembler{
         let base: FieldInfos = FieldInfos::default_reg_field(2, MgCoprocessor::Cpu);
         let op: FieldInfos = FieldInfos::imm_field(0, 0b11111);
 
-        return if let MgMipsVersion::M32(MgMips32::MgPreR6) = self.version{
+        return if let MgMipsVersion::M32(MgMips32::MgPreR6) | MgMipsVersion::M64(MgMips64::MgPreR6) = self.version{
             if prototype.opcode == 0b011111{
                 Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
             } else{
@@ -903,7 +780,7 @@ impl MgDisassembler{
                 };
                 MgDisassembler::imm_format(self, prototype, Some(base), Some(op), Some(FieldInfos::default_imm_field(1)))
             }
-        } else if let MgMipsVersion::M32(MgMips32::MgR6) = self.version{
+        }else{
             if prototype.opcode != 0b011111{
                 Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
             } else  if prototype.machine_code >> 6 & 1 == 1{
@@ -920,9 +797,6 @@ impl MgDisassembler{
                 prototype.operand[1] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code >> 7 & 0b111111111) as u64));
                 MgDisassembler::imm_format(self, prototype, Some(base), Some(op), None)
             }
-        }
-        else {
-            unimplemented!();
         }
     }
     pub(super) fn daui(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
@@ -1421,6 +1295,129 @@ impl MgDisassembler{
         MgDisassembler::reg_format(self, prototype, Some(rs), Some(rt), None, Some(FieldInfos::imm_field(2, 0b1111111111)))
     }
     //Regimm
+    pub(super) fn dahi_dati(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        if prototype.machine_code >> 21 & 0b11111 == 0{
+            return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
+        };
+        let MgMipsVersion::M64(MgMips64::MgR6) = self.version else{
+            return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+        };
+
+        prototype.mnemonic = match prototype.machine_code >> 16 & 0b11111{
+            0b00110 => Some(MgMnemonic::MgMneDahi),
+            0b11110 =>Some(MgMnemonic::MgMneDati),
+            _ => return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
+        };
+
+        MgDisassembler::imm_format(self, prototype, Some(FieldInfos::default_reg_field(0, MgCoprocessor::Cpu)), None, Some(FieldInfos::default_imm_field(1)))
+    }
+    pub (super) fn bltz_bgez(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        prototype.mnemonic = if prototype.machine_code >> 16 & 1 == 0{
+            Some(MgMnemonic::MgMneBltz)
+        }else {
+            Some(MgMnemonic::MgMneBgez)
+        };
+
+        if let MgMipsVersion::M32(MgMips32::MgR6) | MgMipsVersion::M64(MgMips64::MgR6) = self.version {
+            return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+        };
+
+        prototype.is_conditional = true;
+        prototype.is_relative = true;
+
+        MgDisassembler::imm_format(self, prototype, Some(FieldInfos::default_reg_field(0, MgCoprocessor::Cpu)), None, Some(FieldInfos::default_imm_field(1)))
+    }
+    pub (super) fn bltzall_bgezall(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        prototype.mnemonic = if prototype.machine_code >> 16 & 1 == 0{
+            Some(MgMnemonic::MgMneBltzall)
+        }else {
+            Some(MgMnemonic::MgMneBgezall)
+        };
+
+        if let MgMipsVersion::M32(MgMips32::MgR6) | MgMipsVersion::M64(MgMips64::MgR6) = self.version {
+            return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+        };
+
+        prototype.is_conditional = true;
+        prototype.is_relative = true;
+        MgDisassembler::imm_format(self, prototype, Some(FieldInfos::default_reg_field(0, MgCoprocessor::Cpu)), None, Some(FieldInfos::default_imm_field(1)))
+    }
+    pub (super) fn bltzal_bgezal_nal_bal(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        prototype.is_relative = true;
+        return if let MgMipsVersion::M32(MgMips32::MgPreR6) | MgMipsVersion::M64(MgMips64::MgPreR6) = self.version{
+            prototype.is_conditional = true;
+            prototype.mnemonic = if prototype.machine_code >> 16 & 1 == 0{
+                Some(MgMnemonic::MgMneBltzal)
+            }else {
+                Some(MgMnemonic::MgMneBgezal)
+            };
+            MgDisassembler::imm_format(self, prototype, Some(FieldInfos::default_reg_field(0, MgCoprocessor::Cpu)), None, Some(FieldInfos::default_imm_field(1)))
+        }else{
+            prototype.mnemonic = if prototype.machine_code >> 16 & 1 == 0{
+                Some(MgMnemonic::MgMneNal)
+            }else {
+                Some(MgMnemonic::MgMneBal)
+            };
+            MgDisassembler::imm_format(self, prototype, Some(FieldInfos::default_fixed_field()), None, Some(FieldInfos::default_imm_field(0)))
+        };
+    }
+    pub (super) fn bltzl_bgezl(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        prototype.mnemonic = if prototype.machine_code >> 16 & 1 == 0{
+            Some(MgMnemonic::MgMneBltzl)
+        }else {
+            Some(MgMnemonic::MgMneBgezl)
+        };
+
+        if let MgMipsVersion::M32(MgMips32::MgR6) | MgMipsVersion::M64(MgMips64::MgR6) = self.version {
+            return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+        };
+
+        prototype.is_conditional = true;
+        prototype.is_relative = true;
+        MgDisassembler::imm_format(self, prototype, Some(FieldInfos::default_reg_field(0, MgCoprocessor::Cpu)), None, Some(FieldInfos::default_imm_field(1)))
+    }
+    pub (super) fn tlti_tltiu(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        prototype.mnemonic = if prototype.machine_code >> 16 & 1 == 0{
+            Some(MgMnemonic::MgMneTlti)
+        }else {
+            Some(MgMnemonic::MgMneTltiu)
+        };
+
+        if let MgMipsVersion::M32(MgMips32::MgR6) | MgMipsVersion::M64(MgMips64::MgR6) = self.version {
+            return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+        };
+
+        prototype.is_conditional = true;
+        MgDisassembler::imm_format(self, prototype, Some(FieldInfos::default_reg_field(0, MgCoprocessor::Cpu)), None, Some(FieldInfos::default_imm_field(1)))
+    }
+    pub (super) fn teqi_tnei(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        prototype.mnemonic = if prototype.machine_code >> 17 & 1 == 0{
+            Some(MgMnemonic::MgMneTeqi)
+        }else {
+            Some(MgMnemonic::MgMneTnei)
+        };
+
+        if let MgMipsVersion::M32(MgMips32::MgR6) | MgMipsVersion::M64(MgMips64::MgR6) = self.version {
+            return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+        };
+
+        prototype.is_conditional = true;
+        MgDisassembler::imm_format(self, prototype, Some(FieldInfos::default_reg_field(0, MgCoprocessor::Cpu)), None, Some(FieldInfos::default_imm_field(1)))
+    }
+    pub (super) fn tgei_tgeiu(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        prototype.mnemonic = if prototype.machine_code >> 16 & 1 == 0{
+            Some(MgMnemonic::MgMneTgei)
+        }else {
+            Some(MgMnemonic::MgMneTgeiu)
+        };
+
+        if let MgMipsVersion::M32(MgMips32::MgR6) | MgMipsVersion::M64(MgMips64::MgR6) = self.version {
+            return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+        };
+
+        prototype.is_conditional = true;
+        MgDisassembler::imm_format(self, prototype, Some(FieldInfos::default_reg_field(0, MgCoprocessor::Cpu)), None, Some(FieldInfos::default_imm_field(1)))
+    }
     pub(super) fn synci(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         prototype.mnemonic = Some(MgMnemonic::MgMneSynci);
         MgDisassembler::imm_format(self, prototype, Some(FieldInfos::default_reg_field(1, MgCoprocessor::Cpu)), None, Some(FieldInfos::default_imm_field(0)))
@@ -1525,8 +1522,15 @@ impl MgDisassembler{
     }
 
     //Special3 They need some testing
-    pub(super) fn ext(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
-        prototype.mnemonic = Some(MgMnemonic::MgMneExt);
+    pub(super) fn ext_dext(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        prototype.mnemonic = if prototype.machine_code & 1 == 1{
+            let MgMipsVersion::M64(_) = self.version else{
+                return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+            };
+            Some(MgMnemonic::MgMneDext)
+        }else{
+            Some(MgMnemonic::MgMneExt)
+        };
 
         prototype.operand_num = 4;
         prototype.operand[0] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 16 & 0b11111) as u8, MgCoprocessor::Cpu));
@@ -1535,8 +1539,16 @@ impl MgDisassembler{
         prototype.operand[3] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code >> 11 & 0b11111) as u64));
         Ok(())
     }
-    pub(super) fn ins(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
-        prototype.mnemonic = Some(MgMnemonic::MgMneIns);
+    pub(super) fn dextm_dextu(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        let MgMipsVersion::M64(_) = self.version else{
+            return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+        };
+
+        prototype.mnemonic = if prototype.machine_code & 1 == 1{
+            Some(MgMnemonic::MgMneDextm)
+        }else{
+            Some(MgMnemonic::MgMneDextu)
+        };
 
         prototype.operand_num = 4;
         prototype.operand[0] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 16 & 0b11111) as u8, MgCoprocessor::Cpu));
@@ -1544,6 +1556,170 @@ impl MgDisassembler{
         prototype.operand[2] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code >> 6 & 0b11111) as u64));
         prototype.operand[3] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code >> 11 & 0b11111) as u64));
         Ok(())
+    }
+    pub(super) fn ins_dins(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        prototype.mnemonic = if prototype.machine_code & 1 == 1{
+            let MgMipsVersion::M64(_) = self.version else{
+                return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+            };
+            Some(MgMnemonic::MgMneDins)
+        }else{
+            Some(MgMnemonic::MgMneIns)
+        };
+
+        prototype.operand_num = 4;
+        prototype.operand[0] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 16 & 0b11111) as u8, MgCoprocessor::Cpu));
+        prototype.operand[1] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 21 & 0b11111) as u8, MgCoprocessor::Cpu));
+        prototype.operand[2] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code >> 6 & 0b11111) as u64));
+        prototype.operand[3] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code >> 11 & 0b11111) as u64 + 32));
+        Ok(())
+    }
+    pub(super) fn cachee(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        let base: FieldInfos = FieldInfos::default_reg_field(2, MgCoprocessor::Cpu);
+        let op: FieldInfos = FieldInfos::imm_field(0, 0b11111);
+
+        if prototype.machine_code >> 6 & 1 != 0{
+            return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
+        }
+
+        prototype.operand[1] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code >> 7 & 0b111111111) as u64));
+        prototype.operand_num = 1;
+
+        prototype.mnemonic = Some(MgMnemonic::MgMneCachee);
+        MgDisassembler::imm_format(self, prototype, Some(base), Some(op), None)
+    }
+    pub(super) fn prefe(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        let base: FieldInfos = FieldInfos::default_reg_field(2, MgCoprocessor::Cpu);
+        let op: FieldInfos = FieldInfos::imm_field(0, 0b11111);
+
+        if prototype.machine_code >> 6 & 1 != 0{
+            return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
+        }
+
+        prototype.operand[1] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code >> 7 & 0b111111111) as u64));
+        prototype.operand_num = 1;
+
+        prototype.mnemonic = Some(MgMnemonic::MgMnePrefe);
+        MgDisassembler::imm_format(self, prototype, Some(base), Some(op), None)
+    }
+    pub(super) fn dinsm_dinsu(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        let MgMipsVersion::M64(_) = self.version else{
+            return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+        };
+
+        prototype.mnemonic = if prototype.machine_code & 1 == 1{
+            Some(MgMnemonic::MgMneDinsm)
+        }else{
+            Some(MgMnemonic::MgMneDinsu)
+        };
+
+        prototype.operand_num = 4;
+        prototype.operand[0] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 16 & 0b11111) as u8, MgCoprocessor::Cpu));
+        prototype.operand[1] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 21 & 0b11111) as u8, MgCoprocessor::Cpu));
+        prototype.operand[2] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code >> 6 & 0b11111) as u64));
+        prototype.operand[3] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code >> 11 & 0b11111) as u64 + 32));
+        Ok(())
+    }
+    pub (super) fn sbe_she_sce_swe(&self, prototype : &mut MgInstructionPrototype) -> Result<(), MgError>{
+        let base: FieldInfos = FieldInfos::default_reg_field(2, MgCoprocessor::Cpu);
+        let rt = FieldInfos::default_reg_field(0, MgCoprocessor::Cpu);
+
+        if prototype.machine_code >> 6 & 1 != 0{
+            return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
+        }
+
+        prototype.mnemonic = if prototype.machine_code >> 1 & 1 == 0{
+            if prototype.machine_code & 1 == 1{
+                Some(MgMnemonic::MgMneShe)
+            }else {
+                Some(MgMnemonic::MgMneSbe)
+            }
+        }else{
+            if prototype.machine_code & 1 == 0{
+                Some(MgMnemonic::MgMneSce)
+            }else {
+                Some(MgMnemonic::MgMneSwe)
+            }
+        };
+
+        prototype.operand[1] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code >> 7 & 0b111111111) as u64));
+        prototype.operand_num = 1;
+
+        return MgDisassembler::imm_format(self, prototype, Some(base), Some(rt), None)
+    }
+    pub (super) fn lbe_lhe_lce_lwe(&self, prototype : &mut MgInstructionPrototype) -> Result<(), MgError>{
+        let base: FieldInfos = FieldInfos::default_reg_field(2, MgCoprocessor::Cpu);
+        let rt = FieldInfos::default_reg_field(0, MgCoprocessor::Cpu);
+
+        if prototype.machine_code >> 6 & 1 != 0{
+            return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
+        }
+
+        prototype.mnemonic = if prototype.machine_code >> 1 & 1 == 0{
+            if prototype.machine_code & 1 == 1{
+                Some(MgMnemonic::MgMneLhe)
+            }else {
+                Some(MgMnemonic::MgMneLbe)
+            }
+        }else{
+            if prototype.machine_code & 1 == 0{
+                Some(MgMnemonic::MgMneLce)
+            }else {
+                Some(MgMnemonic::MgMneLwe)
+            }
+        };
+
+        prototype.operand[1] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code >> 7 & 0b111111111) as u64));
+        prototype.operand_num = 1;
+
+        return MgDisassembler::imm_format(self, prototype, Some(base), Some(rt), None)
+    }
+    pub (super) fn lbue_lhue(&self, prototype : &mut MgInstructionPrototype) -> Result<(), MgError>{
+        let base: FieldInfos = FieldInfos::default_reg_field(2, MgCoprocessor::Cpu);
+        let rt = FieldInfos::default_reg_field(0, MgCoprocessor::Cpu);
+
+        if prototype.machine_code >> 6 & 1 != 0{
+            return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
+        }
+
+        prototype.mnemonic = if prototype.machine_code & 1 == 1{
+            Some(MgMnemonic::MgMneLhue)
+        }else {
+            Some(MgMnemonic::MgMneLbue)
+        };
+
+        prototype.operand[1] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code >> 7 & 0b111111111) as u64));
+        prototype.operand_num = 1;
+
+        return MgDisassembler::imm_format(self, prototype, Some(base), Some(rt), None)
+    }
+    pub (super) fn lwle_lwre_swle_swre(&self, prototype : &mut MgInstructionPrototype) -> Result<(), MgError>{
+        let base: FieldInfos = FieldInfos::default_reg_field(2, MgCoprocessor::Cpu);
+        let rt = FieldInfos::default_reg_field(0, MgCoprocessor::Cpu);
+
+        if let MgMipsVersion::M32(MgMips32::MgR6) | MgMipsVersion::M64(MgMips64::MgR6) = self.version{
+            return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+        }else if prototype.machine_code >> 6 & 1 != 0{
+            return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
+        }
+
+        prototype.mnemonic = if prototype.machine_code >> 5 & 1 == 0{
+            if prototype.machine_code & 1 == 1{
+                Some(MgMnemonic::MgMneLwle)
+            }else {
+                Some(MgMnemonic::MgMneLwre)
+            }
+        }else{
+            if prototype.machine_code & 1 == 1{
+                Some(MgMnemonic::MgMneSwle)
+            }else {
+                Some(MgMnemonic::MgMneSwre)
+            }
+        };
+        prototype.operand[1] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code >> 7 & 0b111111111) as u64));
+        prototype.operand_num = 1;
+
+        return MgDisassembler::imm_format(self, prototype, Some(base), Some(rt), None)
     }
     pub(super) fn bshfl(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let rd: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);

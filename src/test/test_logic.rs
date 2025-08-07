@@ -8,6 +8,140 @@ use crate::disassembler::*;
 use crate::instruction::mnemonics::*;
 
 #[test]
+fn test_ins_dins(){
+    let machine_code: [u32; 2] = [(0b00011111 << 26) | 4, (0b00011111 << 26) | 7];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
+
+    let ins = decoder.disassemble(machine_code[0], 0).unwrap();
+    let dins = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(ins.get_mnemonic(), MgMnemonic::MgMneIns);
+    assert_eq!(dins.get_mnemonic(), MgMnemonic::MgMneDins);
+
+    assert_eq!(ins.get_mnemonic_str(), MG_MNE_INS);
+    assert_eq!(dins.get_mnemonic_str(), MG_MNE_DINS);
+
+    assert_eq!(false, dins.is_conditional());
+    assert_eq!(false, dins.is_relative());
+    assert_eq!(false, dins.is_region());
+    assert_eq!(false, ins.is_conditional());
+    assert_eq!(false, ins.is_relative());
+    assert_eq!(false, ins.is_region());
+
+    assert_eq!(true, check_operands(&ins, 4));
+    assert_eq!(true, check_operands(&dins, 4));
+    
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneIns, true, true, true, true));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneDins, false, false, true, true));
+    
+    imm_limit_reached(&decoder, MgMnemonic::MgMneIns, machine_code[0], 6, 0x1f, 2);
+    imm_limit_reached(&decoder, MgMnemonic::MgMneDins, machine_code[1], 6, 0x1f,2);
+    imm_limit_reached(&decoder, MgMnemonic::MgMneIns, machine_code[0], 11, 0x1f,3);
+    imm_limit_reached(&decoder, MgMnemonic::MgMneDins, machine_code[1], 11, 0x1f,3);
+}
+#[test]
+fn test_dinsm_dinsu(){
+    let machine_code: [u32; 2] = [(0b00011111 << 26) | 5, (0b00011111 << 26) | 6];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
+
+    let dinsm = decoder.disassemble(machine_code[0], 0).unwrap();
+    let dinsu = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(dinsm.get_mnemonic(), MgMnemonic::MgMneDinsm);
+    assert_eq!(dinsu.get_mnemonic(), MgMnemonic::MgMneDinsu);
+
+    assert_eq!(dinsm.get_mnemonic_str(), MG_MNE_DINSM);
+    assert_eq!(dinsu.get_mnemonic_str(), MG_MNE_DINSU);
+
+    assert_eq!(false, dinsu.is_conditional());
+    assert_eq!(false, dinsu.is_relative());
+    assert_eq!(false, dinsu.is_region());
+    assert_eq!(false, dinsm.is_conditional());
+    assert_eq!(false, dinsm.is_relative());
+    assert_eq!(false, dinsm.is_region());
+
+    // 0b0111110101101101000010001100000
+
+    assert_eq!(true, check_operands(&dinsm, 4));
+    assert_eq!(true, check_operands(&dinsu, 4));
+    
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneDinsm, false, false, true, true));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneDinsu, false, false, true, true));
+    
+    imm_limit_reached(&decoder, MgMnemonic::MgMneDinsm, machine_code[0], 6, 0x1f, 2);
+    imm_limit_reached(&decoder, MgMnemonic::MgMneDinsu, machine_code[1], 6, 0x1f,2);
+    imm_limit_reached(&decoder, MgMnemonic::MgMneDinsm, machine_code[0], 11, 0x1f,3);
+    imm_limit_reached(&decoder, MgMnemonic::MgMneDinsu, machine_code[1], 11, 0x1f,3);
+}
+#[test]
+fn test_dextm_dextu(){
+    let machine_code: [u32; 2] = [(0b00011111 << 26) | 1, (0b00011111 << 26) | 2];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
+
+    let dextm = decoder.disassemble(machine_code[0], 0).unwrap();
+    let dextu = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(dextm.get_mnemonic(), MgMnemonic::MgMneDextm);
+    assert_eq!(dextu.get_mnemonic(), MgMnemonic::MgMneDextu);
+
+    assert_eq!(dextm.get_mnemonic_str(), MG_MNE_DEXTM);
+    assert_eq!(dextu.get_mnemonic_str(), MG_MNE_DEXTU);
+
+    assert_eq!(false, dextu.is_conditional());
+    assert_eq!(false, dextu.is_relative());
+    assert_eq!(false, dextu.is_region());
+    assert_eq!(false, dextm.is_conditional());
+    assert_eq!(false, dextm.is_relative());
+    assert_eq!(false, dextm.is_region());
+
+    // 0b0111110101101101000010001100000
+
+    assert_eq!(true, check_operands(&dextm, 4));
+    assert_eq!(true, check_operands(&dextu, 4));
+    
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneDextm, false, false, true, true));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneDextu, false, false, true, true));
+    
+    imm_limit_reached(&decoder, MgMnemonic::MgMneDextm, machine_code[0], 6, 0x1f, 2);
+    imm_limit_reached(&decoder, MgMnemonic::MgMneDextu, machine_code[1], 6, 0x1f,2);
+    imm_limit_reached(&decoder, MgMnemonic::MgMneDextm, machine_code[0], 11, 0x1f,3);
+    imm_limit_reached(&decoder, MgMnemonic::MgMneDextu, machine_code[1], 11, 0x1f,3);
+}
+#[test]
+fn test_ext_dext(){
+    let machine_code: [u32; 2] = [0b00011111 << 26, (0b00011111 << 26) | 3];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
+
+    let ext = decoder.disassemble(machine_code[0], 0).unwrap();
+    let dext = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(ext.get_mnemonic(), MgMnemonic::MgMneExt);
+    assert_eq!(dext.get_mnemonic(), MgMnemonic::MgMneDext);
+
+    assert_eq!(ext.get_mnemonic_str(), MG_MNE_EXT);
+    assert_eq!(dext.get_mnemonic_str(), MG_MNE_DEXT);
+
+    assert_eq!(false, dext.is_conditional());
+    assert_eq!(false, dext.is_relative());
+    assert_eq!(false, dext.is_region());
+    assert_eq!(false, ext.is_conditional());
+    assert_eq!(false, ext.is_relative());
+    assert_eq!(false, ext.is_region());
+
+    // 0b0111110101101101000010001100000
+
+    assert_eq!(true, check_operands(&ext, 4));
+    assert_eq!(true, check_operands(&dext, 4));
+    
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneExt, true, true, true, true));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneDext, false, false, true, true));
+    
+    imm_limit_reached(&decoder, MgMnemonic::MgMneExt, machine_code[0], 6, 0x1f, 2);
+    imm_limit_reached(&decoder, MgMnemonic::MgMneDext, machine_code[1], 6, 0x1f,2);
+    imm_limit_reached(&decoder, MgMnemonic::MgMneExt, machine_code[0], 11, 0x1f,3);
+    imm_limit_reached(&decoder, MgMnemonic::MgMneDext, machine_code[1], 11, 0x1f,3);
+}
+#[test]
 fn test_slt_sltu(){
     let machine_code: [u32; 2] = [0x00A2202A, 0x00A2202B];
     let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));

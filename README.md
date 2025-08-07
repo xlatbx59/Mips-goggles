@@ -22,6 +22,9 @@ Mips-Goggles is a mips disassembler for the mips instruction set, but is not fin
 - [x] No memory allocation
 - [x] Thread safe(there's only one thread)
 - [x] No unsafe
+- [ ] More Mips versions
+- [ ] Exceptions
+- [ ] Mips Extensions
 - [?] Fast????
 - [?] Readable T_T
 

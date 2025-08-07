@@ -130,6 +130,422 @@ fn test_scd_lld(){
     }
 }
 #[test]
+fn pref(){
+    let machine_code: [u32; 2] = [0xCCA1FFFF, (0b011111 << 26) | 0x35];
+    let mut decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
+    let mut pref = decoder.disassemble(machine_code[0], 0).unwrap();
+
+    assert_eq!(pref.get_mnemonic(), MgMnemonic::MgMnePref);
+    assert_eq!(mg_get_mnemonic(pref.get_mnemonic()), MG_MNE_PREF);
+    assert_eq!("pref", MG_MNE_PREF);
+
+    assert_eq!(true, check_operands(&pref, 3));
+    assert_eq!(false, pref.is_relative());
+    assert_eq!(false, pref.is_conditional());
+
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMnePref, true, false, true, false));
+    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMnePref, machine_code[0], 0, 0xffff, 1));
+    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMnePref, machine_code[0], 16, 0x1f, 0));
+
+    //Special3
+    decoder.version = MgMipsVersion::M64(MgMips64::MgR6);
+    pref = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(pref.get_mnemonic(), MgMnemonic::MgMnePref);
+    assert_eq!(mg_get_mnemonic(pref.get_mnemonic()), MG_MNE_PREF);
+    assert_eq!("pref", MG_MNE_PREF);
+
+    assert_eq!(false, pref.is_conditional());
+    assert_eq!(false, pref.is_relative());
+    assert_eq!(true, check_operands(&pref, 3));
+
+    assert_eq!(true, check_field(&decoder, machine_code[1], 1, MgMnemonic::MgMnePref, 6));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMnePref, false, true, false, true));
+    assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMnePref, machine_code[1], 7, 0x1ff, 1));
+    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMnePref, machine_code[1], 16, 0x1f, 0));
+
+    match pref.get_operand(2){
+        Some(MgOperand::MgOpRegister(_)) => (),
+        _ => panic!(),
+    }
+}
+#[test]
+fn prefe(){
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
+    let machine_code: u32 = (0b011111 << 26) | 0x23;
+    let prefe = decoder.disassemble(machine_code, 0).unwrap();
+
+    assert_eq!(prefe.get_mnemonic(), MgMnemonic::MgMnePrefe);
+    assert_eq!(mg_get_mnemonic(prefe.get_mnemonic()), MG_MNE_PREFE);
+    assert_eq!("prefe", MG_MNE_PREFE);
+
+    assert_eq!(false, prefe.is_conditional());
+    assert_eq!(false, prefe.is_relative());
+    assert_eq!(true, check_operands(&prefe, 3));
+
+    assert_eq!(true, check_field(&decoder, machine_code, 1, MgMnemonic::MgMnePrefe, 6));
+    assert_eq!(true, version_test(machine_code, MgMnemonic::MgMnePrefe, true, true, true, true));
+    assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMnePrefe, machine_code, 7, 0x1ff, 1));
+    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMnePrefe, machine_code, 16, 0x1f, 0));
+
+    match prefe.get_operand(2){
+        Some(MgOperand::MgOpRegister(_)) => (),
+        _ => panic!(),
+    }
+}
+#[test]
+fn cachee(){
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
+    let machine_code: u32 = (0b011111 << 26) | 0b011011;
+    let cachee = decoder.disassemble(machine_code, 0).unwrap();
+
+    assert_eq!(cachee.get_mnemonic(), MgMnemonic::MgMneCachee);
+    assert_eq!(mg_get_mnemonic(cachee.get_mnemonic()), MG_MNE_CACHEE);
+    assert_eq!("cachee", MG_MNE_CACHEE);
+
+    assert_eq!(false, cachee.is_conditional());
+    assert_eq!(false, cachee.is_relative());
+    assert_eq!(true, check_operands(&cachee, 3));
+
+    assert_eq!(true, check_field(&decoder, machine_code, 1, MgMnemonic::MgMneCachee, 6));
+    assert_eq!(true, version_test(machine_code, MgMnemonic::MgMneCachee, true, true, true, true));
+    assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneCachee, machine_code, 7, 0x1ff, 1));
+    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneCachee, machine_code, 16, 0x1f, 0));
+
+    match cachee.get_operand(2){
+        Some(MgOperand::MgOpRegister(_)) => (),
+        _ => panic!(),
+    }
+}
+#[test]
+fn cache(){
+    let machine_code: [u32; 2] = [0b101111 << 26, (0b011111 << 26) | 0x25];
+    let mut decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
+
+    let mut cache = decoder.disassemble(machine_code[0], 0).unwrap();
+
+    assert_eq!(cache.get_mnemonic(), MgMnemonic::MgMneCache);
+    assert_eq!(mg_get_mnemonic(cache.get_mnemonic()), MG_MNE_CACHE);
+    assert_eq!("cache", MG_MNE_CACHE);
+
+    assert_eq!(true, check_operands(&cache, 3));
+    assert_eq!(false, cache.is_relative());
+    assert_eq!(false, cache.is_conditional());
+
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneCache, true, false, true, false));
+    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneCache, machine_code[0], 0, 0xffff, 1));
+    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneCache, machine_code[0], 16, 0x1f, 0));
+
+    //Special3
+    decoder.version = MgMipsVersion::M64(MgMips64::MgR6);
+    cache = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(cache.get_mnemonic(), MgMnemonic::MgMneCache);
+    assert_eq!(mg_get_mnemonic(cache.get_mnemonic()), MG_MNE_CACHE);
+    assert_eq!("cache", MG_MNE_CACHE);
+
+    assert_eq!(false, cache.is_conditional());
+    assert_eq!(false, cache.is_relative());
+    assert_eq!(true, check_operands(&cache, 3));
+
+    assert_eq!(true, check_field(&decoder, machine_code[1], 1, MgMnemonic::MgMneCache, 6));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneCache, false, true, false, true));
+    assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneCache, machine_code[1], 7, 0x1ff, 1));
+    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneCache, machine_code[1], 16, 0x1f, 0));
+
+    match cache.get_operand(2){
+        Some(MgOperand::MgOpRegister(_)) => (),
+        _ => panic!(),
+    }
+}#[test]
+fn test_sce_swe(){
+    let machine_code: [u32; 2] = [(0b00011111 << 26) | 0x1e, (0b00011111 << 26) | 0x1f];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
+
+    let sce = decoder.disassemble(machine_code[0], 0).unwrap();
+    let swe = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(sce.get_mnemonic(), MgMnemonic::MgMneSce);
+    assert_eq!(swe.get_mnemonic(), MgMnemonic::MgMneSwe);
+    assert_eq!(mg_get_mnemonic(sce.get_mnemonic()), MG_MNE_SCE);
+    assert_eq!(mg_get_mnemonic(swe.get_mnemonic()), MG_MNE_SWE);
+    assert_eq!("sce", MG_MNE_SCE);
+    assert_eq!("swe", MG_MNE_SWE);
+
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneSce, true, true, true, true));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneSwe, true, true, true, true));
+
+    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneSce, machine_code[0], 7, 0x1ff, 1));
+    assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneSwe, machine_code[1], 7, 0x1ff, 1));
+
+    assert_eq!(true, check_field(&decoder, machine_code[0], 1, MgMnemonic::MgMneSce, 6));
+    assert_eq!(true, check_field(&decoder, machine_code[1], 1, MgMnemonic::MgMneSwe, 6));
+
+    assert_eq!(true, check_operands(&sce, 3));
+    assert_eq!(true, check_operands(&swe, 3));
+
+    assert_eq!(false, sce.is_relative());
+    assert_eq!(false, swe.is_relative());
+    assert_eq!(false, sce.is_conditional());
+    assert_eq!(false, swe.is_conditional());
+
+    match swe.get_operand(0){
+        Some(MgOperand::MgOpRegister(_)) => (),
+        _ => panic!(),
+    }
+    match swe.get_operand(2){
+        Some(MgOperand::MgOpRegister(_)) => (),
+        _ => panic!(),
+    }
+}
+#[test]
+fn test_sbe_she(){
+    let machine_code: [u32; 2] = [(0b00011111 << 26) | 0x1c, (0b00011111 << 26) | 0x1d];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
+
+    let sbe = decoder.disassemble(machine_code[0], 0).unwrap();
+    let she = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(sbe.get_mnemonic(), MgMnemonic::MgMneSbe);
+    assert_eq!(she.get_mnemonic(), MgMnemonic::MgMneShe);
+    assert_eq!(mg_get_mnemonic(sbe.get_mnemonic()), MG_MNE_SBE);
+    assert_eq!(mg_get_mnemonic(she.get_mnemonic()), MG_MNE_SHE);
+    assert_eq!("sbe", MG_MNE_SBE);
+    assert_eq!("she", MG_MNE_SHE);
+
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneSbe, true, true, true, true));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneShe, true, true, true, true));
+
+    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneSbe, machine_code[0], 7, 0x1ff, 1));
+    assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneShe, machine_code[1], 7, 0x1ff, 1));
+
+    assert_eq!(true, check_field(&decoder, machine_code[0], 1, MgMnemonic::MgMneSbe, 6));
+    assert_eq!(true, check_field(&decoder, machine_code[1], 1, MgMnemonic::MgMneShe, 6));
+
+    assert_eq!(true, check_operands(&sbe, 3));
+    assert_eq!(true, check_operands(&she, 3));
+
+    assert_eq!(false, sbe.is_relative());
+    assert_eq!(false, she.is_relative());
+    assert_eq!(false, sbe.is_conditional());
+    assert_eq!(false, she.is_conditional());
+
+    match she.get_operand(0){
+        Some(MgOperand::MgOpRegister(_)) => (),
+        _ => panic!(),
+    }
+    match she.get_operand(2){
+        Some(MgOperand::MgOpRegister(_)) => (),
+        _ => panic!(),
+    }
+}
+#[test]
+fn test_lce_lwe(){
+    let machine_code: [u32; 2] = [(0b00011111 << 26) | 0x2e, (0b00011111 << 26) | 0x2f];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
+
+    let lce = decoder.disassemble(machine_code[0], 0).unwrap();
+    let lwe = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(lce.get_mnemonic(), MgMnemonic::MgMneLce);
+    assert_eq!(lwe.get_mnemonic(), MgMnemonic::MgMneLwe);
+    assert_eq!(mg_get_mnemonic(lce.get_mnemonic()), MG_MNE_LCE);
+    assert_eq!(mg_get_mnemonic(lwe.get_mnemonic()), MG_MNE_LWE);
+    assert_eq!("lce", MG_MNE_LCE);
+    assert_eq!("lwe", MG_MNE_LWE);
+
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneLce, true, true, true, true));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneLwe, true, true, true, true));
+
+    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneLce, machine_code[0], 7, 0x1ff, 1));
+    assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneLwe, machine_code[1], 7, 0x1ff, 1));
+
+    assert_eq!(true, check_field(&decoder, machine_code[0], 1, MgMnemonic::MgMneLce, 6));
+    assert_eq!(true, check_field(&decoder, machine_code[1], 1, MgMnemonic::MgMneLwe, 6));
+
+    assert_eq!(true, check_operands(&lce, 3));
+    assert_eq!(true, check_operands(&lwe, 3));
+
+    assert_eq!(false, lce.is_relative());
+    assert_eq!(false, lwe.is_relative());
+    assert_eq!(false, lce.is_conditional());
+    assert_eq!(false, lwe.is_conditional());
+
+    match lwe.get_operand(0){
+        Some(MgOperand::MgOpRegister(_)) => (),
+        _ => panic!(),
+    }
+    match lwe.get_operand(2){
+        Some(MgOperand::MgOpRegister(_)) => (),
+        _ => panic!(),
+    }
+}
+#[test]
+fn test_lbe_lhe(){
+    let machine_code: [u32; 2] = [(0b00011111 << 26) | 0x2c, (0b00011111 << 26) | 0x2d];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
+
+    let lbe = decoder.disassemble(machine_code[0], 0).unwrap();
+    let lhe = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(lbe.get_mnemonic(), MgMnemonic::MgMneLbe);
+    assert_eq!(lhe.get_mnemonic(), MgMnemonic::MgMneLhe);
+    assert_eq!(mg_get_mnemonic(lbe.get_mnemonic()), MG_MNE_LBE);
+    assert_eq!(mg_get_mnemonic(lhe.get_mnemonic()), MG_MNE_LHE);
+    assert_eq!("lbe", MG_MNE_LBE);
+    assert_eq!("lhe", MG_MNE_LHE);
+
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneLbe, true, true, true, true));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneLhe, true, true, true, true));
+
+    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneLbe, machine_code[0], 7, 0x1ff, 1));
+    assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneLhe, machine_code[1], 7, 0x1ff, 1));
+
+    assert_eq!(true, check_field(&decoder, machine_code[0], 1, MgMnemonic::MgMneLbe, 6));
+    assert_eq!(true, check_field(&decoder, machine_code[1], 1, MgMnemonic::MgMneLhe, 6));
+
+    assert_eq!(true, check_operands(&lbe, 3));
+    assert_eq!(true, check_operands(&lhe, 3));
+
+    assert_eq!(false, lbe.is_relative());
+    assert_eq!(false, lhe.is_relative());
+    assert_eq!(false, lbe.is_conditional());
+    assert_eq!(false, lhe.is_conditional());
+
+    match lhe.get_operand(0){
+        Some(MgOperand::MgOpRegister(_)) => (),
+        _ => panic!(),
+    }
+    match lhe.get_operand(2){
+        Some(MgOperand::MgOpRegister(_)) => (),
+        _ => panic!(),
+    }
+}
+#[test]
+fn test_lbue_lhue(){
+    let machine_code: [u32; 2] = [(0b00011111 << 26) | 0x28, (0b00011111 << 26) | 0x29];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
+
+    let lbue = decoder.disassemble(machine_code[0], 0).unwrap();
+    let lhue = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(lbue.get_mnemonic(), MgMnemonic::MgMneLbue);
+    assert_eq!(lhue.get_mnemonic(), MgMnemonic::MgMneLhue);
+    assert_eq!(mg_get_mnemonic(lbue.get_mnemonic()), MG_MNE_LBUE);
+    assert_eq!(mg_get_mnemonic(lhue.get_mnemonic()), MG_MNE_LHUE);
+    assert_eq!("lbue", MG_MNE_LBUE);
+    assert_eq!("lhue", MG_MNE_LHUE);
+
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneLbue, true, true, true, true));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneLhue, true, true, true, true));
+
+    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneLbue, machine_code[0], 7, 0x1ff, 1));
+    assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneLhue, machine_code[1], 7, 0x1ff, 1));
+
+    assert_eq!(true, check_field(&decoder, machine_code[0], 1, MgMnemonic::MgMneLbue, 6));
+    assert_eq!(true, check_field(&decoder, machine_code[1], 1, MgMnemonic::MgMneLhue, 6));
+
+    assert_eq!(true, check_operands(&lbue, 3));
+    assert_eq!(true, check_operands(&lhue, 3));
+
+    assert_eq!(false, lbue.is_relative());
+    assert_eq!(false, lhue.is_relative());
+    assert_eq!(false, lbue.is_conditional());
+    assert_eq!(false, lhue.is_conditional());
+
+    match lhue.get_operand(0){
+        Some(MgOperand::MgOpRegister(_)) => (),
+        _ => panic!(),
+    }
+    match lhue.get_operand(2){
+        Some(MgOperand::MgOpRegister(_)) => (),
+        _ => panic!(),
+    }
+}
+#[test]
+fn test_swle_swre(){
+    let machine_code: [u32; 2] = [(0b00011111 << 26) | 0x21, (0b00011111 << 26) | 0x22];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
+
+    let swle = decoder.disassemble(machine_code[0], 0).unwrap();
+    let swre = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(swle.get_mnemonic(), MgMnemonic::MgMneSwle);
+    assert_eq!(swre.get_mnemonic(), MgMnemonic::MgMneSwre);
+    assert_eq!(mg_get_mnemonic(swle.get_mnemonic()), MG_MNE_SWLE);
+    assert_eq!(mg_get_mnemonic(swre.get_mnemonic()), MG_MNE_SWRE);
+    assert_eq!("swle", MG_MNE_SWLE);
+    assert_eq!("swre", MG_MNE_SWRE);
+
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneSwle, true, false, true, false));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneSwre, true, false, true, false));
+
+    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneSwle, machine_code[0], 7, 0x1ff, 1));
+    assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneSwre, machine_code[1], 7, 0x1ff, 1));
+
+    assert_eq!(true, check_field(&decoder, machine_code[0], 1, MgMnemonic::MgMneSwle, 6));
+    assert_eq!(true, check_field(&decoder, machine_code[1], 1, MgMnemonic::MgMneSwre, 6));
+
+    assert_eq!(true, check_operands(&swle, 3));
+    assert_eq!(true, check_operands(&swre, 3));
+
+    assert_eq!(false, swle.is_relative());
+    assert_eq!(false, swre.is_relative());
+
+    assert_eq!(false, swle.is_conditional());
+    assert_eq!(false, swre.is_conditional());
+
+    match swre.get_operand(0){
+        Some(MgOperand::MgOpRegister(_)) => (),
+        _ => panic!(),
+    }
+    match swre.get_operand(2){
+        Some(MgOperand::MgOpRegister(_)) => (),
+        _ => panic!(),
+    }
+}
+#[test]
+fn test_lwle_lwre(){
+    let machine_code: [u32; 2] = [(0b00011111 << 26) | 0x19, (0b00011111 << 26) | 0x1a];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
+    let lwle = decoder.disassemble(machine_code[0], 0).unwrap();
+    let lwre = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(lwle.get_mnemonic(), MgMnemonic::MgMneLwle);
+    assert_eq!(lwre.get_mnemonic(), MgMnemonic::MgMneLwre);
+    assert_eq!(mg_get_mnemonic(lwle.get_mnemonic()), MG_MNE_LWLE);
+    assert_eq!(mg_get_mnemonic(lwre.get_mnemonic()), MG_MNE_LWRE);
+    assert_eq!("lwle", MG_MNE_LWLE);
+    assert_eq!("lwre", MG_MNE_LWRE);
+
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneLwle, true, false, true, false));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneLwre, true, false, true, false));
+
+    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneLwle, machine_code[0], 7, 0x1ff, 1));
+    assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneLwre, machine_code[1], 7, 0x1ff, 1));
+
+    assert_eq!(true, check_field(&decoder, machine_code[0], 1, MgMnemonic::MgMneLwle, 6));
+    assert_eq!(true, check_field(&decoder, machine_code[1], 1, MgMnemonic::MgMneLwre, 6));
+
+    assert_eq!(true, check_operands(&lwle, 3));
+    assert_eq!(true, check_operands(&lwre, 3));
+
+    assert_eq!(false, lwle.is_relative());
+    assert_eq!(false, lwre.is_relative());
+
+    assert_eq!(false, lwle.is_conditional());
+    assert_eq!(false, lwre.is_conditional());
+
+    match lwre.get_operand(0){
+        Some(MgOperand::MgOpRegister(_)) => (),
+        _ => panic!(),
+    }
+    match lwre.get_operand(2){
+        Some(MgOperand::MgOpRegister(_)) => (),
+        _ => panic!(),
+    }
+}
+#[test]
 fn test_sdr_sdl(){
     let machine_code: [u32; 2] = [0xB7640050, 0xB3640050];
     let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
