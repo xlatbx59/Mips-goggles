@@ -90,7 +90,9 @@ pub const MG_MNE_SWRE: &str = "swre"; pub const MG_MNE_PREFE: &str = "prefe";pub
 pub const MG_MNE_SBE: &str = "sbe"; pub const MG_MNE_SHE: &str = "she";pub const MG_MNE_SCE: &str = "sce";
 pub const MG_MNE_SWE: &str = "swe"; pub const MG_MNE_LBE: &str = "lbe"; pub const MG_MNE_LHE: &str = "lhe";
 pub const MG_MNE_LCE: &str = "lce"; pub const MG_MNE_LWE: &str = "lwe"; pub const MG_MNE_LBUE: &str = "lbue";
-pub const MG_MNE_LHUE: &str = "lhue";
+pub const MG_MNE_LHUE: &str = "lhue"; pub const MG_MNE_DSBH: &str = "dsbh"; pub const MG_MNE_BITSWAP: &str = "bitswap";
+pub const MG_MNE_DBITSWAP: &str = "dbitswap"; pub const MG_MNE_DSHD: &str = "dshd"; pub const MG_MNE_DALIGN: &str = "dalign";
+pub const MG_MNE_ALIGN: &str = "align";
 
 //Regimm
 pub const MG_MNE_BLTZ: &str = "bltz"; pub const MG_MNE_BGEZ: &str = "bgez";pub const MG_MNE_BLTZL: &str = "bltzl";
@@ -135,7 +137,7 @@ pub enum MgMnemonic {
     MgMneDrotr32, MgMneDadd, MgMneDaddu, MgMneDsub, MgMneDsubu, MgMneDmult, MgMneDmultu, MgMneMuh, MgMneMulu, MgMneMuhu, MgMneDmul, 
     MgMneDmuh, MgMneDmulu,MgMneDmuhu, MgMneMod, MgMneModu, MgMneDmod, MgMneDmodu, MgMneSigrie, MgMneNal, MgMneDext, MgMneDextm, MgMneDextu,
     MgMneDins, MgMneDinsm, MgMneDinsu, MgMneLwle, MgMneLwre, MgMneSwle, MgMneSwre, MgMnePrefe, MgMneCachee, MgMneSbe, MgMneShe, MgMneSce, MgMneSwe,
-    MgMneLbe, MgMneLhe, MgMneLce, MgMneLwe, MgMneLbue, MgMneLhue
+    MgMneLbe, MgMneLhe, MgMneLce, MgMneLwe, MgMneLbue, MgMneLhue, MgMneDsbh, MgMneBitswap, MgMneDbitswap, MgMneDshd, MgMneAlign, MgMneDalign
 
 }
 
@@ -163,5 +165,5 @@ pub(super)const MG_MNEMONICS: &[&str] = &[
     MG_MNE_DMULT, MG_MNE_DMULTU, MG_MNE_MUH, MG_MNE_MULU, MG_MNE_MUHU, MG_MNE_DMUL, MG_MNE_DMUH, MG_MNE_DMULU, MG_MNE_DMUHU, MG_MNE_MOD, MG_MNE_MODU,
     MG_MNE_DMOD, MG_MNE_DMODU, MG_MNE_SIGRIE, MG_MNE_NAL, MG_MNE_DEXT, MG_MNE_DEXTM, MG_MNE_DEXTU, MG_MNE_DINS, MG_MNE_DINSM, MG_MNE_DINSU, MG_MNE_LWLE, MG_MNE_LWRE,
     MG_MNE_SWLE, MG_MNE_SWRE, MG_MNE_PREFE, MG_MNE_CACHEE, MG_MNE_SBE, MG_MNE_SHE, MG_MNE_SCE, MG_MNE_SWE, MG_MNE_LBE, MG_MNE_LHE, MG_MNE_LCE, MG_MNE_LWE,
-    MG_MNE_LBUE, MG_MNE_LHUE
+    MG_MNE_LBUE, MG_MNE_LHUE, MG_MNE_DSBH, MG_MNE_BITSWAP, MG_MNE_DBITSWAP, MG_MNE_DSHD, MG_MNE_ALIGN, MG_MNE_DALIGN
 ];

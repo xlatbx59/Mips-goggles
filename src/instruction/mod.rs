@@ -12,7 +12,8 @@ use super::utils::string::MgString;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum MgCoprocessor{
-    Cpu, Cp0, Cp1, Cp2, Cp1x
+    Cpu, Cp0, Cp1, Cp2, Cp1x,
+    Hardware
 }
 
 #[derive(Debug)]

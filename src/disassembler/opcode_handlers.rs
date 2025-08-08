@@ -59,7 +59,7 @@ impl MgDisassembler{
                 MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
                 MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
                 MgDisassembler::no_instructions,  MgDisassembler::lwle_lwre_swle_swre,  MgDisassembler::lwle_lwre_swle_swre,  MgDisassembler::cachee,  MgDisassembler::sbe_she_sce_swe,  MgDisassembler::sbe_she_sce_swe,  MgDisassembler::sbe_she_sce_swe,  MgDisassembler::sbe_she_sce_swe,
-                MgDisassembler::bshfl,  MgDisassembler::lwle_lwre_swle_swre,  MgDisassembler::lwle_lwre_swle_swre,  MgDisassembler::prefe,  MgDisassembler::no_instructions,  MgDisassembler::cache_pref,  MgDisassembler::sc_ll,  MgDisassembler::scd_lld,
+                MgDisassembler::bshfl_dbshfl,  MgDisassembler::lwle_lwre_swle_swre,  MgDisassembler::lwle_lwre_swle_swre,  MgDisassembler::prefe,  MgDisassembler::bshfl_dbshfl,  MgDisassembler::cache_pref,  MgDisassembler::sc_ll,  MgDisassembler::scd_lld,
                 MgDisassembler::lbue_lhue,  MgDisassembler::lbue_lhue,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::lbe_lhe_lce_lwe,  MgDisassembler::lbe_lhe_lce_lwe,  MgDisassembler::lbe_lhe_lce_lwe,  MgDisassembler::lbe_lhe_lce_lwe,
                 MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::cache_pref,  MgDisassembler::sc_ll,  MgDisassembler::scd_lld,
                 MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::rdhwr,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions ];
@@ -72,9 +72,8 @@ impl MgDisassembler{
                 MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::gpr_shadowset,  MgDisassembler::mfmc0,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::gpr_shadowset,  MgDisassembler::no_instructions,
                 MgDisassembler::c0,  MgDisassembler::c0,  MgDisassembler::c0,  MgDisassembler::c0,  MgDisassembler::c0,  MgDisassembler::c0,  MgDisassembler::c0,  MgDisassembler::c0,
                 MgDisassembler::c0,  MgDisassembler::c0,  MgDisassembler::c0,  MgDisassembler::c0,  MgDisassembler::c0,  MgDisassembler::c0,  MgDisassembler::c0,  MgDisassembler::c0];
-        // unimplemented!("[-]Opcode map isn't implemented yet!");
-        // prototype.coprocessor = MgCoprocessor::Cp0;
-        COP0_MAP[(prototype.machine_code >> 21 & 0b11111) as usize](self, prototype)
+        unimplemented!("[-]Opcode map isn't implemented yet!");
+        // COP0_MAP[(prototype.machine_code >> 21 & 0b11111) as usize](self, prototype)
     }
     pub (super) fn cop1_opcode_map(&self, _instruction: &mut MgInstructionPrototype) -> Result<(), MgError>{
         static _COP1_MAP: [fn(disassembler: &MgDisassembler, &mut MgInstructionPrototype) -> Result<(), MgError>; 64] =
@@ -1721,25 +1720,87 @@ impl MgDisassembler{
 
         return MgDisassembler::imm_format(self, prototype, Some(base), Some(rt), None)
     }
-    pub(super) fn bshfl(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
+    pub(super) fn bshfl_dbshfl(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let rd: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
         let rt: FieldInfos = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
 
-        prototype.mnemonic = match prototype.machine_code >> 6 & 0b11111{
-            0b00010 => Some(MgMnemonic::MgMneWsbh),
-            0b10000 => Some(MgMnemonic::MgMneSeb),
-            0b11000 => Some(MgMnemonic::MgMneSeh),
-            _ => return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
-        };
+        if prototype.machine_code & 0x3f == 0b100100{
+            let MgMipsVersion::M64(_) = self.version else{
+                return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+            };
+            prototype.mnemonic = Some(match prototype.machine_code >> 6 & 0b11111{
+                0b00000 => {
+                    let MgMipsVersion::M64(MgMips64::MgR6) = self.version else{
+                        return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+                    };
+                    MgMnemonic::MgMneDbitswap
+                }
+                0b00010 => MgMnemonic::MgMneDsbh,
+                0b00101 => MgMnemonic::MgMneDshd,
+                0b10000 | 0b11000 => return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code)),
+                _ => {
+                    return if prototype.machine_code >> 9 & 0b11 == 0b01{
+                        let MgMipsVersion::M64(MgMips64::MgR6) = self.version else{
+                            return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+                        };
+                        prototype.mnemonic = Some(MgMnemonic::MgMneDalign);
+                        prototype.operand[3] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code >> 6 & 0b111) as u64));
+                        prototype.operand_num = 1;
+                        MgDisassembler::reg_format(self, prototype, Some(FieldInfos::default_reg_field(1, MgCoprocessor::Cpu)), Some(FieldInfos::default_reg_field(2, MgCoprocessor::Cpu)), Some(FieldInfos::default_reg_field(0, MgCoprocessor::Cpu)), None)
+                    }else {
+                        self.no_instructions(prototype)
+                    }
+                }
+            });
+        }else{
+            prototype.mnemonic = Some(match prototype.machine_code >> 6 & 0b11111{
+                0b00000 => {
+                    if let MgMipsVersion::M32(MgMips32::MgPreR6) | MgMipsVersion::M64(MgMips64::MgPreR6) = self.version{
+                        return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+                    };
+                    MgMnemonic::MgMneBitswap
+                }
+                0b00010 => MgMnemonic::MgMneWsbh,
+                0b10000 => MgMnemonic::MgMneSeb,
+                0b11000 => MgMnemonic::MgMneSeh,
+                0b00101 => return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code)),
+                _ => {
+                    return if prototype.machine_code >> 8 & 0b111 == 0b010{
+                        if let MgMipsVersion::M64(MgMips64::MgPreR6) | MgMipsVersion::M32(MgMips32::MgPreR6) = self.version {
+                            return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+                        };
+                        prototype.mnemonic = Some(MgMnemonic::MgMneAlign);
+                        prototype.operand[3] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code >> 6 & 0b111) as u64));
+                        prototype.operand_num = 1;
+                        MgDisassembler::reg_format(self, prototype, Some(FieldInfos::default_reg_field(1, MgCoprocessor::Cpu)), Some(FieldInfos::default_reg_field(2, MgCoprocessor::Cpu)), Some(FieldInfos::default_reg_field(0, MgCoprocessor::Cpu)), None)
+                    }else {
+                        self.no_instructions(prototype)
+                    }
+                },
+            });
+
+        }
         
-        MgDisassembler::reg_format(self, prototype, Some(FieldInfos::default_fixed_field()), Some(rt), Some(rd), Some(FieldInfos::default_fixed_field()))
+        MgDisassembler::reg_format(self, prototype, Some(FieldInfos::default_fixed_field()), Some(rt), Some(rd), None)
     }
     pub(super) fn rdhwr(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let rt: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
-        let rd: FieldInfos = FieldInfos::reg_field(1, MgCoprocessor::Cpu, MgOperandType::Reg);
-        
+        let rd: FieldInfos = FieldInfos::reg_field(1, MgCoprocessor::Hardware, MgOperandType::Reg);
+        let sa = if let MgMipsVersion::M32(MgMips32::MgPreR6) | MgMipsVersion::M64(MgMips64::MgR6) = self.version{
+            if prototype.machine_code >> 8 & 0b11 != 0{
+                return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
+            }
+            prototype.operand[3] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code >> 6 & 0b111) as u64));
+            prototype.operand_num = 1;
+            None
+        }else{
+            Some(FieldInfos::default_fixed_field())
+        };
+
         prototype.mnemonic = Some(MgMnemonic::MgMneRdhwr);
-        MgDisassembler::reg_format(self, prototype, Some(FieldInfos::default_fixed_field()), Some(rt), Some(rd), Some(FieldInfos::default_fixed_field()))
+
+
+        MgDisassembler::reg_format(self, prototype, Some(FieldInfos::default_fixed_field()), Some(rt), Some(rd), sa)
     }
 
     //CP0

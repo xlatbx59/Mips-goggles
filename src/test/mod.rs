@@ -10,7 +10,8 @@ mod test_load_store;
 mod test_arithmetic;
 mod test_branch_jump;
 mod test_moves;
-mod test_logic;
+mod test_logic_operations;
+mod test_bit_manipulation;
 
 use crate::*;
 use crate::operands::*;
