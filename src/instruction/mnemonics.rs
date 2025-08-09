@@ -102,16 +102,23 @@ pub const MG_MNE_TNEI: &str = "tnei"; pub const MG_MNE_BLTZAL: &str = "bltzal"; 
 pub const MG_MNE_BLTZALL: &str = "bltzall";pub const MG_MNE_BGEZALL: &str = "bgezall"; pub const MG_MNE_SYNCI: &str = "synci";
 pub const MG_MNE_BAL: &str = "bal"; pub const MG_MNE_DAHI: &str = "dahi"; pub const MG_MNE_DATI: &str = "dati";
 pub const MG_MNE_SIGRIE: &str = "sigrie";pub const MG_MNE_NAL: &str = "nal";
+
 //CP0
 pub const MG_MNE_MFC0: &str = "mfc0"; pub const MG_MNE_MTC0: &str = "mtc0"; pub const MG_MNE_RDPGPR: &str = "rdpgpr";
 pub const MG_MNE_WRPGPR: &str = "wrpgpr"; pub const MG_MNE_DI: &str = "di"; pub const MG_MNE_EI: &str = "ei";
 pub const MG_MNE_TLBR: &str = "tlbr"; pub const MG_MNE_TLBWI: &str = "tlbwi"; pub const MG_MNE_TLBWR: &str = "tlbwr";
 pub const MG_MNE_TLBP: &str = "tlbp"; pub const MG_MNE_ERET: &str = "eret"; pub const MG_MNE_DERET: &str = "deret";
-pub const MG_MNE_WAIT: &str = "wait"; 
+pub const MG_MNE_WAIT: &str = "wait"; pub const MG_MNE_DMFC0: &str = "dmfc0"; pub const MG_MNE_DMTC0: &str = "dmtc0";
+pub const MG_MNE_MFHC0: &str = "mfhc0"; pub const MG_MNE_MTHC0: &str = "mthc0"; pub const MG_MNE_TLBINV: &str = "tlbinv";
+pub const MG_MNE_TLBINVF: &str = "tlbinvf"; pub const MG_MNE_DVP: &str = "dvp"; pub const MG_MNE_EVP: &str = "evp";
 
 //PCREL
 pub const MG_MNE_ADDIUPC: &str = "addiupc"; pub const MG_MNE_LWPC: &str = "lwpc"; pub const MG_MNE_LDPC: &str = "ldpc";
 pub const MG_MNE_AUIPC: &str = "auipc"; pub const MG_MNE_ALUIPC: &str = "aluipc"; pub const MG_MNE_LWUPC: &str = "lwupc";
+
+//Cp1
+pub const MG_MNE_MFC1: &str = "mfc1"; pub const MG_MNE_MTC1: &str = "mtc1"; pub const MG_MNE_DMFC1: &str = "dmfc1";
+pub const MG_MNE_DMTC1: &str = "dmtc1";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum MgMnemonic {
@@ -137,7 +144,8 @@ pub enum MgMnemonic {
     MgMneDrotr32, MgMneDadd, MgMneDaddu, MgMneDsub, MgMneDsubu, MgMneDmult, MgMneDmultu, MgMneMuh, MgMneMulu, MgMneMuhu, MgMneDmul, 
     MgMneDmuh, MgMneDmulu,MgMneDmuhu, MgMneMod, MgMneModu, MgMneDmod, MgMneDmodu, MgMneSigrie, MgMneNal, MgMneDext, MgMneDextm, MgMneDextu,
     MgMneDins, MgMneDinsm, MgMneDinsu, MgMneLwle, MgMneLwre, MgMneSwle, MgMneSwre, MgMnePrefe, MgMneCachee, MgMneSbe, MgMneShe, MgMneSce, MgMneSwe,
-    MgMneLbe, MgMneLhe, MgMneLce, MgMneLwe, MgMneLbue, MgMneLhue, MgMneDsbh, MgMneBitswap, MgMneDbitswap, MgMneDshd, MgMneAlign, MgMneDalign
+    MgMneLbe, MgMneLhe, MgMneLce, MgMneLwe, MgMneLbue, MgMneLhue, MgMneDsbh, MgMneBitswap, MgMneDbitswap, MgMneDshd, MgMneAlign, MgMneDalign, MgMneDmfc0,
+    MgMneDmtc0, MgMneDmtc1, MgMneDmfc1, MgMneMtc1, MgMneMfc1, MgMneMfhc0, MgMneMthc0, MgMneTlbinv, MgMneTlbinvf, MgMneDvp, MgMneEvp
 
 }
 
@@ -165,5 +173,6 @@ pub(super)const MG_MNEMONICS: &[&str] = &[
     MG_MNE_DMULT, MG_MNE_DMULTU, MG_MNE_MUH, MG_MNE_MULU, MG_MNE_MUHU, MG_MNE_DMUL, MG_MNE_DMUH, MG_MNE_DMULU, MG_MNE_DMUHU, MG_MNE_MOD, MG_MNE_MODU,
     MG_MNE_DMOD, MG_MNE_DMODU, MG_MNE_SIGRIE, MG_MNE_NAL, MG_MNE_DEXT, MG_MNE_DEXTM, MG_MNE_DEXTU, MG_MNE_DINS, MG_MNE_DINSM, MG_MNE_DINSU, MG_MNE_LWLE, MG_MNE_LWRE,
     MG_MNE_SWLE, MG_MNE_SWRE, MG_MNE_PREFE, MG_MNE_CACHEE, MG_MNE_SBE, MG_MNE_SHE, MG_MNE_SCE, MG_MNE_SWE, MG_MNE_LBE, MG_MNE_LHE, MG_MNE_LCE, MG_MNE_LWE,
-    MG_MNE_LBUE, MG_MNE_LHUE, MG_MNE_DSBH, MG_MNE_BITSWAP, MG_MNE_DBITSWAP, MG_MNE_DSHD, MG_MNE_ALIGN, MG_MNE_DALIGN
+    MG_MNE_LBUE, MG_MNE_LHUE, MG_MNE_DSBH, MG_MNE_BITSWAP, MG_MNE_DBITSWAP, MG_MNE_DSHD, MG_MNE_ALIGN, MG_MNE_DALIGN, MG_MNE_DMFC0, MG_MNE_DMTC0, MG_MNE_DMTC1, MG_MNE_DMFC1,
+    MG_MNE_MTC1, MG_MNE_MFC1, MG_MNE_MFHC0, MG_MNE_MTHC0, MG_MNE_TLBINV, MG_MNE_TLBINVF, MG_MNE_DVP, MG_MNE_EVP
 ];

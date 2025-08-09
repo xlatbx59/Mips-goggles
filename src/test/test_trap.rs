@@ -249,3 +249,115 @@ fn test_tge_tgeu() {
     assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneTge, true, true, true, true));
     assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneTgeu, true, true, true, true));
 }
+#[test]
+fn test_wait() {
+    let machine_code = 0x42000020;
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgR6));
+    let wait = decoder.disassemble(machine_code, 0).unwrap();
+    
+    assert_eq!(wait.get_mnemonic(), MgMnemonic::MgMneWait);
+    assert_eq!(MG_MNE_WAIT, wait.get_mnemonic_str());
+    assert_eq!(MG_MNE_WAIT, "wait");
+
+    assert_eq!(false, wait.is_conditional());
+    assert_eq!(false, wait.is_relative());
+    assert_eq!(false, wait.is_region());
+
+    assert_eq!(true, check_field(&decoder, machine_code, 0x7ffff, MgMnemonic::MgMneWait, 6));
+    assert_eq!(true, check_field(&decoder, machine_code, 1, MgMnemonic::MgMneWait, 24));
+    assert_eq!(true, check_operands(&wait, 0));
+    assert_eq!(true, version_test(machine_code, MgMnemonic::MgMneWait, true, true, true, true));
+}
+#[test]
+fn test_eret_deret() {
+    let machine_code: [u32; 2] = [0x42000018, 0x4200001F];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgR6));
+    let eret = decoder.disassemble(machine_code[0], 0).unwrap();
+    let deret = decoder.disassemble(machine_code[1], 0).unwrap();
+    
+    //No problem
+    assert_eq!(eret.get_mnemonic(), MgMnemonic::MgMneEret);
+    assert_eq!(deret.get_mnemonic(), MgMnemonic::MgMneDeret);
+    assert_eq!(MG_MNE_ERET, eret.get_mnemonic_str());
+    assert_eq!(MG_MNE_DERET, deret.get_mnemonic_str());
+    assert_eq!(MG_MNE_ERET, "eret");
+    assert_eq!(MG_MNE_DERET, "deret");
+
+    assert_eq!(true, check_field(&decoder, machine_code[0], 0x7ffff, MgMnemonic::MgMneEret, 6));
+    assert_eq!(true, check_field(&decoder, machine_code[0], 1, MgMnemonic::MgMneEret, 24));
+    assert_eq!(true, check_field(&decoder, machine_code[1], 0x7ffff, MgMnemonic::MgMneDeret, 6));
+    assert_eq!(true, check_field(&decoder, machine_code[1], 1, MgMnemonic::MgMneDeret, 24));
+
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneEret, true, true, true, true));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneDeret, true, true, true, true));
+}
+#[test]
+fn test_tlbp() {
+    let machine_code = 0x42000008;
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgR6));
+    let tlbp = decoder.disassemble(machine_code, 0).unwrap();
+    
+    assert_eq!(tlbp.get_mnemonic(), MgMnemonic::MgMneTlbp);
+    assert_eq!(MG_MNE_TLBP, tlbp.get_mnemonic_str());
+    assert_eq!(MG_MNE_TLBP, "tlbp");
+
+    assert_eq!(false, tlbp.is_conditional());
+    assert_eq!(false, tlbp.is_relative());
+    assert_eq!(false, tlbp.is_region());
+
+    assert_eq!(true, check_field(&decoder, machine_code, 0x7ffff, MgMnemonic::MgMneTlbp, 6));
+    assert_eq!(true, check_field(&decoder, machine_code, 1, MgMnemonic::MgMneTlbp, 24));
+    assert_eq!(true, check_operands(&tlbp, 0));
+    assert_eq!(true, version_test(machine_code, MgMnemonic::MgMneTlbp, true, true, true, true));
+}
+#[test]
+fn test_tlbr_tlbwr() {
+    let machine_code: [u32; 2] = [0x42000001, 0x42000006];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgR6));
+    let tlbr = decoder.disassemble(machine_code[0], 0).unwrap();
+    let tlbwr = decoder.disassemble(machine_code[1], 0).unwrap();
+    
+    assert_eq!(tlbr.get_mnemonic(), MgMnemonic::MgMneTlbr);
+    assert_eq!(tlbwr.get_mnemonic(), MgMnemonic::MgMneTlbwr);
+    assert_eq!(MG_MNE_TLBR, tlbr.get_mnemonic_str());
+    assert_eq!(MG_MNE_TLBWR, tlbwr.get_mnemonic_str());
+    assert_eq!(MG_MNE_TLBR, "tlbr");
+    assert_eq!(MG_MNE_TLBWR, "tlbwr");
+
+    assert_eq!(true, check_field(&decoder, machine_code[0], 0x7ffff, MgMnemonic::MgMneTlbr, 6));
+    assert_eq!(true, check_field(&decoder, machine_code[0], 1, MgMnemonic::MgMneTlbr, 24));
+    assert_eq!(true, check_field(&decoder, machine_code[1], 0x7ffff, MgMnemonic::MgMneTlbwr, 6));
+    assert_eq!(true, check_field(&decoder, machine_code[1], 1, MgMnemonic::MgMneTlbwr, 24));
+
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneTlbr, true, true, true, true));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneTlbwr, true, true, true, true));
+}
+#[test]
+fn test_tlbwi_() {
+    let machine_code: [u32; 3] = [0x42000002, 0x42000003, 0x42000004];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgR6));
+    let tlbwi = decoder.disassemble(machine_code[0], 0).unwrap();
+    let tlbinv = decoder.disassemble(machine_code[1], 0).unwrap();
+    let tlbinvf = decoder.disassemble(machine_code[2], 0).unwrap();
+    
+    assert_eq!(tlbwi.get_mnemonic(), MgMnemonic::MgMneTlbwi);
+    assert_eq!(tlbinv.get_mnemonic(), MgMnemonic::MgMneTlbinv);
+    assert_eq!(tlbinvf.get_mnemonic(), MgMnemonic::MgMneTlbinvf);
+    assert_eq!(MG_MNE_TLBWI, tlbwi.get_mnemonic_str());
+    assert_eq!(MG_MNE_TLBINV, tlbinv.get_mnemonic_str());
+    assert_eq!(MG_MNE_TLBINVF, tlbinvf.get_mnemonic_str());
+    assert_eq!(MG_MNE_TLBWI, "tlbwi");
+    assert_eq!(MG_MNE_TLBINV, "tlbinv");
+    assert_eq!(MG_MNE_TLBINVF, "tlbinvf");
+
+    assert_eq!(true, check_field(&decoder, machine_code[0], 0x7ffff, MgMnemonic::MgMneTlbwi, 6));
+    assert_eq!(true, check_field(&decoder, machine_code[0], 1, MgMnemonic::MgMneTlbwi, 24));
+    assert_eq!(true, check_field(&decoder, machine_code[1], 0x7ffff, MgMnemonic::MgMneTlbinv, 6));
+    assert_eq!(true, check_field(&decoder, machine_code[1], 1, MgMnemonic::MgMneTlbinv, 24));
+    assert_eq!(true, check_field(&decoder, machine_code[2], 0x7ffff, MgMnemonic::MgMneTlbinvf, 6));
+    assert_eq!(true, check_field(&decoder, machine_code[2], 1, MgMnemonic::MgMneTlbinvf, 24));
+
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneTlbwi, true, true, true, true));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneTlbinv, true, true, true, true));
+    assert_eq!(true, version_test(machine_code[2], MgMnemonic::MgMneTlbinvf, true, true, true, true));
+}

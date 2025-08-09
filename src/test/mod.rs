@@ -112,47 +112,64 @@ fn imm_limit_reached(disass: &MgDisassembler, mne: MgMnemonic, mut machine_code:
     }
 }
 #[test]
-fn test_daui(){
-    let machine_code = [0x770933f1, 0x740933f1];
-    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgR6));
+fn test_di_ei(){
+    let machine_code: [u32; 2] = [0x417C6000, 0x417C6020];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgPreR6));
+    let di = decoder.disassemble(machine_code[0], 0).unwrap();
+    let ei = decoder.disassemble(machine_code[1], 0).unwrap();
 
-    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneDaui, false, false, false, true));
+    assert_eq!(di.get_mnemonic(), MgMnemonic::MgMneDi);
+    assert_eq!(di.get_mnemonic_str(), MG_MNE_DI);
+    assert_eq!("di", MG_MNE_DI);
+    assert_eq!(ei.get_mnemonic(), MgMnemonic::MgMneEi);
+    assert_eq!(ei.get_mnemonic_str(), MG_MNE_EI);
+    assert_eq!("ei", MG_MNE_EI);
 
-    let daui = decoder.disassemble(machine_code[0], 0).unwrap();
-    assert_eq!(MgMnemonic::MgMneDaui, daui.get_mnemonic());
-    assert_eq!(MG_MNE_DAUI, daui.get_mnemonic_str());
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneDi, true, true, true, true));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneEi, true, true, true, true));
 
-    assert_eq!(true, check_operands(&daui, 3));
+    assert_eq!(true, check_field(&decoder, machine_code[0], 7, MgMnemonic::MgMneDi, 0));
+    assert_eq!(true, check_field(&decoder, machine_code[0], 3, MgMnemonic::MgMneDi, 3));
+    assert_eq!(true, check_field(&decoder, machine_code[0], 1, MgMnemonic::MgMneDi, 5));
+    assert_eq!(true, check_field(&decoder, machine_code[0], 0x1f, MgMnemonic::MgMneDi, 6));
 
-    let Some(MgOperand::MgOpRegister(_)) = daui.get_operand(0) else {
-        panic!();
-    };
-    let Some(MgOperand::MgOpRegister(_)) = daui.get_operand(1) else {
-        panic!();
-    };
-    assert_eq!(true, check_field_zero_assert(&decoder, machine_code[0], 0b11111, MgMnemonic::MgMneDaui, 21));
-    assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneDaui, machine_code[0], 0, 0xffff, 2));
+    assert_eq!(true, check_field(&decoder, machine_code[1], 7, MgMnemonic::MgMneEi, 0));
+    assert_eq!(true, check_field(&decoder, machine_code[1], 3, MgMnemonic::MgMneEi, 3));
+    assert_eq!(true, check_field_zero_assert(&decoder, machine_code[1], 1, MgMnemonic::MgMneEi, 5));
+    assert_eq!(true, check_field(&decoder, machine_code[1], 0x1f, MgMnemonic::MgMneEi, 6));
+
+    assert_eq!(true, check_operands(&di, 1));
+    assert_eq!(true, check_operands(&ei, 1));
 }
 #[test]
-fn test_stli_stliu(){
-    let machine_code = [0x2B640058, 0x2F640058];
+fn test_dvp_evp(){
+    let machine_code: [u32; 2] = [0x417C0024, 0x417C0004];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgPreR6));
+    let dvp = decoder.disassemble(machine_code[0], 0).unwrap();
+    let evp = decoder.disassemble(machine_code[1], 0).unwrap();
 
-    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
+    assert_eq!(dvp.get_mnemonic(), MgMnemonic::MgMneDvp);
+    assert_eq!(dvp.get_mnemonic_str(), MG_MNE_DVP);
+    assert_eq!("dvp", MG_MNE_DVP);
+    assert_eq!(evp.get_mnemonic(), MgMnemonic::MgMneEvp);
+    assert_eq!(evp.get_mnemonic_str(), MG_MNE_EVP);
+    assert_eq!("evp", MG_MNE_EVP);
 
-    let slti = decoder.disassemble(machine_code[0], 0).unwrap();
-    let sltiu = decoder.disassemble(machine_code[1], 0).unwrap();
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneDvp, true, true, true, true));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneEvp, true, true, true, true));
 
-    assert_eq!(slti.get_mnemonic(), MgMnemonic::MgMneSlti);
-    assert_eq!(sltiu.get_mnemonic(), MgMnemonic::MgMneSltiu);
-    assert_eq!(slti.get_mnemonic_str(), MG_MNE_SLTI);
-    assert_eq!(sltiu.get_mnemonic_str(), MG_MNE_SLTIU);
+    assert_eq!(true, check_field(&decoder, machine_code[0], 0b011, MgMnemonic::MgMneDvp, 0));
+    assert_eq!(true, check_field(&decoder, machine_code[0], 3, MgMnemonic::MgMneDvp, 3));
+    assert_eq!(true, check_field_zero_assert(&decoder, machine_code[0], 1, MgMnemonic::MgMneDvp, 5));
+    assert_eq!(true, check_field(&decoder, machine_code[0], 0x1f, MgMnemonic::MgMneDvp, 6));
+    assert_eq!(true, check_field(&decoder, machine_code[0], 0x1f, MgMnemonic::MgMneDvp, 11));
 
-    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneSlti, true, true, true, true));
-    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneSltiu, true, true, true, true));
+    assert_eq!(true, check_field(&decoder, machine_code[1], 0b011, MgMnemonic::MgMneEvp, 0));
+    assert_eq!(true, check_field(&decoder, machine_code[1], 3, MgMnemonic::MgMneEvp, 3));
+    assert_eq!(true, check_field(&decoder, machine_code[1], 1, MgMnemonic::MgMneEvp, 5));
+    assert_eq!(true, check_field(&decoder, machine_code[1], 0x1f, MgMnemonic::MgMneEvp, 6));
+    assert_eq!(true, check_field(&decoder, machine_code[1], 0x1f, MgMnemonic::MgMneEvp, 11));
 
-    assert_eq!(true, check_operands(&slti, 3));
-    assert_eq!(true, check_operands(&sltiu, 3));
-
-    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneSlti, machine_code[0], 0, 0xffff, 2));
-    assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneSltiu, machine_code[1], 0, 0xffff, 2));
+    assert_eq!(true, check_operands(&dvp, 1));
+    assert_eq!(true, check_operands(&evp, 1));
 }

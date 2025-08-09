@@ -12,6 +12,7 @@ use FieldInfos;
 
 //TODO: Je dois mettre les bonnes exceptions
 //TODO: Dans le Release1 mfmc0 avait une autre exception, je dois rajouter les versions pour ça
+//TODO: Need further research for Rdpgpr and Wrpgpr
 impl MgDisassembler{
     pub (super) fn no_instructions(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         Err(MgError::throw_error(MgErrorCode::NoInstruction, prototype.opcode, prototype.address, prototype.machine_code))
@@ -68,16 +69,16 @@ impl MgDisassembler{
     }
     pub (super) fn cop0_opcode_map(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         static COP0_MAP: [fn(disassembler: &MgDisassembler, &mut MgInstructionPrototype) -> Result<(), MgError>; 32] =
-            [   MgDisassembler::mov_cp0,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::mov_cp0,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
+            [   MgDisassembler::movf_cp0,  MgDisassembler::movf_cp0,  MgDisassembler::mfhc0_mthc0,  MgDisassembler::no_instructions,  MgDisassembler::movt_cp0,  MgDisassembler::movt_cp0,  MgDisassembler::mfhc0_mthc0,  MgDisassembler::no_instructions,
                 MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::gpr_shadowset,  MgDisassembler::mfmc0,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::gpr_shadowset,  MgDisassembler::no_instructions,
                 MgDisassembler::c0,  MgDisassembler::c0,  MgDisassembler::c0,  MgDisassembler::c0,  MgDisassembler::c0,  MgDisassembler::c0,  MgDisassembler::c0,  MgDisassembler::c0,
                 MgDisassembler::c0,  MgDisassembler::c0,  MgDisassembler::c0,  MgDisassembler::c0,  MgDisassembler::c0,  MgDisassembler::c0,  MgDisassembler::c0,  MgDisassembler::c0];
-        unimplemented!("[-]Opcode map isn't implemented yet!");
-        // COP0_MAP[(prototype.machine_code >> 21 & 0b11111) as usize](self, prototype)
+        // unimplemented!("[-]Opcode map isn't implemented yet!");
+        COP0_MAP[(prototype.machine_code >> 21 & 0b11111) as usize](self, prototype)
     }
-    pub (super) fn cop1_opcode_map(&self, _instruction: &mut MgInstructionPrototype) -> Result<(), MgError>{
-        static _COP1_MAP: [fn(disassembler: &MgDisassembler, &mut MgInstructionPrototype) -> Result<(), MgError>; 64] =
-        [   MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
+    pub (super) fn cop1_opcode_map(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        static COP1_MAP: [fn(disassembler: &MgDisassembler, &mut MgInstructionPrototype) -> Result<(), MgError>; 64] =
+        [   MgDisassembler::movf_cp1,  MgDisassembler::movf_cp1,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::movt_cp1,  MgDisassembler::movt_cp1,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
             MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
             MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
             MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
@@ -85,9 +86,8 @@ impl MgDisassembler{
             MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
             MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
             MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions ];
-        unimplemented!("[-]Cop1 opcode map isn't implemented yet!");
 
-        // COP1_MAP[(prototype.machine_code >> 26) as usize](prototype)
+        COP1_MAP[(prototype.machine_code >> 21 & 0b11111) as usize](self, prototype)
     }
     pub (super) fn cop2_opcode_map(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         static COP2_MAP: [fn(disassembler: &MgDisassembler, &mut MgInstructionPrototype) -> Result<(), MgError>; 64] = 
@@ -1804,17 +1804,60 @@ impl MgDisassembler{
     }
 
     //CP0
-    pub(super) fn mov_cp0(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
-        let mnemonics = [Some(MgMnemonic::MgMneMfc0), Some(MgMnemonic::MgMneMtc0)];
+    pub(super) fn movf_cp0(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        let mnemonics = [Some(MgMnemonic::MgMneMfc0), Some(MgMnemonic::MgMneDmfc0)];
+
+        if (prototype.machine_code >> 3 & 0b11111111) != 0{
+            return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
+        }else if prototype.machine_code >> 21 & 1 == 1{
+            let MgMipsVersion::M64(_) = self.version else{
+                return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+            };
+        }
+
+        prototype.mnemonic = mnemonics[(prototype.machine_code >> 21 & 1) as usize];
+        prototype.operand_num = 3;
+
+        prototype.operand[0] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 16 & 0b11111) as u8, MgCoprocessor::Cpu));
+        prototype.operand[1] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 11 & 0b11111) as u8, MgCoprocessor::Cp0));
+        prototype.operand[2] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code & 7) as u64));
+        Ok(())
+    }
+    pub(super) fn movt_cp0(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        let mnemonics = [Some(MgMnemonic::MgMneMtc0), Some(MgMnemonic::MgMneDmtc0)];
+        if (prototype.machine_code >> 3 & 0b11111111) != 0{
+            return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
+        }else if prototype.machine_code >> 21 & 1 == 1{
+            let MgMipsVersion::M64(_) = self.version else{
+                return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+            };
+        }
+
+        prototype.mnemonic = mnemonics[(prototype.machine_code >> 21 & 1) as usize];
+        prototype.operand_num = 3;
+
+        prototype.operand[1] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 16 & 0b11111) as u8, MgCoprocessor::Cpu));
+        prototype.operand[0] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 11 & 0b11111) as u8, MgCoprocessor::Cp0));
+        prototype.operand[2] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code & 7) as u64));
+        Ok(())
+    }
+    pub(super) fn mfhc0_mthc0(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         if (prototype.machine_code >> 3 & 0b11111111) != 0{
             return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
         }
 
-        prototype.mnemonic = mnemonics[(prototype.machine_code >> 23 & 1) as usize];
-        prototype.operand_num = 3;
 
-        prototype.operand[0] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 16 & 0b11111) as u8, MgCoprocessor::Cpu));
-        prototype.operand[1] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 11 & 0b11111) as u8, MgCoprocessor::Cpu));
+        prototype.mnemonic =if prototype.machine_code >> 23 & 1 == 0{
+            prototype.operand[0] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 16 & 0b11111) as u8, MgCoprocessor::Cpu));
+            prototype.operand[1] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 11 & 0b11111) as u8, MgCoprocessor::Cp0));
+            Some(MgMnemonic::MgMneMfhc0)
+        }else{
+            prototype.operand[1] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 16 & 0b11111) as u8, MgCoprocessor::Cpu));
+            prototype.operand[0] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 11 & 0b11111) as u8, MgCoprocessor::Cp0));
+            Some(MgMnemonic::MgMneMthc0)
+        };
+
+        prototype.operand_num = 3;
         prototype.operand[2] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code & 7) as u64));
         Ok(())
     }
@@ -1822,18 +1865,36 @@ impl MgDisassembler{
         let mnemonics = [Some(MgMnemonic::MgMneRdpgpr), Some(MgMnemonic::MgMneWrpgpr)];
 
         prototype.mnemonic = mnemonics[(prototype.machine_code >> 23 & 1) as usize];
-        MgDisassembler::cpx_cpu_transfer_format(self, prototype, FieldInfos::default_reg_field(1, MgCoprocessor::Cpu), FieldInfos::default_reg_field(0, MgCoprocessor::Cpu))
+        self.cpx_cpu_transfer_format(prototype, FieldInfos::default_reg_field(1, MgCoprocessor::Cpu), FieldInfos::default_reg_field(0, MgCoprocessor::Cpu))
     }
     pub(super) fn mfmc0(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
-        let mnemonics = [Some(MgMnemonic::MgMneDi), Some(MgMnemonic::MgMneEi)];
-
-        if prototype.machine_code & 0b11111 != 0 ||
-        (prototype.machine_code >> 6 & 0b11111) != 0 || 
-        (prototype.machine_code >> 11 & 0b01100) != 0b01100 {
+        if prototype.machine_code >> 6 & 0x1f != 0{
             return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
         }
-        
-        prototype.mnemonic = mnemonics[(prototype.machine_code >> 5 & 1) as usize];
+        prototype.mnemonic = match prototype.machine_code >> 11 & 0x1f{
+            12 => {
+                if prototype.machine_code & 0x1f != 0{
+                    return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
+                }
+                if prototype.machine_code >> 5 & 1 == 1{
+                    Some(MgMnemonic::MgMneEi)
+                }else {
+                    Some(MgMnemonic::MgMneDi)
+                }
+            },
+            0 => {
+                if prototype.machine_code & 0x1f != 4{
+                    return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
+                }
+                if prototype.machine_code >> 5 & 1 == 1{
+                    Some(MgMnemonic::MgMneDvp)
+                }else {
+                    Some(MgMnemonic::MgMneEvp)
+                }
+            }
+            _ => return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
+        };
+
         prototype.operand_num = 1;
         prototype.operand[0] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 16 & 0b11111) as u8, MgCoprocessor::Cpu));
 
@@ -1841,7 +1902,7 @@ impl MgDisassembler{
     }
     pub(super) fn c0(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let mnemonics: [[Option<MgMnemonic>; 8]; 8] = [
-            [None,  Some(MgMnemonic::MgMneTlbr),  Some(MgMnemonic::MgMneTlbwi),  None,  None,  None,  Some(MgMnemonic::MgMneTlbwr),  None],
+            [None,  Some(MgMnemonic::MgMneTlbr),  Some(MgMnemonic::MgMneTlbwi),  Some(MgMnemonic::MgMneTlbinv),  Some(MgMnemonic::MgMneTlbinvf),  None,  Some(MgMnemonic::MgMneTlbwr),  None],
             [Some(MgMnemonic::MgMneTlbp),  None,  None,  None,  None,  None,  None,  None],
             [None,  None,  None,  None,  None,  None,  None,  None],
             [Some(MgMnemonic::MgMneEret),  None,  None,  None,  None,  None,  None,  Some(MgMnemonic::MgMneDeret)], 
@@ -1854,8 +1915,50 @@ impl MgDisassembler{
         (prototype.machine_code >> 25 & 1) != 1{
             return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
         }
+        
 
         prototype.mnemonic = mnemonics[(prototype.machine_code >> 3 & 0b111) as usize][(prototype.machine_code & 0b111) as usize];
+        if let None = prototype.mnemonic {
+            self.no_instructions(prototype)
+        }else{
+            Ok(())
+        }
+    }
+
+    //CP1
+    pub(super) fn movf_cp1(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        let mnemonics = [Some(MgMnemonic::MgMneMfc1), Some(MgMnemonic::MgMneDmfc1)];
+
+        if (prototype.machine_code >> 3 & 0b11111111) != 0{
+            return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
+        }else if prototype.machine_code >> 21 & 1 == 1{
+            let MgMipsVersion::M64(_) = self.version else{
+                return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+            };
+        }
+
+        prototype.mnemonic = mnemonics[(prototype.machine_code >> 21 & 1) as usize];
+        prototype.operand_num = 2;
+
+        prototype.operand[0] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 16 & 0b11111) as u8, MgCoprocessor::Cpu));
+        prototype.operand[1] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 11 & 0b11111) as u8, MgCoprocessor::Cp1));
+        Ok(())
+    }
+    pub(super) fn movt_cp1(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        let mnemonics = [Some(MgMnemonic::MgMneMtc1), Some(MgMnemonic::MgMneDmtc1)];
+        if (prototype.machine_code >> 3 & 0b11111111) != 0{
+            return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
+        }else if prototype.machine_code >> 21 & 1 == 1{
+            let MgMipsVersion::M64(_) = self.version else{
+                return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+            };
+        }
+
+        prototype.mnemonic = mnemonics[(prototype.machine_code >> 21 & 1) as usize];
+        prototype.operand_num = 2;
+
+        prototype.operand[1] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 16 & 0b11111) as u8, MgCoprocessor::Cpu));
+        prototype.operand[0] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 11 & 0b11111) as u8, MgCoprocessor::Cp1));
         Ok(())
     }
 
