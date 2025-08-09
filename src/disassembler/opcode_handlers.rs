@@ -1883,6 +1883,9 @@ impl MgDisassembler{
                 }
             },
             0 => {
+                if let MgMipsVersion::M32(MgMips32::MgPreR6) | MgMipsVersion::M64(MgMips64::MgPreR6) = self.version{
+                    return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+                }
                 if prototype.machine_code & 0x1f != 4{
                     return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
                 }

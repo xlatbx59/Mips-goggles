@@ -144,7 +144,7 @@ fn test_di_ei(){
 #[test]
 fn test_dvp_evp(){
     let machine_code: [u32; 2] = [0x417C0024, 0x417C0004];
-    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgPreR6));
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgR6));
     let dvp = decoder.disassemble(machine_code[0], 0).unwrap();
     let evp = decoder.disassemble(machine_code[1], 0).unwrap();
 
@@ -155,8 +155,8 @@ fn test_dvp_evp(){
     assert_eq!(evp.get_mnemonic_str(), MG_MNE_EVP);
     assert_eq!("evp", MG_MNE_EVP);
 
-    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneDvp, true, true, true, true));
-    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneEvp, true, true, true, true));
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneDvp, false, true, false, true));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneEvp, false, true, false, true));
 
     assert_eq!(true, check_field(&decoder, machine_code[0], 0b011, MgMnemonic::MgMneDvp, 0));
     assert_eq!(true, check_field(&decoder, machine_code[0], 3, MgMnemonic::MgMneDvp, 3));
