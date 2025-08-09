@@ -15,6 +15,7 @@ Mips-Goggles is a mips disassembler for the mips instruction set, but is not fin
 - [Regimm opcode map](https://www.cipunited.com/xlx/files/document/202008/1205490289250.pdf#G320.1096304)
 - [Special 2 opcode map](https://www.cipunited.com/xlx/files/document/202008/1205490289250.pdf#G320.1096304)
 - [Special 3 opcode map](https://www.cipunited.com/xlx/files/document/202008/1205490289250.pdf#G320.1096549)
+- [Pcrel](https://www.cipunited.com/xlx/files/document/202008/1205490289250.pdf#G320.1445147)
 - [Cop 0](https://www.cipunited.com/xlx/files/document/202008/1205490289250.pdf#G320.1097182)
 
 # Goals

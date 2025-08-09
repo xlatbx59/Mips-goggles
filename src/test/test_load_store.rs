@@ -799,6 +799,60 @@ fn test_ldr_ldl(){
     assert_eq!(true, check_operands(&ldl, 3));
 }
 #[test]
+fn test_lwupc(){
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgR6));
+    let machine_code = 0xEF97FFFF;
+    let lwupc = decoder.disassemble(machine_code, 0).unwrap();
+
+    assert_eq!(lwupc.get_mnemonic(), MgMnemonic::MgMneLwupc);
+    assert_eq!(lwupc.get_mnemonic_str(), MG_MNE_LWUPC);
+    assert_eq!("lwupc", MG_MNE_LWUPC);
+
+    assert_eq!(true, lwupc.is_relative());
+    assert_eq!(false, lwupc.is_region());
+    assert_eq!(false, lwupc.is_conditional());
+
+    assert_eq!(true, check_operands(&lwupc, 2));
+    assert_eq!(true, version_test(machine_code, MgMnemonic::MgMneLwupc, false, true, false, true));
+    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneLwupc, machine_code, 0, 0x7ffff, 1));
+}
+#[test]
+fn test_ldpc(){
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgR6));
+    let machine_code = 0xEF9bFFFF;
+    let ldpc = decoder.disassemble(machine_code, 0).unwrap();
+
+    assert_eq!(ldpc.get_mnemonic(), MgMnemonic::MgMneLdpc);
+    assert_eq!(ldpc.get_mnemonic_str(), MG_MNE_LDPC);
+    assert_eq!("ldpc", MG_MNE_LDPC);
+
+    assert_eq!(true, ldpc.is_relative());
+    assert_eq!(false, ldpc.is_region());
+    assert_eq!(false, ldpc.is_conditional());
+
+    assert_eq!(true, check_operands(&ldpc, 2));
+    assert_eq!(true, version_test(machine_code, MgMnemonic::MgMneLdpc, false, true, false, true));
+    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneLdpc, machine_code, 0, 0x3ffff, 1));
+}
+#[test]
+fn test_lwpc(){
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgR6));
+    let machine_code = 0xEF8fFFFF;
+    let lwpc = decoder.disassemble(machine_code, 0).unwrap();
+
+    assert_eq!(lwpc.get_mnemonic(), MgMnemonic::MgMneLwpc);
+    assert_eq!(lwpc.get_mnemonic_str(), MG_MNE_LWPC);
+    assert_eq!("lwpc", MG_MNE_LWPC);
+
+    assert_eq!(true, lwpc.is_relative());
+    assert_eq!(false, lwpc.is_region());
+    assert_eq!(false, lwpc.is_conditional());
+
+    assert_eq!(true, check_operands(&lwpc, 2));
+    assert_eq!(true, version_test(machine_code, MgMnemonic::MgMneLwpc, false, true, false, true));
+    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneLwpc, machine_code, 0, 0x7ffff, 1));
+}
+#[test]
 fn test_lwr_swr_lwl_swl() {
     let machine_code: [u32; 4] = [0x88450050, 0xA8450050, 0x98450050, 0xB8450050];
     let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgPreR6));

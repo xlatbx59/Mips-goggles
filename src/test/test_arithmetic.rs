@@ -195,6 +195,7 @@ fn test_mul(){
 
     assert_eq!(mul.get_mnemonic(), MgMnemonic::MgMneMul);
     assert_eq!(mul.get_mnemonic_str(), MG_MNE_MUL);
+    assert_eq!("mul", MG_MNE_MUL);
 
     assert_eq!(true, version_test(machine_code, MgMnemonic::MgMneMul, true, false, true, false));
 
@@ -666,4 +667,64 @@ fn test_lui_aui(){
     assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneLui, true, true, true, true));
 
     assert_eq!(true, check_operands(&aui, 3));
+}
+#[test]
+fn test_addiupc(){
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgR6));
+    let machine_code = 0xEF87FFFF;
+    let addiupc = decoder.disassemble(machine_code, 0).unwrap();
+
+    assert_eq!(addiupc.get_mnemonic(), MgMnemonic::MgMneAddiupc);
+    assert_eq!(addiupc.get_mnemonic_str(), MG_MNE_ADDIUPC);
+    assert_eq!("addiupc", MG_MNE_ADDIUPC);
+
+    assert_eq!(true, addiupc.is_relative());
+    assert_eq!(false, addiupc.is_region());
+    assert_eq!(false, addiupc.is_conditional());
+
+    assert_eq!(true, check_operands(&addiupc, 2));
+    assert_eq!(true, version_test(machine_code, MgMnemonic::MgMneAddiupc, false, true, false, true));
+    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneAddiupc, machine_code, 0, 0x7ffff, 1));
+}
+#[test]
+fn test_auipc(){
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgR6));
+    let machine_code = 0xEF9EFFFF;
+    let auipc = decoder.disassemble(machine_code, 0).unwrap();
+
+    assert_eq!(auipc.get_mnemonic(), MgMnemonic::MgMneAuipc);
+    assert_eq!(auipc.get_mnemonic_str(), MG_MNE_AUIPC);
+    assert_eq!("auipc", MG_MNE_AUIPC);
+
+    // 0b1110111110000111
+    // 0b1110111110011110
+
+    assert_eq!(true, auipc.is_relative());
+    assert_eq!(false, auipc.is_region());
+    assert_eq!(false, auipc.is_conditional());
+
+    assert_eq!(true, check_operands(&auipc, 2));
+    assert_eq!(true, version_test(machine_code, MgMnemonic::MgMneAuipc, false, true, false, true));
+    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneAuipc, machine_code, 0, 0xffff, 1));
+}
+#[test]
+fn test_aluipc(){
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgR6));
+    let machine_code = 0xEF9FFFFF;
+    let aluipc = decoder.disassemble(machine_code, 0).unwrap();
+
+    assert_eq!(aluipc.get_mnemonic(), MgMnemonic::MgMneAluipc);
+    assert_eq!(aluipc.get_mnemonic_str(), MG_MNE_ALUIPC);
+    assert_eq!("aluipc", MG_MNE_ALUIPC);
+
+    // 0b1110111110000111
+    // 0b1110111110011110
+
+    assert_eq!(true, aluipc.is_relative());
+    assert_eq!(false, aluipc.is_region());
+    assert_eq!(false, aluipc.is_conditional());
+
+    assert_eq!(true, check_operands(&aluipc, 2));
+    assert_eq!(true, version_test(machine_code, MgMnemonic::MgMneAluipc, false, true, false, true));
+    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneAluipc, machine_code, 0, 0xffff, 1));
 }

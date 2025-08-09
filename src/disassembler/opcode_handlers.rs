@@ -73,7 +73,6 @@ impl MgDisassembler{
                 MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::gpr_shadowset,  MgDisassembler::mfmc0,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::gpr_shadowset,  MgDisassembler::no_instructions,
                 MgDisassembler::c0,  MgDisassembler::c0,  MgDisassembler::c0,  MgDisassembler::c0,  MgDisassembler::c0,  MgDisassembler::c0,  MgDisassembler::c0,  MgDisassembler::c0,
                 MgDisassembler::c0,  MgDisassembler::c0,  MgDisassembler::c0,  MgDisassembler::c0,  MgDisassembler::c0,  MgDisassembler::c0,  MgDisassembler::c0,  MgDisassembler::c0];
-        // unimplemented!("[-]Opcode map isn't implemented yet!");
         COP0_MAP[(prototype.machine_code >> 21 & 0b11111) as usize](self, prototype)
     }
     pub (super) fn cop1_opcode_map(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
@@ -124,19 +123,14 @@ impl MgDisassembler{
             return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
         };
         static PCREL_MAP: [fn(disassembler: &MgDisassembler, &mut MgInstructionPrototype) -> Result<(), MgError>; 32] =[   
-            MgDisassembler::addiupc,  MgDisassembler::addiupc,  MgDisassembler::lwpc,  MgDisassembler::lwpc,  MgDisassembler::lwupc,  MgDisassembler::lwupc,  MgDisassembler::ldpc,  MgDisassembler::no_instructions,
-            MgDisassembler::addiupc,  MgDisassembler::addiupc,  MgDisassembler::lwpc,  MgDisassembler::lwpc,  MgDisassembler::lwupc,  MgDisassembler::lwupc,  MgDisassembler::ldpc,  MgDisassembler::no_instructions,
-            MgDisassembler::addiupc,  MgDisassembler::addiupc,  MgDisassembler::lwpc,  MgDisassembler::lwpc,  MgDisassembler::lwupc,  MgDisassembler::lwupc,  MgDisassembler::ldpc,  MgDisassembler::auipc,
-            MgDisassembler::addiupc,  MgDisassembler::addiupc,  MgDisassembler::lwpc,  MgDisassembler::lwpc,  MgDisassembler::lwupc,  MgDisassembler::lwupc,  MgDisassembler::ldpc,  MgDisassembler::aluipc
+            MgDisassembler::addiupc,  MgDisassembler::addiupc,  MgDisassembler::addiupc,  MgDisassembler::addiupc,  MgDisassembler::addiupc,  MgDisassembler::addiupc,  MgDisassembler::addiupc,  MgDisassembler::addiupc,
+            MgDisassembler::lwpc,  MgDisassembler::lwpc,  MgDisassembler::lwpc,  MgDisassembler::lwpc,  MgDisassembler::lwpc,  MgDisassembler::lwpc,  MgDisassembler::lwpc,  MgDisassembler::lwpc,
+            MgDisassembler::lwupc,  MgDisassembler::lwupc,  MgDisassembler::lwupc,  MgDisassembler::lwupc,  MgDisassembler::lwupc,  MgDisassembler::lwupc,  MgDisassembler::lwupc,  MgDisassembler::lwupc,
+            MgDisassembler::ldpc,  MgDisassembler::ldpc,  MgDisassembler::ldpc,  MgDisassembler::ldpc, MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::auipc,  MgDisassembler::aluipc
         ];
 
         prototype.is_relative = true;
-        let imm = FieldInfos::imm_field(1, 0b1111111111111111);
-        let rs = Some(FieldInfos::default_reg_field(0, MgCoprocessor::Cpu));
-        if let Err(e) = PCREL_MAP[(prototype.machine_code >> 16 & 0b11111) as usize](self, prototype){
-            return Err(e)
-        }
-        self.imm_format(prototype, rs, None, Some(imm))
+        PCREL_MAP[(prototype.machine_code >> 16 & 0x1f) as usize](self, prototype)
     }
 
     //Opcode handlers
@@ -1968,26 +1962,38 @@ impl MgDisassembler{
     //pcrel
     pub (super) fn addiupc(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         prototype.mnemonic = Some(MgMnemonic::MgMneAddiupc);
-        Ok(())
+        let imm = FieldInfos::imm_field(1, 0x7ffff);
+        let rs = Some(FieldInfos::default_reg_field(0, MgCoprocessor::Cpu));
+        self.imm_format(prototype, rs, None, Some(imm))
     }
     pub (super) fn lwpc(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        let imm = FieldInfos::imm_field(1, 0x7ffff);
+        let rs = Some(FieldInfos::default_reg_field(0, MgCoprocessor::Cpu));
         prototype.mnemonic = Some(MgMnemonic::MgMneLwpc);
-        Ok(())
+        self.imm_format(prototype, rs, None, Some(imm))
     }
     pub (super) fn lwupc(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        let imm = FieldInfos::imm_field(1, 0x7ffff);
+        let rs = Some(FieldInfos::default_reg_field(0, MgCoprocessor::Cpu));
         prototype.mnemonic = Some(MgMnemonic::MgMneLwupc);
-        Ok(())
+        self.imm_format(prototype, rs, None, Some(imm))
     }
     pub (super) fn aluipc(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        let rs = Some(FieldInfos::default_reg_field(0, MgCoprocessor::Cpu));
+        let imm = FieldInfos::imm_field(1, 0xffff);
         prototype.mnemonic = Some(MgMnemonic::MgMneAluipc);
-        Ok(())
+        self.imm_format(prototype, rs, None, Some(imm))
     }
     pub (super) fn ldpc(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{      //The manual didn't have an entry 
+        let rs = Some(FieldInfos::default_reg_field(0, MgCoprocessor::Cpu));
+        let imm = FieldInfos::imm_field(1, 0x3ffff);
         prototype.mnemonic = Some(MgMnemonic::MgMneLdpc);                                                   //for that instruction but it was mentionned in the Table A.13
-        Ok(())
+        self.imm_format(prototype, rs, None, Some(imm))
     }
     pub (super) fn auipc(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        let imm = FieldInfos::imm_field(1, 0xffff);
+        let rs = Some(FieldInfos::default_reg_field(0, MgCoprocessor::Cpu));
         prototype.mnemonic = Some(MgMnemonic::MgMneAuipc);
-        Ok(())
+        self.imm_format(prototype, rs, None, Some(imm))
     }
 }
