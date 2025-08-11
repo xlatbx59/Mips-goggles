@@ -15,6 +15,13 @@ fn test_pop76(){
     let bnezc = decoder.disassemble(machine_code[0], 0).unwrap();
     let jialc = decoder.disassemble(machine_code[1], 0).unwrap();
 
+    assert_eq!(bnezc.get_mnemonic(), MgMnemonic::MgMneBnezc);
+    assert_eq!(jialc.get_mnemonic(), MgMnemonic::MgMneJialc);
+    assert_eq!(mg_get_mnemonic(bnezc.get_mnemonic()), MG_MNE_BNEZC);
+    assert_eq!(mg_get_mnemonic(jialc.get_mnemonic()), MG_MNE_JIALC);
+    assert_eq!("bnezc", MG_MNE_BNEZC);
+    assert_eq!("jialc", MG_MNE_JIALC);
+
     assert_eq!(true, check_operands(&bnezc, 2));
     assert_eq!(true, check_operands(&jialc, 2));
 
@@ -32,12 +39,6 @@ fn test_pop76(){
     assert_eq!(jialc.is_relative(), false);
     assert_eq!(jialc.is_conditional(), false);
 
-    assert_eq!(bnezc.get_mnemonic(), MgMnemonic::MgMneBnezc);
-    assert_eq!(jialc.get_mnemonic(), MgMnemonic::MgMneJialc);
-
-    assert_eq!(mg_get_mnemonic(bnezc.get_mnemonic()), MG_MNE_BNEZC);
-    assert_eq!(mg_get_mnemonic(jialc.get_mnemonic()), MG_MNE_JIALC);
-
     assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneBnezc, machine_code[0], 0, 0x1fffff, 1));
     assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneJialc, machine_code[1], 0, 0xffff, 1));
 }
@@ -49,6 +50,13 @@ fn test_pop66(){
     let beqzc = decoder.disassemble(machine_code[0], 0).unwrap();
     let jic = decoder.disassemble(machine_code[1], 0).unwrap();
 
+    assert_eq!(beqzc.get_mnemonic(), MgMnemonic::MgMneBeqzc);
+    assert_eq!(jic.get_mnemonic(), MgMnemonic::MgMneJic);
+    assert_eq!(mg_get_mnemonic(beqzc.get_mnemonic()), MG_MNE_BEQZC);
+    assert_eq!(mg_get_mnemonic(jic.get_mnemonic()), MG_MNE_JIC);
+    assert_eq!("beqzc", MG_MNE_BEQZC);
+    assert_eq!("jic", MG_MNE_JIC);
+
     assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneBeqzc, false, true, false, true));
     assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneJic, false, true, false, true));
 
@@ -59,12 +67,6 @@ fn test_pop66(){
     assert_eq!(jic.is_region(), false);
     assert_eq!(jic.is_relative(), false);
     assert_eq!(jic.is_conditional(), false);
-
-    assert_eq!(beqzc.get_mnemonic(), MgMnemonic::MgMneBeqzc);
-    assert_eq!(jic.get_mnemonic(), MgMnemonic::MgMneJic);
-
-    assert_eq!(mg_get_mnemonic(beqzc.get_mnemonic()), MG_MNE_BEQZC);
-    assert_eq!(mg_get_mnemonic(jic.get_mnemonic()), MG_MNE_JIC);
 
     assert_eq!(true, check_operands(&beqzc, 2));
     assert_eq!(true, check_operands(&jic, 2));
@@ -83,6 +85,16 @@ fn test_pop30(){
     let bnezalc = decoder.disassemble(machine_code[0], 0).unwrap();
     let bnec = decoder.disassemble(machine_code[1], 0).unwrap();
     let bnvc = decoder.disassemble(machine_code[2], 0).unwrap();
+
+    assert_eq!(bnezalc.get_mnemonic(), MgMnemonic::MgMneBnezalc);
+    assert_eq!(bnec.get_mnemonic(), MgMnemonic::MgMneBnec);
+    assert_eq!(bnvc.get_mnemonic(), MgMnemonic::MgMneBnvc);
+    assert_eq!(mg_get_mnemonic(bnezalc.get_mnemonic()), MG_MNE_BNEZALC);
+    assert_eq!(mg_get_mnemonic(bnec.get_mnemonic()), MG_MNE_BNEC);
+    assert_eq!(mg_get_mnemonic(bnvc.get_mnemonic()), MG_MNE_BNVC);
+    assert_eq!("bnezalc", MG_MNE_BNEZALC);
+    assert_eq!("bnec", MG_MNE_BNEC);
+    assert_eq!("bnvc", MG_MNE_BNVC);
 
     assert_eq!(true, check_operands(&bnezalc, 2));
     assert_eq!(true, check_operands(&bnec, 3));
@@ -107,14 +119,6 @@ fn test_pop30(){
     assert_eq!(bnec.is_relative(), true);
     assert_eq!(bnec.is_conditional(), true);
 
-    assert_eq!(bnezalc.get_mnemonic(), MgMnemonic::MgMneBnezalc);
-    assert_eq!(bnec.get_mnemonic(), MgMnemonic::MgMneBnec);
-    assert_eq!(bnvc.get_mnemonic(), MgMnemonic::MgMneBnvc);
-
-    assert_eq!(mg_get_mnemonic(bnezalc.get_mnemonic()), MG_MNE_BNEZALC);
-    assert_eq!(mg_get_mnemonic(bnec.get_mnemonic()), MG_MNE_BNEC);
-    assert_eq!(mg_get_mnemonic(bnvc.get_mnemonic()), MG_MNE_BNVC);
-
     assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneBnezalc, machine_code[0], 0, 0xffff, 1));
     assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneBnec, machine_code[1], 0, 0xffff, 2));
     assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneBnvc, machine_code[2], 0, 0xffff, 2));
@@ -128,6 +132,16 @@ fn test_pop10(){
     let beqc = decoder.disassemble(machine_code[1], 0).unwrap();
     let bovc = decoder.disassemble(machine_code[2], 0).unwrap();
 
+    assert_eq!(beqzalc.get_mnemonic(), MgMnemonic::MgMneBeqzalc);
+    assert_eq!(beqc.get_mnemonic(), MgMnemonic::MgMneBeqc);
+    assert_eq!(bovc.get_mnemonic(), MgMnemonic::MgMneBovc);
+    assert_eq!(mg_get_mnemonic(beqzalc.get_mnemonic()), MG_MNE_BEQZALC);
+    assert_eq!(mg_get_mnemonic(beqc.get_mnemonic()), MG_MNE_BEQC);
+    assert_eq!(mg_get_mnemonic(bovc.get_mnemonic()), MG_MNE_BOVC);
+    assert_eq!("beqzalc", MG_MNE_BEQZALC);
+    assert_eq!("beqc", MG_MNE_BEQC);
+    assert_eq!("bovc", MG_MNE_BOVC);
+
     assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneBeqzalc, false, true, false, true));
     assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneBeqc, false, true, false, true));
     assert_eq!(true, version_test(machine_code[2], MgMnemonic::MgMneBovc, false, true, false, true));
@@ -135,14 +149,6 @@ fn test_pop10(){
     assert_eq!(beqc.is_region(), false);
     assert_eq!(beqc.is_relative(), true);
     assert_eq!(beqc.is_conditional(), true);
-
-    assert_eq!(beqzalc.get_mnemonic(), MgMnemonic::MgMneBeqzalc);
-    assert_eq!(beqc.get_mnemonic(), MgMnemonic::MgMneBeqc);
-    assert_eq!(bovc.get_mnemonic(), MgMnemonic::MgMneBovc);
-
-    assert_eq!(mg_get_mnemonic(beqzalc.get_mnemonic()), MG_MNE_BEQZALC);
-    assert_eq!(mg_get_mnemonic(beqc.get_mnemonic()), MG_MNE_BEQC);
-    assert_eq!(mg_get_mnemonic(bovc.get_mnemonic()), MG_MNE_BOVC);
 
     assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneBeqzalc, machine_code[0], 0, 0xffff, 1));
     assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneBeqc, machine_code[1], 0, 0xffff, 2));
@@ -170,6 +176,16 @@ fn test_bgtzl_pop27(){
     let bltzc = decoder.disassemble(machine_code[1], 0).unwrap();
     let bltc = decoder.disassemble(machine_code[2], 0).unwrap();
 
+    assert_eq!(bgtzc.get_mnemonic(), MgMnemonic::MgMneBgtzc);
+    assert_eq!(bltzc.get_mnemonic(), MgMnemonic::MgMneBltzc);
+    assert_eq!(bltc.get_mnemonic(), MgMnemonic::MgMneBltc);
+    assert_eq!(mg_get_mnemonic(bgtzc.get_mnemonic()), MG_MNE_BGTZC);
+    assert_eq!(mg_get_mnemonic(bltzc.get_mnemonic()), MG_MNE_BLTZC);
+    assert_eq!(mg_get_mnemonic(bltc.get_mnemonic()), MG_MNE_BLTC);
+    assert_eq!("bgtzc", MG_MNE_BGTZC);
+    assert_eq!("bltzc", MG_MNE_BLTZC);
+    assert_eq!("bltc", MG_MNE_BLTC);
+
     assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneBgtzc, false, true, false, true));
     assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneBltzc, false, true, false, true));
     assert_eq!(true, version_test(machine_code[2], MgMnemonic::MgMneBltc, false, true, false, true));
@@ -177,14 +193,6 @@ fn test_bgtzl_pop27(){
     assert_eq!(bltzc.is_region(), false);
     assert_eq!(bltzc.is_relative(), true);
     assert_eq!(bltzc.is_conditional(), true);
-
-    assert_eq!(bgtzc.get_mnemonic(), MgMnemonic::MgMneBgtzc);
-    assert_eq!(bltzc.get_mnemonic(), MgMnemonic::MgMneBltzc);
-    assert_eq!(bltc.get_mnemonic(), MgMnemonic::MgMneBltc);
-
-    assert_eq!(mg_get_mnemonic(bgtzc.get_mnemonic()), MG_MNE_BGTZC);
-    assert_eq!(mg_get_mnemonic(bltzc.get_mnemonic()), MG_MNE_BLTZC);
-    assert_eq!(mg_get_mnemonic(bltc.get_mnemonic()), MG_MNE_BLTC);
 
     assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneBgtzc, machine_code[0], 0, 0xffff, 1));
     assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneBltzc, machine_code[1], 0, 0xffff, 1));
@@ -226,6 +234,16 @@ fn test_blez_pop26(){
     let bgezc = decoder.disassemble(machine_code[1], 0).unwrap();
     let bgec = decoder.disassemble(machine_code[2], 0).unwrap();
 
+    assert_eq!(blezc.get_mnemonic(), MgMnemonic::MgMneBlezc);
+    assert_eq!(bgezc.get_mnemonic(), MgMnemonic::MgMneBgezc);
+    assert_eq!(bgec.get_mnemonic(), MgMnemonic::MgMneBgec);
+    assert_eq!(mg_get_mnemonic(blezc.get_mnemonic()), MG_MNE_BLEZC);
+    assert_eq!(mg_get_mnemonic(bgezc.get_mnemonic()), MG_MNE_BGEZC);
+    assert_eq!(mg_get_mnemonic(bgec.get_mnemonic()), MG_MNE_BGEC);
+    assert_eq!("blezc", MG_MNE_BLEZC);
+    assert_eq!("bgezc", MG_MNE_BGEZC);
+    assert_eq!("bgec", MG_MNE_BGEC);
+
     assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneBlezc, false, true, false, true));
     assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneBgezc, false, true, false, true));
     assert_eq!(true, version_test(machine_code[2], MgMnemonic::MgMneBgec, false, true, false, true));
@@ -233,14 +251,6 @@ fn test_blez_pop26(){
     assert_eq!(bgezc.is_region(), false);
     assert_eq!(bgezc.is_relative(), true);
     assert_eq!(bgezc.is_conditional(), true);
-
-    assert_eq!(blezc.get_mnemonic(), MgMnemonic::MgMneBlezc);
-    assert_eq!(bgezc.get_mnemonic(), MgMnemonic::MgMneBgezc);
-    assert_eq!(bgec.get_mnemonic(), MgMnemonic::MgMneBgec);
-
-    assert_eq!(mg_get_mnemonic(blezc.get_mnemonic()), MG_MNE_BLEZC);
-    assert_eq!(mg_get_mnemonic(bgezc.get_mnemonic()), MG_MNE_BGEZC);
-    assert_eq!(mg_get_mnemonic(bgec.get_mnemonic()), MG_MNE_BGEC);
 
     assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneBlezc, machine_code[0], 0, 0xffff, 1));
     assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneBgezc, machine_code[1], 0, 0xffff, 1));
@@ -284,6 +294,19 @@ fn test_pop07(){
     let bltzalc = decoder.disassemble(machine_code[2], 0).unwrap();
     let bgtz = decoder.disassemble(machine_code[3], 0).unwrap();
 
+    assert_eq!(bltuc.get_mnemonic(), MgMnemonic::MgMneBltuc);
+    assert_eq!(bltzalc.get_mnemonic(), MgMnemonic::MgMneBltzalc);
+    assert_eq!(bgtzalc.get_mnemonic(), MgMnemonic::MgMneBgtzalc);
+    assert_eq!(bgtz.get_mnemonic(), MgMnemonic::MgMneBgtz);
+    assert_eq!(mg_get_mnemonic(bltuc.get_mnemonic()), MG_MNE_BLTUC);
+    assert_eq!(mg_get_mnemonic(bltzalc.get_mnemonic()), MG_MNE_BLTZALC);
+    assert_eq!(mg_get_mnemonic(bgtzalc.get_mnemonic()), MG_MNE_BGTZALC);
+    assert_eq!(mg_get_mnemonic(bgtz.get_mnemonic()), MG_MNE_BGTZ);
+    assert_eq!("bltuc", MG_MNE_BLTUC);
+    assert_eq!("bltzalc", MG_MNE_BLTZALC);
+    assert_eq!("bgtzalc", MG_MNE_BGTZALC);
+    assert_eq!("bgtz", MG_MNE_BGTZ);
+
     assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneBltuc, false, true, false, true));
     assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneBgtzalc, false, true, false, true));
     assert_eq!(true, version_test(machine_code[2], MgMnemonic::MgMneBltzalc, false, true, false, true));
@@ -292,16 +315,6 @@ fn test_pop07(){
     assert_eq!(bltzalc.is_region(), false);
     assert_eq!(bltzalc.is_relative(), true);
     assert_eq!(bltzalc.is_conditional(), true);
-
-    assert_eq!(bltuc.get_mnemonic(), MgMnemonic::MgMneBltuc);
-    assert_eq!(bltzalc.get_mnemonic(), MgMnemonic::MgMneBltzalc);
-    assert_eq!(bgtzalc.get_mnemonic(), MgMnemonic::MgMneBgtzalc);
-    assert_eq!(bgtz.get_mnemonic(), MgMnemonic::MgMneBgtz);
-
-    assert_eq!(mg_get_mnemonic(bltuc.get_mnemonic()), MG_MNE_BLTUC);
-    assert_eq!(mg_get_mnemonic(bltzalc.get_mnemonic()), MG_MNE_BLTZALC);
-    assert_eq!(mg_get_mnemonic(bgtzalc.get_mnemonic()), MG_MNE_BGTZALC);
-    assert_eq!(mg_get_mnemonic(bgtz.get_mnemonic()), MG_MNE_BGTZ);
 
     assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneBltuc, machine_code[0], 0, 0xffff, 2));
     assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneBgtzalc, machine_code[1], 0, 0xffff, 1));
@@ -358,6 +371,19 @@ fn test_blez_pop06(){
     let bgezalc = decoder.disassemble(machine_code[2], 0).unwrap();
     let blez = decoder.disassemble(machine_code[3], 0).unwrap();
 
+    assert_eq!(bgeuc.get_mnemonic(), MgMnemonic::MgMneBgeuc);
+    assert_eq!(blezalc.get_mnemonic(), MgMnemonic::MgMneBlezalc);
+    assert_eq!(bgezalc.get_mnemonic(), MgMnemonic::MgMneBgezalc);
+    assert_eq!(blez.get_mnemonic(), MgMnemonic::MgMneBlez);
+    assert_eq!(mg_get_mnemonic(bgeuc.get_mnemonic()), MG_MNE_BGEUC);
+    assert_eq!(mg_get_mnemonic(blezalc.get_mnemonic()), MG_MNE_BLEZALC);
+    assert_eq!(mg_get_mnemonic(bgezalc.get_mnemonic()), MG_MNE_BGEZALC);
+    assert_eq!(mg_get_mnemonic(blez.get_mnemonic()), MG_MNE_BLEZ);
+    assert_eq!("bgeuc", MG_MNE_BGEUC);
+    assert_eq!("blezalc", MG_MNE_BLEZALC);
+    assert_eq!("bgezalc", MG_MNE_BGEZALC);
+    assert_eq!("blez", MG_MNE_BLEZ);
+
     assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneBgeuc, false, true, false, true));
     assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneBlezalc, false, true, false, true));
     assert_eq!(true, version_test(machine_code[2], MgMnemonic::MgMneBgezalc, false, true, false, true));
@@ -366,16 +392,6 @@ fn test_blez_pop06(){
     assert_eq!(blezalc.is_region(), false);
     assert_eq!(blezalc.is_relative(), true);
     assert_eq!(blezalc.is_conditional(), true);
-
-    assert_eq!(bgeuc.get_mnemonic(), MgMnemonic::MgMneBgeuc);
-    assert_eq!(blezalc.get_mnemonic(), MgMnemonic::MgMneBlezalc);
-    assert_eq!(bgezalc.get_mnemonic(), MgMnemonic::MgMneBgezalc);
-    assert_eq!(blez.get_mnemonic(), MgMnemonic::MgMneBlez);
-
-    assert_eq!(mg_get_mnemonic(bgeuc.get_mnemonic()), MG_MNE_BGEUC);
-    assert_eq!(mg_get_mnemonic(blezalc.get_mnemonic()), MG_MNE_BLEZALC);
-    assert_eq!(mg_get_mnemonic(bgezalc.get_mnemonic()), MG_MNE_BGEZALC);
-    assert_eq!(mg_get_mnemonic(blez.get_mnemonic()), MG_MNE_BLEZ);
 
     assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneBgeuc, machine_code[0], 0, 0xffff, 2));
     assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneBlezalc, machine_code[1], 0, 0xffff, 1));

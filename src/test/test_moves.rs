@@ -179,6 +179,10 @@ fn test_movn_movz(){
 
     assert_eq!(MgMnemonic::MgMneMovz, movz.get_mnemonic());
     assert_eq!(MgMnemonic::MgMneMovn, movn.get_mnemonic());
+    assert_eq!(MG_MNE_MOVZ, movz.get_mnemonic_str());
+    assert_eq!(MG_MNE_MOVN, movn.get_mnemonic_str());
+    assert_eq!(MG_MNE_MOVZ, "movz");
+    assert_eq!(MG_MNE_MOVN, "movn");
 
     assert_eq!(true, movz.is_conditional());
     assert_eq!(false, movz.is_relative());
@@ -208,9 +212,10 @@ fn test_movci(){
 
     assert_eq!(MgMnemonic::MgMneMovt, movt.get_mnemonic());
     assert_eq!(MgMnemonic::MgMneMovf, movf.get_mnemonic());
-
     assert_eq!(MG_MNE_MOVF, movf.get_mnemonic_str());
     assert_eq!(MG_MNE_MOVT, movt.get_mnemonic_str());
+    assert_eq!(MG_MNE_MOVF, "movf");
+    assert_eq!(MG_MNE_MOVT, "movt");
 
     assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneMovf, true, false, true, false));
     assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneMovt, true, false, true, false));
@@ -234,6 +239,8 @@ fn test_mfhi_mflo(){
     assert_eq!(mflo.get_mnemonic(), MgMnemonic::MgMneMflo);
     assert_eq!(mfhi.get_mnemonic_str(), MG_MNE_MFHI);
     assert_eq!(mflo.get_mnemonic_str(), MG_MNE_MFLO);
+    assert_eq!("mfhi", MG_MNE_MFHI);
+    assert_eq!("mflo", MG_MNE_MFLO);
 
     assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneMfhi, true, false, true, false));
     assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneMflo, true, false, true, false));
@@ -257,6 +264,8 @@ fn test_mthi_mtlo(){
     assert_eq!(mtlo.get_mnemonic(), MgMnemonic::MgMneMtlo);
     assert_eq!(mthi.get_mnemonic_str(), MG_MNE_MTHI);
     assert_eq!(mtlo.get_mnemonic_str(), MG_MNE_MTLO);
+    assert_eq!("mthi", MG_MNE_MTHI);
+    assert_eq!("mtlo", MG_MNE_MTLO);
 
     assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneMthi, true, false, true, false));
     assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneMtlo, true, false, true, false));
@@ -281,8 +290,6 @@ fn test_rdpgpr_wrpgpr(){
     assert_eq!(MG_MNE_WRPGPR, wdpgpr.get_mnemonic_str());
     assert_eq!(MG_MNE_RDPGPR, "rdpgpr");
     assert_eq!(MG_MNE_WRPGPR, "wrpgpr");
-    // 0b01000001010111000001100000000000
-    // 0x41DC1800
 
     assert_eq!(false, wdpgpr.is_conditional());
     assert_eq!(false, wdpgpr.is_relative());

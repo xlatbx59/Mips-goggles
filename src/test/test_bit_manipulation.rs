@@ -38,7 +38,8 @@ fn test_seh_seb(){
 
     assert_eq!(true, check_field(&decoder, machine_code[0], 0b11111, MgMnemonic::MgMneSeb, 21));
     assert_eq!(true, check_field(&decoder, machine_code[1], 0b11111, MgMnemonic::MgMneSeh, 21));
-}#[test]
+}
+#[test]
 fn test_wsbh_dsbh(){
     let machine_code: [u32; 2] = [(0b00011111 << 26) | 0b00010100000, (0b00011111 << 26) | 0b00010100100];
     let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
@@ -195,12 +196,12 @@ fn test_rdhwr(){
 fn test_daui(){
     let machine_code = [0x770933f1, 0x740933f1];
     let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgR6));
-
-    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneDaui, false, false, false, true));
-
     let daui = decoder.disassemble(machine_code[0], 0).unwrap();
     assert_eq!(MgMnemonic::MgMneDaui, daui.get_mnemonic());
     assert_eq!(MG_MNE_DAUI, daui.get_mnemonic_str());
+    assert_eq!(MG_MNE_DAUI, "daui");
+
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneDaui, false, false, false, true));
 
     assert_eq!(true, check_operands(&daui, 3));
 
@@ -226,6 +227,8 @@ fn test_stli_stliu(){
     assert_eq!(sltiu.get_mnemonic(), MgMnemonic::MgMneSltiu);
     assert_eq!(slti.get_mnemonic_str(), MG_MNE_SLTI);
     assert_eq!(sltiu.get_mnemonic_str(), MG_MNE_SLTIU);
+    assert_eq!("slti", MG_MNE_SLTI);
+    assert_eq!("sltiu", MG_MNE_SLTIU);
 
     assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneSlti, true, true, true, true));
     assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneSltiu, true, true, true, true));

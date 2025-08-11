@@ -37,7 +37,7 @@ pub const MG_MNE_BLEZALC: &str = "blezalc"; pub const MG_MNE_BGEZALC: &str = "bg
 pub const MG_MNE_BLTZALC: &str = "bltzalc"; pub const MG_MNE_BLTUC: &str = "bltuc";pub const MG_MNE_BLEZC: &str = "blezc";
 pub const MG_MNE_BGEZC: &str = "bgezc"; pub const MG_MNE_BGEC: &str = "bgec";pub const MG_MNE_BGTZC: &str = "bgtzc";
 pub const MG_MNE_BLTZC: &str = "bltzc"; pub const MG_MNE_BLTC: &str = "bltc";pub const MG_MNE_BEQC: &str = "beqc";
-pub const MG_MNE_BEQZALC: &str = "beqzalc";  pub const MG_MNE_BNEZALC: &str = "bneqzalc"; pub const MG_MNE_BNEC: &str = "bnec";
+pub const MG_MNE_BEQZALC: &str = "beqzalc";  pub const MG_MNE_BNEZALC: &str = "bnezalc"; pub const MG_MNE_BNEC: &str = "bnec";
 pub const MG_MNE_BEQZC: &str = "beqzc"; pub const MG_MNE_BNEZC: &str = "bnezc";pub const MG_MNE_DAUI: &str = "daui";
 pub const MG_MNE_LDR: &str = "ldr"; pub const MG_MNE_LDL: &str = "ldl"; pub const MG_MNE_DADDI: &str = "daddi";
 pub const MG_MNE_DADDIU: &str = "daddiu";pub const MG_MNE_AUI: &str = "aui"; pub const MG_MNE_LD: &str = "ld";

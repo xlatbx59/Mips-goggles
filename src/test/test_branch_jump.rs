@@ -15,6 +15,8 @@ fn test_bne_beq(){
     let bne: MgInstruction= decoder.disassemble(machine_code[0], 0).unwrap();
     let beq: MgInstruction= decoder.disassemble(machine_code[1], 0).unwrap();
 
+    assert_eq!(MG_MNE_BNE, "bne");
+    assert_eq!(MG_MNE_BEQ, "beq");
     assert_eq!(MG_MNE_BNE, bne.get_mnemonic_str());
     assert_eq!(MG_MNE_BEQ, beq.get_mnemonic_str());
     assert_eq!(MgMnemonic::MgMneBne, bne.get_mnemonic());
@@ -40,9 +42,10 @@ fn test_bnel_beql(){
     let bnel: MgInstruction= decoder.disassemble(machine_code[0], 0).unwrap();
     let beql: MgInstruction= decoder.disassemble(machine_code[1], 0).unwrap();
 
+    assert_eq!(MG_MNE_BNEL, "bnel");
+    assert_eq!(MG_MNE_BEQL, "beql");
     assert_eq!(MG_MNE_BNEL, bnel.get_mnemonic_str());
     assert_eq!(MG_MNE_BEQL, beql.get_mnemonic_str());
-
     assert_eq!(MgMnemonic::MgMneBnel, bnel.get_mnemonic());
     assert_eq!(MgMnemonic::MgMneBeql, beql.get_mnemonic());
 
@@ -273,14 +276,15 @@ fn test_jalx(){
     let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgPreR6));
     let jalx: MgInstruction= decoder.disassemble(machine_code, 0).unwrap();
 
-    assert_eq!(true, check_operands(&jalx, 1));
     assert_eq!(MgMnemonic::MgMneJalx, jalx.get_mnemonic());
     assert_eq!(MG_MNE_JALX, jalx.get_mnemonic_str());
+    assert_eq!(MG_MNE_JALX, "jalx");
+
+    assert_eq!(true, check_operands(&jalx, 1));
     assert_eq!(true, jalx.is_region());
     assert_eq!(true, version_test(machine_code, MgMnemonic::MgMneJalx, true, false, true, false));
     assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneJalx, machine_code, 0, 0x3ffffff, 0));
 }
-
 #[test]
 fn test_bc_balc(){
     let machine_code: [u32; 2] = [0xC8020050, 0xE8020050];
@@ -289,14 +293,15 @@ fn test_bc_balc(){
     let bc = decoder.disassemble(machine_code[0], 0).unwrap();
     let balc = decoder.disassemble(machine_code[1], 0).unwrap();
 
-    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneBc, false, true, false, true));
-    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneBalc, false, true, false, true));
-
     assert_eq!(bc.get_mnemonic(), MgMnemonic::MgMneBc);
     assert_eq!(balc.get_mnemonic(), MgMnemonic::MgMneBalc);
+    assert_eq!(bc.get_mnemonic_str(), MG_MNE_BC);
+    assert_eq!(balc.get_mnemonic_str(), MG_MNE_BALC);
+    assert_eq!("bc", MG_MNE_BC);
+    assert_eq!("balc", MG_MNE_BALC);
 
-    assert_eq!(mg_get_mnemonic(bc.get_mnemonic()), MG_MNE_BC);
-    assert_eq!(mg_get_mnemonic(balc.get_mnemonic()), MG_MNE_BALC);
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneBc, false, true, false, true));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneBalc, false, true, false, true));
 
     assert_eq!(true, check_operands(&bc, 1));
     assert_eq!(true, check_operands(&balc, 1));

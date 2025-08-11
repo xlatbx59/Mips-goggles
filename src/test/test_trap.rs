@@ -15,6 +15,7 @@ fn test_syscall() {
     
     assert_eq!(syscall.get_mnemonic(), MgMnemonic::MgMneSyscall);
     assert_eq!(MG_MNE_SYSCALL, syscall.get_mnemonic_str());
+    assert_eq!(MG_MNE_SYSCALL, "syscall");
 
     assert_eq!(false, syscall.is_conditional());
     assert_eq!(false, syscall.is_relative());
@@ -33,6 +34,7 @@ fn test_break() {
     
     assert_eq!(i_break.get_mnemonic(), MgMnemonic::MgMneBreak);
     assert_eq!(MG_MNE_BREAK, i_break.get_mnemonic_str());
+    assert_eq!(MG_MNE_BREAK, "break");
 
     assert_eq!(false, i_break.is_conditional());
     assert_eq!(false, i_break.is_relative());
@@ -71,6 +73,7 @@ fn test_sdbbp() {
     
     assert_eq!(sdbbp.get_mnemonic(), MgMnemonic::MgMneSdbbp);
     assert_eq!(MG_MNE_SDBBP, sdbbp.get_mnemonic_str());
+    assert_eq!(MG_MNE_SDBBP, "sdbbp");
 
     assert_eq!(false, sdbbp.is_conditional());
     assert_eq!(false, sdbbp.is_relative());
@@ -103,6 +106,10 @@ fn test_tne_teq() {
     //No problem
     assert_eq!(tne.get_mnemonic(), MgMnemonic::MgMneTne);
     assert_eq!(teq.get_mnemonic(), MgMnemonic::MgMneTeq);
+    assert_eq!(tne.get_mnemonic_str(), MG_MNE_TNE);
+    assert_eq!(teq.get_mnemonic_str(), MG_MNE_TEQ);
+    assert_eq!("tne", MG_MNE_TNE);
+    assert_eq!("teq", MG_MNE_TEQ);
 
     assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneTne, machine_code[0], 6, 0x3ff, 2));
     assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneTeq, machine_code[1], 6, 0x3ff, 2));
@@ -216,6 +223,10 @@ fn test_tlt_tltu() {
     //No problem
     assert_eq!(tlt.get_mnemonic(), MgMnemonic::MgMneTlt);
     assert_eq!(tltu.get_mnemonic(), MgMnemonic::MgMneTltu);
+    assert_eq!(tlt.get_mnemonic_str(), MG_MNE_TLT);
+    assert_eq!(tltu.get_mnemonic_str(), MG_MNE_TLTU);
+    assert_eq!("tlt", MG_MNE_TLT);
+    assert_eq!("tltu", MG_MNE_TLTU);
 
     assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneTlt, machine_code[0], 6, 0x3ff, 2));
     assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneTltu, machine_code[1], 6, 0x3ff, 2));
@@ -236,6 +247,10 @@ fn test_tge_tgeu() {
     //No problem
     assert_eq!(tge.get_mnemonic(), MgMnemonic::MgMneTge);
     assert_eq!(tgeu.get_mnemonic(), MgMnemonic::MgMneTgeu);
+    assert_eq!(tge.get_mnemonic_str(), MG_MNE_TGE);
+    assert_eq!(tgeu.get_mnemonic_str(), MG_MNE_TGEU);
+    assert_eq!("tge", MG_MNE_TGE);
+    assert_eq!("tgeu", MG_MNE_TGEU);
 
     assert_eq!(true, tge.is_conditional());
     assert_eq!(true, tgeu.is_conditional());

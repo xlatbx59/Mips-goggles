@@ -11,23 +11,22 @@ use crate::instruction::mnemonics::*;
 #[test]
 fn test_lsa_dlsa(){
     let machine_code = [0x00fa18c5, 0x00fa18d5];
-
     let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgR6));
-
-    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneLsa, false, true, false, true));
-    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneDlsa, false, false, false, true));
-
     let lsa = decoder.disassemble(machine_code[0], 0).unwrap();
     let dlsa = decoder.disassemble(machine_code[1], 0).unwrap();
 
     assert_eq!(MgMnemonic::MgMneLsa, lsa.get_mnemonic());
     assert_eq!(MgMnemonic::MgMneDlsa, dlsa.get_mnemonic());
+    assert_eq!(MG_MNE_LSA, lsa.get_mnemonic_str());
+    assert_eq!(MG_MNE_DLSA, dlsa.get_mnemonic_str());
+    assert_eq!(MG_MNE_LSA, "lsa");
+    assert_eq!(MG_MNE_DLSA, "dlsa");
+
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneLsa, false, true, false, true));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneDlsa, false, false, false, true));
 
     assert_eq!(true, check_field(&decoder, machine_code[0], 0b111, MgMnemonic::MgMneLsa, 6));
     assert_eq!(true, check_field(&decoder, machine_code[1], 0b111, MgMnemonic::MgMneDlsa, 6));
-
-    assert_eq!(MG_MNE_LSA, lsa.get_mnemonic_str());
-    assert_eq!(MG_MNE_DLSA, dlsa.get_mnemonic_str());
 
     assert_eq!(true, check_operands(&lsa, 4));
     assert_eq!(true, check_operands(&dlsa, 4));
@@ -65,6 +64,10 @@ fn test_seleqz_selnez() {
     //No problem
     assert_eq!(seleqz.get_mnemonic(), MgMnemonic::MgMneSeleqz);
     assert_eq!(selnez.get_mnemonic(), MgMnemonic::MgMneSelnez);
+    assert_eq!(seleqz.get_mnemonic_str(), MG_MNE_SELEQZ);
+    assert_eq!(selnez.get_mnemonic_str(), MG_MNE_SELNEZ);
+    assert_eq!("seleqz", MG_MNE_SELEQZ);
+    assert_eq!("selnez", MG_MNE_SELNEZ);
 
     assert_eq!(seleqz.is_conditional(), true);
     assert_eq!(selnez.is_conditional(), true);
@@ -84,20 +87,22 @@ fn test_dahi_dati(){
 
     let mut decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
 
-    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneDahi, false, false, false, true));
-    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneDati, false, false, false, true));
-
     decoder.version = MgMipsVersion::M64(MgMips64::MgR6);
     let dahi = decoder.disassemble(machine_code[0], 0).unwrap();
     let dati = decoder.disassemble(machine_code[1], 0).unwrap();
-
-    assert_eq!(true, check_operands(&dahi, 2));
-    assert_eq!(true, check_operands(&dati, 2));
 
     assert_eq!(MgMnemonic::MgMneDati, dati.get_mnemonic());
     assert_eq!(MgMnemonic::MgMneDahi, dahi.get_mnemonic());
     assert_eq!(MG_MNE_DATI, dati.get_mnemonic_str());
     assert_eq!(MG_MNE_DAHI, dahi.get_mnemonic_str());
+    assert_eq!(MG_MNE_DATI, "dati");
+    assert_eq!(MG_MNE_DAHI, "dahi");
+
+    assert_eq!(true, check_operands(&dahi, 2));
+    assert_eq!(true, check_operands(&dati, 2));
+
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneDahi, false, false, false, true));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneDati, false, false, false, true));
 
     assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneDahi, machine_code[0], 0, 0xffff, 1));
     assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneDati, machine_code[1], 0, 0xffff, 1));

@@ -111,6 +111,7 @@ fn imm_limit_reached(disass: &MgDisassembler, mne: MgMnemonic, mut machine_code:
         Err(_) =>true,
     }
 }
+
 #[test]
 fn test_di_ei(){
     let machine_code: [u32; 2] = [0x417C6000, 0x417C6020];

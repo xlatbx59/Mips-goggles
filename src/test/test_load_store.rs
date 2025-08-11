@@ -55,9 +55,10 @@ fn test_scd_lld(){
 
     assert_eq!(scd.get_mnemonic(), MgMnemonic::MgMneScd);
     assert_eq!(lld.get_mnemonic(), MgMnemonic::MgMneLld);
-
     assert_eq!(mg_get_mnemonic(scd.get_mnemonic()), MG_MNE_SCD);
     assert_eq!(mg_get_mnemonic(lld.get_mnemonic()), MG_MNE_LLD);
+    assert_eq!("scd", MG_MNE_SCD);
+    assert_eq!("lld", MG_MNE_LLD);
 
     assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneScd, false, false, true, false));
     assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneLld, false, false, true, false));
@@ -552,8 +553,13 @@ fn test_sdr_sdl(){
     let sdr = decoder.disassemble(machine_code[0], 0).unwrap();
     let sdl = decoder.disassemble(machine_code[1], 0).unwrap();
 
+
     assert_eq!(sdr.get_mnemonic(), MgMnemonic::MgMneSdr);
     assert_eq!(sdl.get_mnemonic(), MgMnemonic::MgMneSdl);
+    assert_eq!(mg_get_mnemonic(sdr.get_mnemonic()), MG_MNE_SDR);
+    assert_eq!(mg_get_mnemonic(sdl.get_mnemonic()), MG_MNE_SDL);
+    assert_eq!("sdr", MG_MNE_SDR);
+    assert_eq!("sdl", MG_MNE_SDL);
 
     assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneSdr, false, false, true, false));
     assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneSdl, false, false, true, false));
@@ -563,9 +569,6 @@ fn test_sdr_sdl(){
 
     assert_eq!(true, check_operands(&sdr, 3));
     assert_eq!(true, check_operands(&sdl, 3));
-
-    assert_eq!(mg_get_mnemonic(sdr.get_mnemonic()), MG_MNE_SDR);
-    assert_eq!(mg_get_mnemonic(sdl.get_mnemonic()), MG_MNE_SDL);
 
     assert_eq!(false, sdr.is_relative());
     assert_eq!(false, sdl.is_relative());
@@ -590,6 +593,8 @@ fn test_lwu(){
 
     assert_eq!(lwu.get_mnemonic(), MgMnemonic::MgMneLwu);
     assert_eq!(mg_get_mnemonic(lwu.get_mnemonic()), MG_MNE_LWU);
+    assert_eq!("lwu", MG_MNE_LWU);
+
     assert_eq!(true, version_test(machine_code, MgMnemonic::MgMneLwu, false, false, true, true));
     assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneLwu, machine_code, 0, 0xffff, 1));
     assert_eq!(true, check_operands(&lwu, 3));
@@ -613,6 +618,10 @@ fn test_ld_sd(){
 
     assert_eq!(ld.get_mnemonic(), MgMnemonic::MgMneLd);
     assert_eq!(sd.get_mnemonic(), MgMnemonic::MgMneSd);
+    assert_eq!(mg_get_mnemonic(ld.get_mnemonic()), MG_MNE_LD);
+    assert_eq!(mg_get_mnemonic(sd.get_mnemonic()), MG_MNE_SD);
+    assert_eq!("ld", MG_MNE_LD);
+    assert_eq!("sd", MG_MNE_SD);
 
     assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneLd, false, false, true, true));
     assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneSd, false, false, true, true));
@@ -622,9 +631,6 @@ fn test_ld_sd(){
 
     assert_eq!(true, check_operands(&ld, 3));
     assert_eq!(true, check_operands(&sd, 3));
-
-    assert_eq!(mg_get_mnemonic(ld.get_mnemonic()), MG_MNE_LD);
-    assert_eq!(mg_get_mnemonic(sd.get_mnemonic()), MG_MNE_SD);
 
     match sd.get_operand(0){
         Some(MgOperand::MgOpRegister(_)) => (),
@@ -644,6 +650,10 @@ fn test_sc_ll(){
 
     assert_eq!(inst0.get_mnemonic(), MgMnemonic::MgMneSc);
     assert_eq!(inst1.get_mnemonic(), MgMnemonic::MgMneLl);
+    assert_eq!(mg_get_mnemonic(inst0.get_mnemonic()), MG_MNE_SC);
+    assert_eq!(mg_get_mnemonic(inst1.get_mnemonic()), MG_MNE_LL);
+    assert_eq!("sc", MG_MNE_SC);
+    assert_eq!("ll", MG_MNE_LL);
 
     assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneSc, true, false, true, false));
     assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneLl, true, false, true, false));
@@ -659,10 +669,8 @@ fn test_sc_ll(){
     assert_eq!(true, check_operands(&inst1, 3));
 
     assert_eq!(inst0.is_conditional(), true);
-    assert_eq!(mg_get_mnemonic(inst0.get_mnemonic()), MG_MNE_SC);
 
     assert_eq!(inst1.is_conditional(), false);
-    assert_eq!(mg_get_mnemonic(inst1.get_mnemonic()), MG_MNE_LL);
     match inst1.get_operand(0){
         Some(MgOperand::MgOpRegister(_)) => (),
         _ => panic!(),
@@ -693,11 +701,14 @@ fn test_load_store_cp1(){
     assert_eq!(swc1.get_mnemonic(), MgMnemonic::MgMneSwc1);
     assert_eq!(ldc1.get_mnemonic(), MgMnemonic::MgMneLdc1);
     assert_eq!(sdc1.get_mnemonic(), MgMnemonic::MgMneSdc1);
-
     assert_eq!(lwc1.get_mnemonic_str(), MG_MNE_LWC1);
     assert_eq!(swc1.get_mnemonic_str(), MG_MNE_SWC1);
     assert_eq!(ldc1.get_mnemonic_str(), MG_MNE_LDC1);
     assert_eq!(sdc1.get_mnemonic_str(), MG_MNE_SDC1);
+    assert_eq!("lwc1", MG_MNE_LWC1);
+    assert_eq!("swc1", MG_MNE_SWC1);
+    assert_eq!("ldc1", MG_MNE_LDC1);
+    assert_eq!("sdc1", MG_MNE_SDC1);
 
     assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneLwc1, true, true, true, true));
     assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneSwc1, true, true, true, true));
@@ -723,6 +734,19 @@ fn test_load_store_cp2(){
     let mut ldc2 = decoder.disassemble(machine_code[2], 0).unwrap();
     let mut sdc2 = decoder.disassemble(machine_code[3], 0).unwrap();
 
+    assert_eq!(lwc2.get_mnemonic(), MgMnemonic::MgMneLwc2);
+    assert_eq!(swc2.get_mnemonic(), MgMnemonic::MgMneSwc2);
+    assert_eq!(ldc2.get_mnemonic(), MgMnemonic::MgMneLdc2);
+    assert_eq!(sdc2.get_mnemonic(), MgMnemonic::MgMneSdc2);
+    assert_eq!(lwc2.get_mnemonic_str(), MG_MNE_LWC2);
+    assert_eq!(swc2.get_mnemonic_str(), MG_MNE_SWC2);
+    assert_eq!(ldc2.get_mnemonic_str(), MG_MNE_LDC2);
+    assert_eq!(sdc2.get_mnemonic_str(), MG_MNE_SDC2);
+    assert_eq!("lwc2", MG_MNE_LWC2);
+    assert_eq!("swc2", MG_MNE_SWC2);
+    assert_eq!("ldc2", MG_MNE_LDC2);
+    assert_eq!("sdc2", MG_MNE_SDC2);
+
     assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneLwc2, true, false, true, false));
     assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneSwc2, true, false, true, false));
     assert_eq!(true, version_test(machine_code[2], MgMnemonic::MgMneLdc2, true, false, true, false));
@@ -731,16 +755,6 @@ fn test_load_store_cp2(){
     assert_eq!(true, version_test(machine_code[5], MgMnemonic::MgMneLwc2, false, true, false, true));
     assert_eq!(true, version_test(machine_code[6], MgMnemonic::MgMneSdc2, false, true, false, true));
     assert_eq!(true, version_test(machine_code[7], MgMnemonic::MgMneSwc2, false, true, false, true));
-
-    assert_eq!(lwc2.get_mnemonic(), MgMnemonic::MgMneLwc2);
-    assert_eq!(swc2.get_mnemonic(), MgMnemonic::MgMneSwc2);
-    assert_eq!(ldc2.get_mnemonic(), MgMnemonic::MgMneLdc2);
-    assert_eq!(sdc2.get_mnemonic(), MgMnemonic::MgMneSdc2);
-
-    assert_eq!(lwc2.get_mnemonic_str(), MG_MNE_LWC2);
-    assert_eq!(swc2.get_mnemonic_str(), MG_MNE_SWC2);
-    assert_eq!(ldc2.get_mnemonic_str(), MG_MNE_LDC2);
-    assert_eq!(sdc2.get_mnemonic_str(), MG_MNE_SDC2);
 
     assert_eq!(true, check_operands(&lwc2, 3));
     assert_eq!(true, check_operands(&swc2, 3));
@@ -774,7 +788,6 @@ fn test_load_store_cp2(){
     assert_eq!(true, check_operands(&ldc2, 3));
     assert_eq!(true, check_operands(&sdc2, 3));
 }
-
 #[test]
 fn test_ldr_ldl(){
     let machine_code: [u32; 2] = [0x6CA40050, 0x68A40050];
@@ -783,17 +796,18 @@ fn test_ldr_ldl(){
     let ldr = decoder.disassemble(machine_code[0], 0).unwrap();
     let ldl = decoder.disassemble(machine_code[1], 0).unwrap();
 
+    assert_eq!(ldr.get_mnemonic(), MgMnemonic::MgMneLdr);
+    assert_eq!(ldl.get_mnemonic(), MgMnemonic::MgMneLdl);
+    assert_eq!(ldr.get_mnemonic_str(), MG_MNE_LDR);
+    assert_eq!(ldl.get_mnemonic_str(), MG_MNE_LDL);
+    assert_eq!("ldr", MG_MNE_LDR);
+    assert_eq!("ldl", MG_MNE_LDL);
+
     assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneLdr, machine_code[0], 0, 0xffff, 2));
     assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneLdl, machine_code[1], 0, 0xffff, 2));
 
     assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneLdr, false, false, true, false));
     assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneLdl, false, false, true, false));
-
-    assert_eq!(ldr.get_mnemonic(), MgMnemonic::MgMneLdr);
-    assert_eq!(ldl.get_mnemonic(), MgMnemonic::MgMneLdl);
-
-    assert_eq!(ldr.get_mnemonic_str(), MG_MNE_LDR);
-    assert_eq!(ldl.get_mnemonic_str(), MG_MNE_LDL);
 
     assert_eq!(true, check_operands(&ldr, 3));
     assert_eq!(true, check_operands(&ldl, 3));
@@ -859,6 +873,10 @@ fn test_lwr_swr_lwl_swl() {
     
     let inst = decoder.disassemble(machine_code[0], 0).unwrap();
 
+    assert_eq!(inst.get_mnemonic(), MgMnemonic::MgMneLwl);
+    assert_eq!(inst.get_mnemonic_str(), MG_MNE_LWL);
+    assert_eq!("lwl", MG_MNE_LWL);
+
     assert_eq!(inst.get_operand_num(), 3);
 
     assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneLwl, true, false, true, false));
@@ -866,7 +884,6 @@ fn test_lwr_swr_lwl_swl() {
     assert_eq!(true, version_test(machine_code[2], MgMnemonic::MgMneLwr, true, false, true, false));
     assert_eq!(true, version_test(machine_code[3], MgMnemonic::MgMneSwr, true, false, true, false));
 
-    assert_eq!(inst.get_mnemonic(), MgMnemonic::MgMneLwl);
     assert_eq!(decoder.disassemble(machine_code[1], 0).unwrap().get_mnemonic(), MgMnemonic::MgMneSwl);
     assert_eq!(decoder.disassemble(machine_code[2], 0).unwrap().get_mnemonic(), MgMnemonic::MgMneLwr);
     assert_eq!(decoder.disassemble(machine_code[3], 0).unwrap().get_mnemonic(), MgMnemonic::MgMneSwr);
