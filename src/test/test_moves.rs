@@ -307,3 +307,65 @@ fn test_rdpgpr_wrpgpr(){
     assert_eq!(true, check_operands(&rdpgpr, 2));
     assert_eq!(true, check_operands(&wdpgpr, 2));
 }
+#[test]
+fn test_cfc1_mfhc1(){
+    let machine_code: [u32; 2] = [0x44440800, 0x447f0800];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
+    let cfc1 = decoder.disassemble(machine_code[0], 0).unwrap();
+    let mfhc1 = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(MgMnemonic::MgMneCfc1, cfc1.get_mnemonic());
+    assert_eq!(MgMnemonic::MgMneMfhc1, mfhc1.get_mnemonic());
+
+    assert_eq!(MG_MNE_MFHC1, mfhc1.get_mnemonic_str());
+    assert_eq!(MG_MNE_CFC1, cfc1.get_mnemonic_str());
+    assert_eq!(MG_MNE_MFHC1, "mfhc1");
+    assert_eq!(MG_MNE_CFC1, "cfc1");
+
+    assert_eq!(false, cfc1.is_conditional());
+    assert_eq!(false, cfc1.is_relative());
+    assert_eq!(false, cfc1.is_region());
+    assert_eq!(false, mfhc1.is_conditional());
+    assert_eq!(false, mfhc1.is_relative());
+    assert_eq!(false, mfhc1.is_region());
+
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneCfc1, true, true, true, true));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneMfhc1, true, true, true, true));
+
+    assert_eq!(true, check_field(&decoder, machine_code[1], 0x7ff, MgMnemonic::MgMneMfhc1, 0));
+    assert_eq!(true, check_field(&decoder, machine_code[0], 0x7ff, MgMnemonic::MgMneCfc1, 0));
+
+    assert_eq!(true, check_operands(&mfhc1, 2));
+    assert_eq!(true, check_operands(&cfc1, 2));
+}
+#[test]
+fn test_ctc1_mthc1(){
+    let machine_code: [u32; 2] = [0x44C40800, 0x44E40800];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
+    let ctc1 = decoder.disassemble(machine_code[0], 0).unwrap();
+    let mthc1 = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert_eq!(MgMnemonic::MgMneCtc1, ctc1.get_mnemonic());
+    assert_eq!(MgMnemonic::MgMneMthc1, mthc1.get_mnemonic());
+
+    assert_eq!(MG_MNE_MTHC1, mthc1.get_mnemonic_str());
+    assert_eq!(MG_MNE_CTC1, ctc1.get_mnemonic_str());
+    assert_eq!(MG_MNE_MTHC1, "mthc1");
+    assert_eq!(MG_MNE_CTC1, "ctc1");
+
+    assert_eq!(false, ctc1.is_conditional());
+    assert_eq!(false, ctc1.is_relative());
+    assert_eq!(false, ctc1.is_region());
+    assert_eq!(false, mthc1.is_conditional());
+    assert_eq!(false, mthc1.is_relative());
+    assert_eq!(false, mthc1.is_region());
+
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneCtc1, true, true, true, true));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneMthc1, true, true, true, true));
+
+    assert_eq!(true, check_field(&decoder, machine_code[1], 0x7ff, MgMnemonic::MgMneMthc1, 0));
+    assert_eq!(true, check_field(&decoder, machine_code[0], 0x7ff, MgMnemonic::MgMneCtc1, 0));
+
+    assert_eq!(true, check_operands(&mthc1, 2));
+    assert_eq!(true, check_operands(&ctc1, 2));
+}

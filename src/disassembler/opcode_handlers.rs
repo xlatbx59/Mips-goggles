@@ -77,7 +77,7 @@ impl MgDisassembler{
     }
     pub (super) fn cop1_opcode_map(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         static COP1_MAP: [fn(disassembler: &MgDisassembler, &mut MgInstructionPrototype) -> Result<(), MgError>; 64] =
-        [   MgDisassembler::movf_cp1,  MgDisassembler::movf_cp1,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::movt_cp1,  MgDisassembler::movt_cp1,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
+        [   MgDisassembler::movf_cp1,  MgDisassembler::movf_cp1,  MgDisassembler::movcf_cp1,  MgDisassembler::movcf_cp1,  MgDisassembler::movt_cp1,  MgDisassembler::movt_cp1,  MgDisassembler::movct_cp1,  MgDisassembler::movct_cp1,
             MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
             MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
             MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
@@ -1956,6 +1956,34 @@ impl MgDisassembler{
 
         prototype.operand[1] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 16 & 0b11111) as u8, MgCoprocessor::Cpu));
         prototype.operand[0] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 11 & 0b11111) as u8, MgCoprocessor::Cp1));
+        Ok(())
+    }
+    pub(super) fn movcf_cp1(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        let mnemonics = [Some(MgMnemonic::MgMneCfc1), Some(MgMnemonic::MgMneMfhc1)];
+
+        if (prototype.machine_code & 0b11111111111) != 0{
+            return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
+        }
+
+        prototype.mnemonic = mnemonics[(prototype.machine_code >> 21 & 1) as usize];
+        prototype.operand_num = 2;
+
+        prototype.operand[0] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 16 & 0b11111) as u8, MgCoprocessor::Cpu));
+        prototype.operand[1] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 11 & 0b11111) as u8, MgCoprocessor::Cp1));
+        Ok(())
+    }
+    pub(super) fn movct_cp1(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        let mnemonics = [Some(MgMnemonic::MgMneCtc1), Some(MgMnemonic::MgMneMthc1)];
+
+        if (prototype.machine_code & 0b11111111111) != 0{
+            return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
+        }
+
+        prototype.mnemonic = mnemonics[(prototype.machine_code >> 21 & 1) as usize];
+        prototype.operand_num = 2;
+
+        prototype.operand[0] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 16 & 0b11111) as u8, MgCoprocessor::Cpu));
+        prototype.operand[1] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 11 & 0b11111) as u8, MgCoprocessor::Cp1));
         Ok(())
     }
 
