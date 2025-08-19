@@ -23,8 +23,8 @@ fn test_seh_seb(){
     assert_eq!(MG_MNE_SEB, "seb");
     assert_eq!(MG_MNE_SEH, "seh");
 
-    assert_eq!(2, seb.get_operand_num());
-    assert_eq!(2, seh.get_operand_num());
+    assert_eq!(true, check_operands(&seb, 2));
+    assert_eq!(true, check_operands(&seh, 2));
 
     assert_eq!(false, seb.is_conditional());
     assert_eq!(false, seb.is_relative());
@@ -54,8 +54,8 @@ fn test_wsbh_dsbh(){
     assert_eq!(MG_MNE_WSBH, "wsbh");
     assert_eq!(MG_MNE_DSBH, "dsbh");
 
-    assert_eq!(2, wsbh.get_operand_num());
-    assert_eq!(2, dsbh.get_operand_num());
+    assert_eq!(true, check_operands(&wsbh, 2));
+    assert_eq!(true, check_operands(&dsbh, 2));
 
     assert_eq!(false, wsbh.is_conditional());
     assert_eq!(false, wsbh.is_relative());
@@ -81,7 +81,7 @@ fn test_dshd(){
     assert_eq!(MG_MNE_DSHD, dshd.get_mnemonic_str());
     assert_eq!(MG_MNE_DSHD, "dshd");
 
-    assert_eq!(2, dshd.get_operand_num());
+    assert_eq!(true, check_operands(&dshd, 2));
 
     assert_eq!(false, dshd.is_conditional());
     assert_eq!(false, dshd.is_relative());
@@ -105,8 +105,8 @@ fn test_bitswap_dbitswap(){
     assert_eq!(MG_MNE_BITSWAP, "bitswap");
     assert_eq!(MG_MNE_DBITSWAP, "dbitswap");
 
-    assert_eq!(2, bitswap.get_operand_num());
-    assert_eq!(2, dbitswap.get_operand_num());
+    assert_eq!(true, check_operands(&bitswap, 2));
+    assert_eq!(true, check_operands(&dbitswap, 2));
 
     assert_eq!(false, bitswap.is_conditional());
     assert_eq!(false, bitswap.is_relative());
@@ -136,8 +136,8 @@ fn test_align_dalign(){
     assert_eq!(MG_MNE_ALIGN, "align");
     assert_eq!(MG_MNE_DALIGN, "dalign");
 
-    assert_eq!(4, align.get_operand_num());
-    assert_eq!(4, dalign.get_operand_num());
+    assert_eq!(true, check_operands(&align, 4));
+    assert_eq!(true, check_operands(&dalign, 4));
 
     assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneAlign, machine_code[0], 6, 0x3, 3));
     assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneDalign, machine_code[1], 6, 0x7, 3));

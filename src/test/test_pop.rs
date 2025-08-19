@@ -345,17 +345,17 @@ fn test_pop07(){
         (Some(MgOperand::MgOpRegister(r1)),Some(MgOperand::MgOpRegister(r2)), Some(MgOperand::MgOpImmediate(_))) => assert_ne!(r1, r2),
         _ => panic!(),
     }
-    assert_eq!(bltzalc.get_operand_num(), 2);
+    assert_eq!(true, check_operands(&bltzalc, 2));
     match (bltzalc.get_operand(0), bltzalc.get_operand(1)){
         (Some(MgOperand::MgOpRegister(_)), Some(MgOperand::MgOpImmediate(_))) => (),
         _ => panic!(),
     }
-    assert_eq!(bgtzalc.get_operand_num(), 2);
+    assert_eq!(true, check_operands(&bgtzalc, 2));
     match (bgtzalc.get_operand(0), bgtzalc.get_operand(1)){
         (Some(MgOperand::MgOpRegister(_)), Some(MgOperand::MgOpImmediate(_))) => (),
         _ => panic!(),
     }
-    assert_eq!(bgtz.get_operand_num(), 2);
+    assert_eq!(true, check_operands(&bgtz, 2));
     match (bgtz.get_operand(0), bgtz.get_operand(1)){
         (Some(MgOperand::MgOpRegister(_)), Some(MgOperand::MgOpImmediate(_))) => (),
         _ => panic!(),

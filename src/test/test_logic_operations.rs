@@ -186,7 +186,7 @@ fn test_sll_dsll(){
     assert_eq!(MG_MNE_SLL, "sll");
 
     imm_limit_reached(&decoder, MgMnemonic::MgMneSll, machine_code[0], 6, 0x1f, 2);
-    assert_eq!(3, sll.get_operand_num());
+    assert_eq!(true, check_operands(&sll, 3));
     assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneSll, true, true, true, true));
     assert_eq!(true, check_field(&decoder, machine_code[0], 0x1f, MgMnemonic::MgMneSll, 21));
     assert_eq!(false, sll.is_conditional());
@@ -197,7 +197,7 @@ fn test_sll_dsll(){
     let dsll = decoder.disassemble(machine_code[1], 0).unwrap();
     assert_eq!(MgMnemonic::MgMneDsll, dsll.get_mnemonic());
     assert_eq!(MG_MNE_DSLL, dsll.get_mnemonic_str());
-    assert_eq!(3, dsll.get_operand_num());
+    assert_eq!(true, check_operands(&dsll, 3));
     imm_limit_reached(&decoder, MgMnemonic::MgMneDsll, machine_code[1], 6, 0x1f, 2);
     assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneDsll, false, false, true, true));
     assert_eq!(true, check_field(&decoder, machine_code[1], 0x1f, MgMnemonic::MgMneDsll, 21));
@@ -225,9 +225,9 @@ fn test_dsrl_dsra(){
     assert_eq!(MG_MNE_DSRL, "dsrl");
     assert_eq!(MG_MNE_DROTR, "drotr");
 
-    assert_eq!(3, dsra.get_operand_num());
-    assert_eq!(3, dsrl.get_operand_num());
-    assert_eq!(3, drotr.get_operand_num());
+    assert_eq!(true, check_operands(&dsra, 3));
+    assert_eq!(true, check_operands(&dsrl, 3));
+    assert_eq!(true, check_operands(&drotr, 3));
 
     assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneDsra, false, false, true, true));
     assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneDsrl, false, false, true, true));
@@ -261,9 +261,9 @@ fn test_srl_sra(){
     assert_eq!(MG_MNE_SRL, "srl");
     assert_eq!(MG_MNE_ROTR, "rotr");
 
-    assert_eq!(3, sra.get_operand_num());
-    assert_eq!(3, srl.get_operand_num());
-    assert_eq!(3, rotr.get_operand_num());
+    assert_eq!(true, check_operands(&sra, 3));
+    assert_eq!(true, check_operands(&srl, 3));
+    assert_eq!(true, check_operands(&rotr, 3));
 
     assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneSra, true, true, true, true));
     assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneSrl, true, true, true, true));
@@ -288,7 +288,7 @@ fn test_dsll32(){
     assert_eq!(MG_MNE_DSLL32, dsll32.get_mnemonic_str());
     assert_eq!(MG_MNE_DSLL32, "dsll32");
 
-    assert_eq!(3, dsll32.get_operand_num());
+    assert_eq!(true, check_operands(&dsll32, 3));
     imm_limit_reached(&decoder, MgMnemonic::MgMneDsll32, machine_code, 6, 0x1f, 2);
     assert_eq!(true, version_test(machine_code, MgMnemonic::MgMneDsll32, false, false, true, true));
     assert_eq!(true, check_field(&decoder, machine_code, 0x1f, MgMnemonic::MgMneDsll32, 21));
@@ -305,7 +305,7 @@ fn test_sllv_dsllv(){
     assert_eq!(MgMnemonic::MgMneSllv, sllv.get_mnemonic());
     assert_eq!(MG_MNE_SLLV, sllv.get_mnemonic_str());
     assert_eq!(MG_MNE_SLLV, "sllv");
-    assert_eq!(3, sllv.get_operand_num());
+    assert_eq!(true, check_operands(&sllv, 3));
     assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneSllv, true, true, true, true));
     assert_eq!(true, check_field(&decoder, machine_code[0], 0x1f, MgMnemonic::MgMneSllv, 6));
     assert_eq!(false, sllv.is_conditional());
@@ -316,7 +316,7 @@ fn test_sllv_dsllv(){
     let dsllv = decoder.disassemble(machine_code[1], 0).unwrap();
     assert_eq!(MgMnemonic::MgMneDsllv, dsllv.get_mnemonic());
     assert_eq!(MG_MNE_DSLLV, dsllv.get_mnemonic_str());
-    assert_eq!(3, dsllv.get_operand_num());
+    assert_eq!(true, check_operands(&dsllv, 3));
     assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneDsllv, false, false, true, true));
     assert_eq!(true, check_field(&decoder, machine_code[1], 0x1f, MgMnemonic::MgMneDsllv, 6));
     assert_eq!(false, dsllv.is_conditional());
@@ -343,9 +343,9 @@ fn test_dsrl32_dsra32(){
     assert_eq!(MG_MNE_DSRL32, "dsrl32");
     assert_eq!(MG_MNE_DROTR32, "drotr32");
 
-    assert_eq!(3, dsra32.get_operand_num());
-    assert_eq!(3, dsrl32.get_operand_num());
-    assert_eq!(3, drotr32.get_operand_num());
+    assert_eq!(true, check_operands(&dsra32, 3));
+    assert_eq!(true, check_operands(&dsrl32, 3));
+    assert_eq!(true, check_operands(&drotr32, 3));
 
     assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneDsra32, false, false, true, true));
     assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneDsrl32, false, false, true, true));
@@ -378,9 +378,9 @@ fn test_dsrlv_dsrav(){
     assert_eq!(MG_MNE_DSRLV, "dsrlv");
     assert_eq!(MG_MNE_DROTRV, "drotrv");
 
-    assert_eq!(3, dsrav.get_operand_num());
-    assert_eq!(3, dsrlv.get_operand_num());
-    assert_eq!(3, drotrv.get_operand_num());
+    assert_eq!(true, check_operands(&dsrav, 3));
+    assert_eq!(true, check_operands(&dsrlv, 3));
+    assert_eq!(true, check_operands(&drotrv, 3));
 
     assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneDsrav, false, false, true, true));
     assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneDsrlv, false, false, true, true));
@@ -410,9 +410,9 @@ fn test_srlv_srav(){
     assert_eq!(MG_MNE_SRLV, "srlv");
     assert_eq!(MG_MNE_ROTRV, "rotrv");
 
-    assert_eq!(3, srav.get_operand_num());
-    assert_eq!(3, srlv.get_operand_num());
-    assert_eq!(3, rotrv.get_operand_num());
+    assert_eq!(true, check_operands(&srav, 3));
+    assert_eq!(true, check_operands(&srlv, 3));
+    assert_eq!(true, check_operands(&rotrv, 3));
 
     assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneSrav, true, true, true, true));
     assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneSrlv, true, true, true, true));
