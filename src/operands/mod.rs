@@ -14,12 +14,19 @@ pub enum MgOperandType{
 
 #[derive(Clone, Debug, PartialEq, Copy)]
 pub struct MgOpRegister{
-    register: &'static str,
+    register: MgRegister,
     coprocessor: MgCoprocessor,
+    reg_type: Option<MgRegisterType>
 }
 #[derive(Clone, Debug, PartialEq, Copy)]
 pub struct MgOpImmediate{
     value: u64,
+}
+
+//TODO: To test
+#[derive(Clone, Debug, Copy, PartialEq)]
+pub enum MgRegisterType{
+    Hardware, FpuConditional
 }
 
 #[derive(Clone, Debug, PartialEq, Copy)]
@@ -39,7 +46,8 @@ impl MgOpImmediate{
 }
 
 impl MgOpRegister{
-    fn get_reg_str(register: u8, coprocessor: instruction::MgCoprocessor) -> &'static str{
+    //TODO: To test
+    fn get_reg_str(register: u8, coprocessor: instruction::MgCoprocessor, reg_type: Option<MgRegisterType>) -> &'static str{
         static CPU_REGISTER_TABLE: [&str; 32] = [
             MG_REG_ZERO, MG_REG_AT, MG_REG_V0, MG_REG_V1, MG_REG_A0, MG_REG_A1, MG_REG_A2, MG_REG_A3,
             MG_REG_T0, MG_REG_T1, MG_REG_T2, MG_REG_T3, MG_REG_T4, MG_REG_T5, MG_REG_T6, MG_REG_T7,
@@ -58,26 +66,47 @@ impl MgOpRegister{
             MG_REG_16, MG_REG_17, MG_REG_18, MG_REG_19, MG_REG_20, MG_REG_21, MG_REG_22, MG_REG_23,
             MG_REG_24, MG_REG_25, MG_REG_26, MG_REG_27, MG_REG_28, MG_REG_29, MG_REG_30, MG_REG_31,
         ];
+        static FPU_CONDITIONAL_REGISTER_TABLE: [&str; 8] = [ MG_REG_FCC0, MG_REG_FCC1, MG_REG_FCC2, MG_REG_FCC3, MG_REG_FCC4, MG_REG_FCC5, MG_REG_FCC6, MG_REG_FCC7,];
         
         return match coprocessor{
-            instruction::MgCoprocessor::Cp1 => FPU_REGISTER_TABLE[register as usize],
+            instruction::MgCoprocessor::Cp1 => {
+                match reg_type{
+                    Some(MgRegisterType::FpuConditional) => {
+                        if register < 8{
+                            FPU_CONDITIONAL_REGISTER_TABLE[register as usize]
+                        }else{
+                            panic!()
+                        }
+                    },
+                    _ => FPU_REGISTER_TABLE[register as usize]
+                }
+            },
             instruction::MgCoprocessor::Cpu => CPU_REGISTER_TABLE[register as usize],
             _ => MG_DEFAULT_REG_TABLE[register as usize],
         }
     }
-    pub fn new_reg_opreand(register: u8, coprocessor: MgCoprocessor) -> MgOperand{
+    pub fn new_reg_opreand(register: MgRegister, coprocessor: MgCoprocessor, reg_type: Option<MgRegisterType>) -> MgOperand{
+
+        if MgCoprocessor::Cp1 == coprocessor{
+            if let Some(t) = reg_type{
+                assert_eq!(t, MgRegisterType::FpuConditional)
+            }
+        }else if MgCoprocessor::Cp1 == coprocessor{
+            if let Some(t) = reg_type{
+                assert_eq!(t, MgRegisterType::Hardware)
+            }
+        }
+
         MgOperand::MgOpRegister(MgOpRegister{
             coprocessor,
-            register: MgOpRegister::get_reg_str(register, coprocessor),
+            register,
+            reg_type
         })
     }
-    pub fn new_reg_operand_str(reg_str: &'static str, coprocessor: instruction::MgCoprocessor) -> MgOperand{
-        MgOperand::MgOpRegister(MgOpRegister{
-            coprocessor,
-            register: reg_str,
-        })
+    pub fn u8_2_reg(reg: u8) -> MgRegister{
+        MG_REGISTERS[reg as usize]
     }
-    pub fn get_register(&self) -> &'static str{
+    pub fn get_register(&self) -> MgRegister{
         self.register
     }
     pub fn get_coprocessor(&self) -> MgCoprocessor{

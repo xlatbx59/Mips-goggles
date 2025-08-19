@@ -163,7 +163,7 @@ fn test_rdhwr(){
     assert_eq!(MG_MNE_RDHWR, rdhwr.get_mnemonic_str());
     assert_eq!(MG_MNE_RDHWR, "rdhwr");
 
-    assert_eq!(2, rdhwr.get_operand_num());
+    assert_eq!(true, check_operands(&rdhwr, 2));
 
     assert_eq!(false, rdhwr.is_conditional());
     assert_eq!(false, rdhwr.is_relative());
@@ -180,13 +180,13 @@ fn test_rdhwr(){
     assert_eq!(MG_MNE_RDHWR, rdhwr.get_mnemonic_str());
     assert_eq!(MG_MNE_RDHWR, "rdhwr");
 
-    assert_eq!(3, rdhwr.get_operand_num());
+    assert_eq!(true, check_operands(&rdhwr, 3));
 
     assert_eq!(false, rdhwr.is_conditional());
     assert_eq!(false, rdhwr.is_relative());
     assert_eq!(false, rdhwr.is_region());
 
-    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneRdhwr, machine_code, 6, 0b11, 3));
+    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneRdhwr, machine_code, 6, 0b11, 2));
 
     assert_eq!(true, version_test(machine_code, MgMnemonic::MgMneRdhwr, true, true, true, true));
     assert_eq!(true, check_field(&decoder, machine_code, 0b11111, MgMnemonic::MgMneRdhwr, 21));

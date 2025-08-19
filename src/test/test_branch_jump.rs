@@ -315,3 +315,77 @@ fn test_bc_balc(){
     assert_eq!(balc.is_conditional(), true);
     assert_ne!(balc.is_region(), true);
 }
+#[test]
+fn bc1f_bc1t(){
+    let machine_code: [u32; 2] = [0x4518C00D, 0x4519C00D];
+
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgPreR6));
+    let bc1f = decoder.disassemble(machine_code[0], 0x00400000).unwrap();
+    let bc1t = decoder.disassemble(machine_code[1], 0x00400000).unwrap();
+
+    assert_eq!(bc1f.get_mnemonic(), MgMnemonic::MgMneBc1f);
+    assert_eq!(bc1t.get_mnemonic(), MgMnemonic::MgMneBc1t);
+    assert_eq!(bc1f.get_mnemonic_str(), MG_MNE_BC1F);
+    assert_eq!(bc1t.get_mnemonic_str(), MG_MNE_BC1T);
+    assert_eq!("bc1f", MG_MNE_BC1F);
+    assert_eq!("bc1t", MG_MNE_BC1T);
+
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneBc1f, true, false, true, false));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneBc1t, true, false, true, false));
+
+    assert_eq!(true, check_operands(&bc1f, 2));
+    assert_eq!(true, check_operands(&bc1t, 2));
+
+    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneBc1f, machine_code[0], 0, 0xffff, 1));
+    assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneBc1t, machine_code[1], 0, 0xffff, 1));
+
+    assert_eq!(true, check_field(&decoder, machine_code[0], 1, MgMnemonic::MgMneBc1f, 16));
+    assert_eq!(true, check_field_zero_assert(&decoder, machine_code[1], 1, MgMnemonic::MgMneBc1t, 16));
+    assert_eq!(true, check_field(&decoder, machine_code[0], 1, MgMnemonic::MgMneBc1f, 17));
+    assert_eq!(true, check_field(&decoder, machine_code[1], 1, MgMnemonic::MgMneBc1t, 17));
+
+    assert_eq!(bc1f.is_conditional(), true);
+    assert_eq!(bc1f.is_relative(), true);
+    assert_eq!(bc1f.is_region(), false);
+
+    assert_eq!(bc1t.is_conditional(), true);
+    assert_eq!(bc1t.is_region(), false);
+    assert_eq!(bc1t.is_relative(), true);
+}
+#[test]
+fn bc1fl_bc1tl(){
+    let machine_code: [u32; 2] = [0x451AC00D, 0x451BC00D];
+
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgPreR6));
+    let bc1fl = decoder.disassemble(machine_code[0], 0x00400000).unwrap();
+    let bc1tl = decoder.disassemble(machine_code[1], 0x00400000).unwrap();
+
+    assert_eq!(bc1fl.get_mnemonic(), MgMnemonic::MgMneBc1fl);
+    assert_eq!(bc1tl.get_mnemonic(), MgMnemonic::MgMneBc1tl);
+    assert_eq!(bc1fl.get_mnemonic_str(), MG_MNE_BC1FL);
+    assert_eq!(bc1tl.get_mnemonic_str(), MG_MNE_BC1TL);
+    assert_eq!("bc1fl", MG_MNE_BC1FL);
+    assert_eq!("bc1tl", MG_MNE_BC1TL);
+
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneBc1fl, true, false, true, false));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneBc1tl, true, false, true, false));
+
+    assert_eq!(true, check_operands(&bc1fl, 2));
+    assert_eq!(true, check_operands(&bc1tl, 2));
+
+    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneBc1fl, machine_code[0], 0, 0xffff, 1));
+    assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneBc1tl, machine_code[1], 0, 0xffff, 1));
+
+    assert_eq!(true, check_field(&decoder, machine_code[0], 1, MgMnemonic::MgMneBc1fl, 16));
+    assert_eq!(true, check_field_zero_assert(&decoder, machine_code[1], 1, MgMnemonic::MgMneBc1tl, 16));
+    assert_eq!(true, check_field_zero_assert(&decoder, machine_code[0], 1, MgMnemonic::MgMneBc1fl, 17));
+    assert_eq!(true, check_field_zero_assert(&decoder, machine_code[1], 1, MgMnemonic::MgMneBc1tl, 17));
+
+    assert_eq!(bc1fl.is_conditional(), true);
+    assert_eq!(bc1fl.is_relative(), true);
+    assert_eq!(bc1fl.is_region(), false);
+
+    assert_eq!(bc1tl.is_conditional(), true);
+    assert_eq!(bc1tl.is_region(), false);
+    assert_eq!(bc1tl.is_relative(), true);
+}

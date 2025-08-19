@@ -119,7 +119,8 @@ pub const MG_MNE_AUIPC: &str = "auipc"; pub const MG_MNE_ALUIPC: &str = "aluipc"
 //Cp1
 pub const MG_MNE_MFC1: &str = "mfc1"; pub const MG_MNE_MTC1: &str = "mtc1"; pub const MG_MNE_DMFC1: &str = "dmfc1";
 pub const MG_MNE_DMTC1: &str = "dmtc1"; pub const MG_MNE_CFC1: &str = "cfc1"; pub const MG_MNE_MFHC1: &str = "mfhc1";
-pub const MG_MNE_CTC1: &str = "ctc1"; pub const MG_MNE_MTHC1: &str = "mthc1";
+pub const MG_MNE_CTC1: &str = "ctc1"; pub const MG_MNE_MTHC1: &str = "mthc1"; pub const MG_MNE_BC1F: &str = "bc1f";
+pub const MG_MNE_BC1T: &str = "bc1t"; pub const MG_MNE_BC1FL: &str = "bc1fl"; pub const MG_MNE_BC1TL: &str = "bc1tl";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum MgMnemonic {
@@ -147,8 +148,7 @@ pub enum MgMnemonic {
     MgMneDins, MgMneDinsm, MgMneDinsu, MgMneLwle, MgMneLwre, MgMneSwle, MgMneSwre, MgMnePrefe, MgMneCachee, MgMneSbe, MgMneShe, MgMneSce, MgMneSwe,
     MgMneLbe, MgMneLhe, MgMneLce, MgMneLwe, MgMneLbue, MgMneLhue, MgMneDsbh, MgMneBitswap, MgMneDbitswap, MgMneDshd, MgMneAlign, MgMneDalign, MgMneDmfc0,
     MgMneDmtc0, MgMneDmtc1, MgMneDmfc1, MgMneMtc1, MgMneMfc1, MgMneMfhc0, MgMneMthc0, MgMneTlbinv, MgMneTlbinvf, MgMneDvp, MgMneEvp, MgMneCfc1, MgMneMfhc1,
-    MgMneCtc1, MgMneMthc1
-
+    MgMneCtc1, MgMneMthc1, MgMneBc1f, MgMneBc1t, MgMneBc1fl, MgMneBc1tl,
 }
 
 pub(super)const MG_MNEMONICS: &[&str] = &[
@@ -176,5 +176,6 @@ pub(super)const MG_MNEMONICS: &[&str] = &[
     MG_MNE_DMOD, MG_MNE_DMODU, MG_MNE_SIGRIE, MG_MNE_NAL, MG_MNE_DEXT, MG_MNE_DEXTM, MG_MNE_DEXTU, MG_MNE_DINS, MG_MNE_DINSM, MG_MNE_DINSU, MG_MNE_LWLE, MG_MNE_LWRE,
     MG_MNE_SWLE, MG_MNE_SWRE, MG_MNE_PREFE, MG_MNE_CACHEE, MG_MNE_SBE, MG_MNE_SHE, MG_MNE_SCE, MG_MNE_SWE, MG_MNE_LBE, MG_MNE_LHE, MG_MNE_LCE, MG_MNE_LWE,
     MG_MNE_LBUE, MG_MNE_LHUE, MG_MNE_DSBH, MG_MNE_BITSWAP, MG_MNE_DBITSWAP, MG_MNE_DSHD, MG_MNE_ALIGN, MG_MNE_DALIGN, MG_MNE_DMFC0, MG_MNE_DMTC0, MG_MNE_DMTC1, MG_MNE_DMFC1,
-    MG_MNE_MTC1, MG_MNE_MFC1, MG_MNE_MFHC0, MG_MNE_MTHC0, MG_MNE_TLBINV, MG_MNE_TLBINVF, MG_MNE_DVP, MG_MNE_EVP, MG_MNE_CFC1, MG_MNE_MFHC1, MG_MNE_CTC1, MG_MNE_MTHC1
+    MG_MNE_MTC1, MG_MNE_MFC1, MG_MNE_MFHC0, MG_MNE_MTHC0, MG_MNE_TLBINV, MG_MNE_TLBINVF, MG_MNE_DVP, MG_MNE_EVP, MG_MNE_CFC1, MG_MNE_MFHC1, MG_MNE_CTC1, MG_MNE_MTHC1, MG_MNE_BC1F,
+    MG_MNE_BC1T, MG_MNE_BC1FL, MG_MNE_BC1TL
 ];

@@ -5,6 +5,20 @@
 //On peut s'en servir en tant qu'index dans l'array qui regroupe tous les registres
 //pour trouver le bon registre en précisant bien sûr le coprocessuer ou juste pour reconnaître un certain registre.
 
+#[derive(Clone, Debug, PartialEq, Copy)]
+pub enum MgRegister {
+    MgReg0, MgReg1, MgReg2, MgReg3, MgReg4, MgReg5, MgReg6, MgReg7,
+    MgReg8, MgReg9, MgReg10, MgReg11, MgReg12, MgReg13, MgReg14, MgReg15,
+    MgReg16, MgReg17, MgReg18, MgReg19, MgReg20, MgReg21, MgReg22, MgReg23,
+    MgReg24, MgReg25, MgReg26, MgReg27, MgReg28, MgReg29, MgReg30, MgReg31,
+}
+pub(super) static MG_REGISTERS: [MgRegister; 32] = [
+    MgRegister::MgReg0, MgRegister::MgReg1, MgRegister::MgReg2, MgRegister::MgReg3, MgRegister::MgReg4, MgRegister::MgReg5, MgRegister::MgReg6, MgRegister::MgReg7,
+    MgRegister::MgReg8, MgRegister::MgReg9, MgRegister::MgReg10, MgRegister::MgReg11, MgRegister::MgReg12, MgRegister::MgReg13, MgRegister::MgReg14, MgRegister::MgReg15,
+    MgRegister::MgReg16, MgRegister::MgReg17, MgRegister::MgReg18, MgRegister::MgReg19, MgRegister::MgReg20, MgRegister::MgReg21, MgRegister::MgReg22, MgRegister::MgReg23,
+    MgRegister::MgReg24, MgRegister::MgReg25, MgRegister::MgReg26, MgRegister::MgReg27, MgRegister::MgReg28, MgRegister::MgReg29, MgRegister::MgReg30, MgRegister::MgReg31,
+];
+
 pub const MG_REG_ZERO: &str = "$zero"; pub const MG_REG_AT: &str = "$at"; pub const MG_REG_V0: &str = "$v0";
 pub const MG_REG_V1: &str = "$v1"; pub const MG_REG_A0: &str = "$a0"; pub const MG_REG_A1: &str = "$a1";
 pub const MG_REG_A2: &str = "$a2"; pub const MG_REG_A3: &str = "$a3"; pub const MG_REG_T0: &str = "$t0";

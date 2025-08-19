@@ -160,7 +160,7 @@ impl MgDisassembler{
                             let Some(cop) = field.coprocessor else{
                                 return Err(MgError::throw_error(MgErrorCode::DevError, prototype.opcode, prototype.address, prototype.machine_code))
                             };
-                            Some(MgOpRegister::new_reg_opreand(field_mask_result as u8, cop))
+                            Some(MgOpRegister::new_reg_opreand(MgOpRegister::u8_2_reg(field_mask_result as u8), cop, None))
                         },
                     }
                 }
@@ -184,7 +184,7 @@ impl MgDisassembler{
                             let Some(cop) = field.coprocessor else{
                                 return Err(MgError::throw_error(MgErrorCode::DevError, prototype.opcode, prototype.address, prototype.machine_code))
                             };
-                            Some(MgOpRegister::new_reg_opreand(field_mask_result as u8, cop))
+                            Some(MgOpRegister::new_reg_opreand(MgOpRegister::u8_2_reg(field_mask_result as u8), cop, None))
                         },        
                     }
                 }
@@ -208,7 +208,7 @@ impl MgDisassembler{
                             let Some(cop) = field.coprocessor else{
                                 return Err(MgError::throw_error(MgErrorCode::DevError, prototype.opcode, prototype.address, prototype.machine_code))
                             };
-                            Some(MgOpRegister::new_reg_opreand(field_mask_result as u8, cop))
+                            Some(MgOpRegister::new_reg_opreand(MgOpRegister::u8_2_reg(field_mask_result as u8), cop, None))
                         },        
                     }
                 }
@@ -232,7 +232,7 @@ impl MgDisassembler{
                             let Some(cop) = field.coprocessor else{
                                 return Err(MgError::throw_error(MgErrorCode::DevError, prototype.opcode, prototype.address, prototype.machine_code))
                             };
-                            Some(MgOpRegister::new_reg_opreand(field_mask_result as u8, cop))
+                            Some(MgOpRegister::new_reg_opreand(MgOpRegister::u8_2_reg(field_mask_result as u8), cop, None))
                         },        
                     }
                 }
@@ -276,8 +276,8 @@ impl MgDisassembler{
             return Err(MgError::throw_error(MgErrorCode::DevError, prototype.opcode, prototype.address, prototype.machine_code))
         };
         prototype.operand_num = 2;
-        prototype.operand[rd.operand_order] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 11 & rd.mask) as u8, rd_cop));
-        prototype.operand[rt.operand_order] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 16 & rt.mask) as u8, rt_cop));
+        prototype.operand[rd.operand_order] = Some(MgOpRegister::new_reg_opreand(MgOpRegister::u8_2_reg((prototype.machine_code >> 11 & rd.mask) as u8), rd_cop, None));
+        prototype.operand[rt.operand_order] = Some(MgOpRegister::new_reg_opreand(MgOpRegister::u8_2_reg((prototype.machine_code >> 16 & rt.mask) as u8), rt_cop, None));
 
         Ok(())
     }
@@ -299,7 +299,7 @@ impl MgDisassembler{
                             let Some(cop) = field.coprocessor else{
                                 return Err(MgError::throw_error(MgErrorCode::DevError, prototype.opcode, prototype.address, prototype.machine_code))
                             };
-                            Some(MgOpRegister::new_reg_opreand(field_mask_result as u8, cop))
+                            Some(MgOpRegister::new_reg_opreand(MgOpRegister::u8_2_reg(field_mask_result as u8), cop, None))
                         },        
                     }
                 }
@@ -323,7 +323,7 @@ impl MgDisassembler{
                             let Some(cop) = field.coprocessor else{
                                 return Err(MgError::throw_error(MgErrorCode::DevError, prototype.opcode, prototype.address, prototype.machine_code))
                             };
-                            Some(MgOpRegister::new_reg_opreand(field_mask_result as u8, cop))
+                            Some(MgOpRegister::new_reg_opreand(MgOpRegister::u8_2_reg(field_mask_result as u8), cop, None))
                         },        
                     }
                 }

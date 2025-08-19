@@ -7,7 +7,6 @@ use crate::instruction::mnemonics::*;
 use crate::operands::*;
 use crate::disassembler::*;
 use crate::{MgMips32, MgMips64};
-use registers::*;
 use FieldInfos;
 
 //TODO: Je dois mettre les bonnes exceptions
@@ -78,7 +77,7 @@ impl MgDisassembler{
     pub (super) fn cop1_opcode_map(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         static COP1_MAP: [fn(disassembler: &MgDisassembler, &mut MgInstructionPrototype) -> Result<(), MgError>; 64] =
         [   MgDisassembler::movf_cp1,  MgDisassembler::movf_cp1,  MgDisassembler::movcf_cp1,  MgDisassembler::movcf_cp1,  MgDisassembler::movt_cp1,  MgDisassembler::movt_cp1,  MgDisassembler::movct_cp1,  MgDisassembler::movct_cp1,
-            MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
+            MgDisassembler::bc1,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
             MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
             MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
             MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
@@ -927,14 +926,13 @@ impl MgDisassembler{
             return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
         }
         let mnemonics = [Some(MgMnemonic::MgMneMovf), Some(MgMnemonic::MgMneMovt)];
-        let registers: [&str; 8] = [ MG_REG_FCC0, MG_REG_FCC1, MG_REG_FCC2, MG_REG_FCC3, MG_REG_FCC4, MG_REG_FCC5, MG_REG_FCC6, MG_REG_FCC7,];
         
         prototype.mnemonic = mnemonics[(prototype.machine_code >> 16 & 1) as usize];
 
         prototype.operand_num = 3;
-        prototype.operand[0] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 11 & 0b11111) as u8, MgCoprocessor::Cpu));
-        prototype.operand[1] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 21 & 0b11111) as u8, MgCoprocessor::Cpu));
-        prototype.operand[2] = Some(MgOpRegister::new_reg_operand_str(registers[(prototype.machine_code >> 18 & 0b111) as usize], MgCoprocessor::Cp1));
+        prototype.operand[0] = Some(MgOpRegister::new_reg_opreand(MgOpRegister::u8_2_reg((prototype.machine_code >> 11 & 0b11111) as u8), MgCoprocessor::Cpu, None));
+        prototype.operand[1] = Some(MgOpRegister::new_reg_opreand(MgOpRegister::u8_2_reg((prototype.machine_code >> 21 & 0b11111) as u8), MgCoprocessor::Cpu, None));
+        prototype.operand[2] = Some(MgOpRegister::new_reg_opreand(MgOpRegister::u8_2_reg((prototype.machine_code >> 18 & 0b111) as u8), MgCoprocessor::Cp1, Some(MgRegisterType::FpuConditional)));
 
         Ok(())
     }
@@ -1526,8 +1524,8 @@ impl MgDisassembler{
         };
 
         prototype.operand_num = 4;
-        prototype.operand[0] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 16 & 0b11111) as u8, MgCoprocessor::Cpu));
-        prototype.operand[1] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 21 & 0b11111) as u8, MgCoprocessor::Cpu));
+        prototype.operand[0] = Some(MgOpRegister::new_reg_opreand(MgOpRegister::u8_2_reg((prototype.machine_code >> 16 & 0b11111) as u8), MgCoprocessor::Cpu, None));
+        prototype.operand[1] = Some(MgOpRegister::new_reg_opreand(MgOpRegister::u8_2_reg((prototype.machine_code >> 21 & 0b11111) as u8), MgCoprocessor::Cpu, None));
         prototype.operand[2] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code >> 6 & 0b11111) as u64));
         prototype.operand[3] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code >> 11 & 0b11111) as u64));
         Ok(())
@@ -1544,8 +1542,8 @@ impl MgDisassembler{
         };
 
         prototype.operand_num = 4;
-        prototype.operand[0] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 16 & 0b11111) as u8, MgCoprocessor::Cpu));
-        prototype.operand[1] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 21 & 0b11111) as u8, MgCoprocessor::Cpu));
+        prototype.operand[0] = Some(MgOpRegister::new_reg_opreand(MgOpRegister::u8_2_reg((prototype.machine_code >> 16 & 0b11111) as u8), MgCoprocessor::Cpu, None));
+        prototype.operand[1] = Some(MgOpRegister::new_reg_opreand(MgOpRegister::u8_2_reg((prototype.machine_code >> 21 & 0b11111) as u8), MgCoprocessor::Cpu, None));
         prototype.operand[2] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code >> 6 & 0b11111) as u64));
         prototype.operand[3] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code >> 11 & 0b11111) as u64));
         Ok(())
@@ -1561,8 +1559,8 @@ impl MgDisassembler{
         };
 
         prototype.operand_num = 4;
-        prototype.operand[0] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 16 & 0b11111) as u8, MgCoprocessor::Cpu));
-        prototype.operand[1] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 21 & 0b11111) as u8, MgCoprocessor::Cpu));
+        prototype.operand[0] = Some(MgOpRegister::new_reg_opreand(MgOpRegister::u8_2_reg((prototype.machine_code >> 16 & 0b11111) as u8), MgCoprocessor::Cpu, None));
+        prototype.operand[1] = Some(MgOpRegister::new_reg_opreand(MgOpRegister::u8_2_reg((prototype.machine_code >> 21 & 0b11111) as u8), MgCoprocessor::Cpu, None));
         prototype.operand[2] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code >> 6 & 0b11111) as u64));
         prototype.operand[3] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code >> 11 & 0b11111) as u64 + 32));
         Ok(())
@@ -1607,8 +1605,8 @@ impl MgDisassembler{
         };
 
         prototype.operand_num = 4;
-        prototype.operand[0] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 16 & 0b11111) as u8, MgCoprocessor::Cpu));
-        prototype.operand[1] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 21 & 0b11111) as u8, MgCoprocessor::Cpu));
+        prototype.operand[0] = Some(MgOpRegister::new_reg_opreand(MgOpRegister::u8_2_reg((prototype.machine_code >> 16 & 0b11111) as u8), MgCoprocessor::Cpu, None));
+        prototype.operand[1] = Some(MgOpRegister::new_reg_opreand(MgOpRegister::u8_2_reg((prototype.machine_code >> 21 & 0b11111) as u8), MgCoprocessor::Cpu, None));
         prototype.operand[2] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code >> 6 & 0b11111) as u64));
         prototype.operand[3] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code >> 11 & 0b11111) as u64 + 32));
         Ok(())
@@ -1779,22 +1777,24 @@ impl MgDisassembler{
     }
     pub(super) fn rdhwr(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let rt: FieldInfos = FieldInfos::reg_field(0, MgCoprocessor::Cpu, MgOperandType::Reg);
-        let rd: FieldInfos = FieldInfos::reg_field(1, MgCoprocessor::Hardware, MgOperandType::Reg);
+
         let sa = if let MgMipsVersion::M32(MgMips32::MgPreR6) | MgMipsVersion::M64(MgMips64::MgR6) = self.version{
             if prototype.machine_code >> 8 & 0b11 != 0{
                 return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
             }
-            prototype.operand[3] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code >> 6 & 0b111) as u64));
+            prototype.operand[2] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code >> 6 & 0b111) as u64));
             prototype.operand_num = 1;
             None
         }else{
             Some(FieldInfos::default_fixed_field())
         };
 
+        prototype.operand[1] = Some(MgOpRegister::new_reg_opreand(MgOpRegister::u8_2_reg((prototype.machine_code >> 11 & 0b11111) as u8), MgCoprocessor::Cp0, Some(MgRegisterType::Hardware)));
+        prototype.operand_num += 1;
         prototype.mnemonic = Some(MgMnemonic::MgMneRdhwr);
 
 
-        MgDisassembler::reg_format(self, prototype, Some(FieldInfos::default_fixed_field()), Some(rt), Some(rd), sa)
+        MgDisassembler::reg_format(self, prototype, Some(FieldInfos::default_fixed_field()), Some(rt), None, sa)
     }
 
     //CP0
@@ -1812,8 +1812,8 @@ impl MgDisassembler{
         prototype.mnemonic = mnemonics[(prototype.machine_code >> 21 & 1) as usize];
         prototype.operand_num = 3;
 
-        prototype.operand[0] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 16 & 0b11111) as u8, MgCoprocessor::Cpu));
-        prototype.operand[1] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 11 & 0b11111) as u8, MgCoprocessor::Cp0));
+        prototype.operand[0] = Some(MgOpRegister::new_reg_opreand(MgOpRegister::u8_2_reg((prototype.machine_code >> 16 & 0b11111) as u8), MgCoprocessor::Cpu, None));
+        prototype.operand[1] = Some(MgOpRegister::new_reg_opreand(MgOpRegister::u8_2_reg((prototype.machine_code >> 11 & 0b11111) as u8), MgCoprocessor::Cp0, None));
         prototype.operand[2] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code & 7) as u64));
         Ok(())
     }
@@ -1830,8 +1830,8 @@ impl MgDisassembler{
         prototype.mnemonic = mnemonics[(prototype.machine_code >> 21 & 1) as usize];
         prototype.operand_num = 3;
 
-        prototype.operand[1] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 16 & 0b11111) as u8, MgCoprocessor::Cpu));
-        prototype.operand[0] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 11 & 0b11111) as u8, MgCoprocessor::Cp0));
+        prototype.operand[1] = Some(MgOpRegister::new_reg_opreand(MgOpRegister::u8_2_reg((prototype.machine_code >> 16 & 0b11111) as u8), MgCoprocessor::Cpu, None));
+        prototype.operand[0] = Some(MgOpRegister::new_reg_opreand(MgOpRegister::u8_2_reg((prototype.machine_code >> 11 & 0b11111) as u8), MgCoprocessor::Cp0, None));
         prototype.operand[2] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code & 7) as u64));
         Ok(())
     }
@@ -1842,12 +1842,12 @@ impl MgDisassembler{
 
 
         prototype.mnemonic =if prototype.machine_code >> 23 & 1 == 0{
-            prototype.operand[0] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 16 & 0b11111) as u8, MgCoprocessor::Cpu));
-            prototype.operand[1] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 11 & 0b11111) as u8, MgCoprocessor::Cp0));
+            prototype.operand[0] = Some(MgOpRegister::new_reg_opreand(MgOpRegister::u8_2_reg((prototype.machine_code >> 16 & 0b11111) as u8), MgCoprocessor::Cpu, None));
+            prototype.operand[1] = Some(MgOpRegister::new_reg_opreand(MgOpRegister::u8_2_reg((prototype.machine_code >> 11 & 0b11111) as u8), MgCoprocessor::Cp0, None));
             Some(MgMnemonic::MgMneMfhc0)
         }else{
-            prototype.operand[1] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 16 & 0b11111) as u8, MgCoprocessor::Cpu));
-            prototype.operand[0] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 11 & 0b11111) as u8, MgCoprocessor::Cp0));
+            prototype.operand[1] = Some(MgOpRegister::new_reg_opreand(MgOpRegister::u8_2_reg((prototype.machine_code >> 16 & 0b11111) as u8), MgCoprocessor::Cpu, None));
+            prototype.operand[0] = Some(MgOpRegister::new_reg_opreand(MgOpRegister::u8_2_reg((prototype.machine_code >> 11 & 0b11111) as u8), MgCoprocessor::Cp0, None));
             Some(MgMnemonic::MgMneMthc0)
         };
 
@@ -1893,7 +1893,7 @@ impl MgDisassembler{
         };
 
         prototype.operand_num = 1;
-        prototype.operand[0] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 16 & 0b11111) as u8, MgCoprocessor::Cpu));
+        prototype.operand[0] = Some(MgOpRegister::new_reg_opreand(MgOpRegister::u8_2_reg((prototype.machine_code >> 16 & 0b11111) as u8), MgCoprocessor::Cpu, None));
 
         Ok(())
     }
@@ -1937,8 +1937,8 @@ impl MgDisassembler{
         prototype.mnemonic = mnemonics[(prototype.machine_code >> 21 & 1) as usize];
         prototype.operand_num = 2;
 
-        prototype.operand[0] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 16 & 0b11111) as u8, MgCoprocessor::Cpu));
-        prototype.operand[1] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 11 & 0b11111) as u8, MgCoprocessor::Cp1));
+        prototype.operand[0] = Some(MgOpRegister::new_reg_opreand(MgOpRegister::u8_2_reg((prototype.machine_code >> 16 & 0b11111) as u8), MgCoprocessor::Cpu, None));
+        prototype.operand[1] = Some(MgOpRegister::new_reg_opreand(MgOpRegister::u8_2_reg((prototype.machine_code >> 11 & 0b11111) as u8), MgCoprocessor::Cp1, None));
         Ok(())
     }
     pub(super) fn movt_cp1(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
@@ -1954,8 +1954,8 @@ impl MgDisassembler{
         prototype.mnemonic = mnemonics[(prototype.machine_code >> 21 & 1) as usize];
         prototype.operand_num = 2;
 
-        prototype.operand[1] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 16 & 0b11111) as u8, MgCoprocessor::Cpu));
-        prototype.operand[0] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 11 & 0b11111) as u8, MgCoprocessor::Cp1));
+        prototype.operand[1] = Some(MgOpRegister::new_reg_opreand(MgOpRegister::u8_2_reg((prototype.machine_code >> 16 & 0b11111) as u8), MgCoprocessor::Cpu, None));
+        prototype.operand[0] = Some(MgOpRegister::new_reg_opreand(MgOpRegister::u8_2_reg((prototype.machine_code >> 11 & 0b11111) as u8), MgCoprocessor::Cp1, None));
         Ok(())
     }
     pub(super) fn movcf_cp1(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
@@ -1968,8 +1968,8 @@ impl MgDisassembler{
         prototype.mnemonic = mnemonics[(prototype.machine_code >> 21 & 1) as usize];
         prototype.operand_num = 2;
 
-        prototype.operand[0] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 16 & 0b11111) as u8, MgCoprocessor::Cpu));
-        prototype.operand[1] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 11 & 0b11111) as u8, MgCoprocessor::Cp1));
+        prototype.operand[0] = Some(MgOpRegister::new_reg_opreand(MgOpRegister::u8_2_reg((prototype.machine_code >> 16 & 0b11111) as u8), MgCoprocessor::Cpu, None));
+        prototype.operand[1] = Some(MgOpRegister::new_reg_opreand(MgOpRegister::u8_2_reg((prototype.machine_code >> 11 & 0b11111) as u8), MgCoprocessor::Cp1, None));
         Ok(())
     }
     pub(super) fn movct_cp1(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
@@ -1982,8 +1982,35 @@ impl MgDisassembler{
         prototype.mnemonic = mnemonics[(prototype.machine_code >> 21 & 1) as usize];
         prototype.operand_num = 2;
 
-        prototype.operand[0] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 16 & 0b11111) as u8, MgCoprocessor::Cpu));
-        prototype.operand[1] = Some(MgOpRegister::new_reg_opreand((prototype.machine_code >> 11 & 0b11111) as u8, MgCoprocessor::Cp1));
+        prototype.operand[0] = Some(MgOpRegister::new_reg_opreand(MgOpRegister::u8_2_reg((prototype.machine_code >> 16 & 0b11111) as u8), MgCoprocessor::Cpu, None));
+        prototype.operand[1] = Some(MgOpRegister::new_reg_opreand(MgOpRegister::u8_2_reg((prototype.machine_code >> 11 & 0b11111) as u8), MgCoprocessor::Cp1, None));
+        Ok(())
+    }
+    pub(super) fn bc1(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        if let MgMipsVersion::M32(MgMips32::MgR6) | MgMipsVersion::M64(MgMips64::MgR6) = self.version{
+            return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+        }
+        if prototype.machine_code >> 17 & 1 == 0{
+            if prototype.machine_code >> 16 & 1 == 1{
+                prototype.mnemonic = Some(MgMnemonic::MgMneBc1t);
+            }else{
+                prototype.mnemonic = Some(MgMnemonic::MgMneBc1f);
+            }
+        }else{
+            if prototype.machine_code >> 16 & 1 == 1{
+                prototype.mnemonic = Some(MgMnemonic::MgMneBc1tl);
+            }else{
+                prototype.mnemonic = Some(MgMnemonic::MgMneBc1fl);
+            }
+        }
+
+        prototype.operand_num = 2;
+
+        prototype.is_relative = true;
+        prototype.is_conditional = true;
+
+        prototype.operand[1] = Some(MgOpImmediate::new_imm_opreand(0xffff as u64));
+        prototype.operand[0] = Some(MgOpRegister::new_reg_opreand(MgOpRegister::u8_2_reg((prototype.machine_code >> 11 & 0b111) as u8), MgCoprocessor::Cp1, Some(MgRegisterType::FpuConditional)));
         Ok(())
     }
 
