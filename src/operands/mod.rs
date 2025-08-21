@@ -85,7 +85,7 @@ impl MgOpRegister{
             _ => MG_DEFAULT_REG_TABLE[register as usize],
         }
     }
-    pub fn new_reg_opreand(register: MgRegister, coprocessor: MgCoprocessor, reg_type: Option<MgRegisterType>) -> MgOperand{
+    pub fn new_reg_operand(register: MgRegister, coprocessor: MgCoprocessor, reg_type: Option<MgRegisterType>) -> MgOperand{
 
         if MgCoprocessor::Cp1 == coprocessor{
             if let Some(t) = reg_type{

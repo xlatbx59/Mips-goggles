@@ -316,7 +316,7 @@ fn test_bc_balc(){
     assert_ne!(balc.is_region(), true);
 }
 #[test]
-fn bc1f_bc1t(){
+fn test_bc1f_bc1t(){
     let machine_code: [u32; 2] = [0x4518C00D, 0x4519C00D];
 
     let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgPreR6));
@@ -353,7 +353,7 @@ fn bc1f_bc1t(){
     assert_eq!(bc1t.is_relative(), true);
 }
 #[test]
-fn bc1fl_bc1tl(){
+fn test_bc1fl_bc1tl(){
     let machine_code: [u32; 2] = [0x451AC00D, 0x451BC00D];
 
     let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgPreR6));
@@ -388,4 +388,38 @@ fn bc1fl_bc1tl(){
     assert_eq!(bc1tl.is_conditional(), true);
     assert_eq!(bc1tl.is_region(), false);
     assert_eq!(bc1tl.is_relative(), true);
+}
+#[test]
+fn test_bc1eqz_bc1nez(){
+    let machine_code: [u32; 2] = [0x453bC00D, 0x45bBC00D];
+    // 0b0100010100111011
+    // 0b0100010110111011
+
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgR6));
+    let bc1eqz = decoder.disassemble(machine_code[0], 0x00400000).unwrap();
+    let bc1nez = decoder.disassemble(machine_code[1], 0x00400000).unwrap();
+
+    assert_eq!(bc1eqz.get_mnemonic(), MgMnemonic::MgMneBc1eqz);
+    assert_eq!(bc1nez.get_mnemonic(), MgMnemonic::MgMneBc1nez);
+    assert_eq!(bc1eqz.get_mnemonic_str(), MG_MNE_BC1EQZ);
+    assert_eq!(bc1nez.get_mnemonic_str(), MG_MNE_BC1NEZ);
+    assert_eq!("bc1eqz", MG_MNE_BC1EQZ);
+    assert_eq!("bc1nez", MG_MNE_BC1NEZ);
+
+    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneBc1eqz, false, true, false, true));
+    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneBc1nez, false, true, false, true));
+
+    assert_eq!(true, check_operands(&bc1eqz, 2));
+    assert_eq!(true, check_operands(&bc1nez, 2));
+
+    assert_eq!(true, imm_limit_reached(&decoder, MgMnemonic::MgMneBc1eqz, machine_code[0], 0, 0xffff, 1));
+    assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneBc1nez, machine_code[1], 0, 0xffff, 1));
+
+    assert_eq!(bc1eqz.is_conditional(), true);
+    assert_eq!(bc1eqz.is_relative(), true);
+    assert_eq!(bc1eqz.is_region(), false);
+
+    assert_eq!(bc1nez.is_conditional(), true);
+    assert_eq!(bc1nez.is_region(), false);
+    assert_eq!(bc1nez.is_relative(), true);
 }
