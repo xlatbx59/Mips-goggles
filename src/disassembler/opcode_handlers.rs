@@ -78,7 +78,7 @@ impl MgDisassembler{
         static COP1_MAP: [fn(disassembler: &MgDisassembler, &mut MgInstructionPrototype) -> Result<(), MgError>; 64] =
         [   MgDisassembler::movf_cp1,  MgDisassembler::movf_cp1,  MgDisassembler::movcf_cp1,  MgDisassembler::movcf_cp1,  MgDisassembler::movt_cp1,  MgDisassembler::movt_cp1,  MgDisassembler::movct_cp1,  MgDisassembler::movct_cp1,
             MgDisassembler::bc1,  MgDisassembler::bc1eqz_bc1nez,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::bc1eqz_bc1nez,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
-            MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
+            MgDisassembler::cop1_s,  MgDisassembler::cop1_d,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::cop1_ps,  MgDisassembler::no_instructions,
             MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
             MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
             MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
@@ -86,6 +86,51 @@ impl MgDisassembler{
             MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions ];
 
         COP1_MAP[(prototype.machine_code >> 21 & 0b11111) as usize](self, prototype)
+    }
+    fn cp1_no_instructions(_: &MgDisassembler, prototype: &mut MgInstructionPrototype, _: usize)-> Result<(), MgError>{
+        return Err(MgError::throw_error(MgErrorCode::NoInstruction, prototype.opcode, prototype.address, prototype.machine_code))
+    }
+    pub (super) fn cop1_s(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        static S_MAP: [fn(disassembler: &MgDisassembler, &mut MgInstructionPrototype, index: usize) -> Result<(), MgError>; 64] =
+        [   MgDisassembler::add_cp1,  MgDisassembler::sub_cp1,  MgDisassembler::mul_cp1,  MgDisassembler::div_cp1,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
+            MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
+            MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
+            MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
+            MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
+            MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
+            MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
+            MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions ];
+
+        S_MAP[(prototype.machine_code & 0b11111) as usize](self, prototype, 0)
+    }
+    pub (super) fn cop1_d(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        static D_MAP: [fn(disassembler: &MgDisassembler, &mut MgInstructionPrototype, index: usize) -> Result<(), MgError>; 64] =
+        [   MgDisassembler::add_cp1,  MgDisassembler::sub_cp1,  MgDisassembler::mul_cp1,  MgDisassembler::div_cp1,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
+            MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
+            MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
+            MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
+            MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
+            MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
+            MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
+            MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions ];
+
+        D_MAP[(prototype.machine_code & 0b11111) as usize](self, prototype, 1)
+    }
+    pub (super) fn cop1_ps(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        if let MgMipsVersion::M32(MgMips32::MgR6) | MgMipsVersion::M64(MgMips64::MgR6) = self.version{
+            return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+        }
+        static PS_MAP: [fn(disassembler: &MgDisassembler, &mut MgInstructionPrototype, index: usize) -> Result<(), MgError>; 64] =
+        [   MgDisassembler::add_cp1,  MgDisassembler::sub_cp1,  MgDisassembler::mul_cp1,  MgDisassembler::div_cp1,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
+            MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
+            MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
+            MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
+            MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
+            MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
+            MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
+            MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions ];
+
+        PS_MAP[(prototype.machine_code & 0b11111) as usize](self, prototype, 2)
     }
     pub (super) fn cop2_opcode_map(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         static COP2_MAP: [fn(disassembler: &MgDisassembler, &mut MgInstructionPrototype) -> Result<(), MgError>; 64] = 
@@ -1923,6 +1968,38 @@ impl MgDisassembler{
     }
 
     //CP1
+    pub(super) fn add_cp1(&self, prototype: &mut MgInstructionPrototype, index: usize) -> Result<(), MgError>{
+        prototype.mnemonic = Some([MgMnemonic::MgMneAdds,MgMnemonic::MgMneAddd,MgMnemonic::MgMneAddps][index]);
+        prototype.operand_num = 3;
+        prototype.operand[0] = Some(MgOpRegister::new_reg_operand(MgOpRegister::u8_2_reg((prototype.machine_code >> 6 & 0b11111) as u8), MgCoprocessor::Cpu, None));
+        prototype.operand[1] = Some(MgOpRegister::new_reg_operand(MgOpRegister::u8_2_reg((prototype.machine_code >> 11 & 0b11111) as u8), MgCoprocessor::Cp1, None));
+        prototype.operand[2] = Some(MgOpRegister::new_reg_operand(MgOpRegister::u8_2_reg((prototype.machine_code >> 16 & 0b11111) as u8), MgCoprocessor::Cpu, None));
+        Ok(())
+    }
+    pub(super) fn sub_cp1(&self, prototype: &mut MgInstructionPrototype, index: usize) -> Result<(), MgError>{
+        prototype.mnemonic = Some([MgMnemonic::MgMneSubs,MgMnemonic::MgMneSubd,MgMnemonic::MgMneSubps][index]);
+        prototype.operand_num = 3;
+        prototype.operand[0] = Some(MgOpRegister::new_reg_operand(MgOpRegister::u8_2_reg((prototype.machine_code >> 6 & 0b11111) as u8), MgCoprocessor::Cpu, None));
+        prototype.operand[1] = Some(MgOpRegister::new_reg_operand(MgOpRegister::u8_2_reg((prototype.machine_code >> 11 & 0b11111) as u8), MgCoprocessor::Cp1, None));
+        prototype.operand[2] = Some(MgOpRegister::new_reg_operand(MgOpRegister::u8_2_reg((prototype.machine_code >> 16 & 0b11111) as u8), MgCoprocessor::Cpu, None));
+        Ok(())
+    }
+    pub(super) fn mul_cp1(&self, prototype: &mut MgInstructionPrototype, index: usize) -> Result<(), MgError>{
+        prototype.mnemonic = Some([MgMnemonic::MgMneMuls,MgMnemonic::MgMneMuld,MgMnemonic::MgMneMulps][index]);
+        prototype.operand_num = 3;
+        prototype.operand[0] = Some(MgOpRegister::new_reg_operand(MgOpRegister::u8_2_reg((prototype.machine_code >> 6 & 0b11111) as u8), MgCoprocessor::Cpu, None));
+        prototype.operand[1] = Some(MgOpRegister::new_reg_operand(MgOpRegister::u8_2_reg((prototype.machine_code >> 11 & 0b11111) as u8), MgCoprocessor::Cp1, None));
+        prototype.operand[2] = Some(MgOpRegister::new_reg_operand(MgOpRegister::u8_2_reg((prototype.machine_code >> 16 & 0b11111) as u8), MgCoprocessor::Cpu, None));
+        Ok(())
+    }
+    pub(super) fn div_cp1(&self, prototype: &mut MgInstructionPrototype, index: usize) -> Result<(), MgError>{
+        prototype.mnemonic = Some([MgMnemonic::MgMneDivs,MgMnemonic::MgMneDivd,MgMnemonic::MgMneDivps][index]);
+        prototype.operand_num = 3;
+        prototype.operand[0] = Some(MgOpRegister::new_reg_operand(MgOpRegister::u8_2_reg((prototype.machine_code >> 6 & 0b11111) as u8), MgCoprocessor::Cpu, None));
+        prototype.operand[1] = Some(MgOpRegister::new_reg_operand(MgOpRegister::u8_2_reg((prototype.machine_code >> 11 & 0b11111) as u8), MgCoprocessor::Cp1, None));
+        prototype.operand[2] = Some(MgOpRegister::new_reg_operand(MgOpRegister::u8_2_reg((prototype.machine_code >> 16 & 0b11111) as u8), MgCoprocessor::Cpu, None));
+        Ok(())
+    }
     pub(super) fn movf_cp1(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         let mnemonics = [Some(MgMnemonic::MgMneMfc1), Some(MgMnemonic::MgMneDmfc1)];
 
