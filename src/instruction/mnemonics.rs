@@ -125,7 +125,12 @@ pub const MG_MNE_BC1EQZ: &str = "bc1eqz"; pub const MG_MNE_BC1NEZ: &str = "bc1ne
 pub const MG_MNE_ADDS: &str = "add.s"; pub const MG_MNE_ADDPS: &str = "add.ps"; pub const MG_MNE_SUBD: &str = "sub.d";
 pub const MG_MNE_SUBS: &str = "sub.s"; pub const MG_MNE_SUBPS: &str = "sub.ps"; pub const MG_MNE_MULD: &str = "mul.d";
 pub const MG_MNE_MULS: &str = "mul.s"; pub const MG_MNE_MULPS: &str = "mul.ps"; pub const MG_MNE_DIVD: &str = "div.d";
-pub const MG_MNE_DIVS: &str = "div.s"; pub const MG_MNE_DIVPS: &str = "div.ps";
+pub const MG_MNE_DIVS: &str = "div.s"; pub const MG_MNE_DIVPS: &str = "div.ps"; pub const MG_MNE_SQRTS: &str = "sqrt.s";
+pub const MG_MNE_SQRTD: &str = "sqrt.d"; pub const MG_MNE_SQRTPS: &str = "sqrt.ps"; pub const MG_MNE_MOVS: &str = "mov.s";
+pub const MG_MNE_MOVD: &str = "mov.d"; pub const MG_MNE_MOVPS: &str = "mov.ps"; pub const MG_MNE_ABSS: &str = "abs.s";
+pub const MG_MNE_ABSD: &str = "abs.d"; pub const MG_MNE_ABSPS: &str = "abs.ps"; pub const MG_MNE_NEGS: &str = "neg.s";
+pub const MG_MNE_NEGD: &str = "neg.d"; pub const MG_MNE_NEGPS: &str = "neg.ps";
+
 
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -155,7 +160,8 @@ pub enum MgMnemonic {
     MgMneLbe, MgMneLhe, MgMneLce, MgMneLwe, MgMneLbue, MgMneLhue, MgMneDsbh, MgMneBitswap, MgMneDbitswap, MgMneDshd, MgMneAlign, MgMneDalign, MgMneDmfc0,
     MgMneDmtc0, MgMneDmtc1, MgMneDmfc1, MgMneMtc1, MgMneMfc1, MgMneMfhc0, MgMneMthc0, MgMneTlbinv, MgMneTlbinvf, MgMneDvp, MgMneEvp, MgMneCfc1, MgMneMfhc1,
     MgMneCtc1, MgMneMthc1, MgMneBc1f, MgMneBc1t, MgMneBc1fl, MgMneBc1tl, MgMneBc1eqz, MgMneBc1nez, MgMneAdds, MgMneAddps, MgMneAddd,
-    MgMneSubs, MgMneSubps, MgMneSubd, MgMneMuls, MgMneMuld, MgMneMulps, MgMneDivs, MgMneDivd, MgMneDivps
+    MgMneSubs, MgMneSubps, MgMneSubd, MgMneMuls, MgMneMuld, MgMneMulps, MgMneDivs, MgMneDivd, MgMneDivps, MgMneSqrts, MgMneSqrtd, MgMneSqrtps,
+    MgMneMovs, MgMneMovd, MgMneMovps, MgMneAbss, MgMneAbsd, MgMneAbsps, MgMneNegs, MgMneNegd, MgMneNegps
 }
 
 pub(super)const MG_MNEMONICS: &[&str] = &[
@@ -185,5 +191,6 @@ pub(super)const MG_MNEMONICS: &[&str] = &[
     MG_MNE_LBUE, MG_MNE_LHUE, MG_MNE_DSBH, MG_MNE_BITSWAP, MG_MNE_DBITSWAP, MG_MNE_DSHD, MG_MNE_ALIGN, MG_MNE_DALIGN, MG_MNE_DMFC0, MG_MNE_DMTC0, MG_MNE_DMTC1, MG_MNE_DMFC1,
     MG_MNE_MTC1, MG_MNE_MFC1, MG_MNE_MFHC0, MG_MNE_MTHC0, MG_MNE_TLBINV, MG_MNE_TLBINVF, MG_MNE_DVP, MG_MNE_EVP, MG_MNE_CFC1, MG_MNE_MFHC1, MG_MNE_CTC1, MG_MNE_MTHC1, MG_MNE_BC1F,
     MG_MNE_BC1T, MG_MNE_BC1FL, MG_MNE_BC1TL, MG_MNE_BC1EQZ, MG_MNE_BC1NEZ, MG_MNE_ADDS, MG_MNE_ADDPS, MG_MNE_ADDD, MG_MNE_SUBS, MG_MNE_SUBPS, MG_MNE_SUBD, MG_MNE_MULS, MG_MNE_MULD, 
-    MG_MNE_MULPS, MG_MNE_DIVS, MG_MNE_DIVD, MG_MNE_DIVPS, 
+    MG_MNE_MULPS, MG_MNE_DIVS, MG_MNE_DIVD, MG_MNE_DIVPS, MG_MNE_SQRTS, MG_MNE_SQRTD, MG_MNE_SQRTPS, MG_MNE_MOVS, MG_MNE_MOVD, MG_MNE_MOVPS, MG_MNE_ABSS, MG_MNE_ABSD, MG_MNE_ABSPS,
+    MG_MNE_NEGS, MG_MNE_NEGD, MG_MNE_NEGPS,
 ];
