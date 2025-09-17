@@ -15,21 +15,21 @@ fn test_lsa_dlsa(){
     let lsa = decoder.disassemble(machine_code[0], 0).unwrap();
     let dlsa = decoder.disassemble(machine_code[1], 0).unwrap();
 
-    assert_eq!(MgMnemonic::MgMneLsa, lsa.get_mnemonic());
-    assert_eq!(MgMnemonic::MgMneDlsa, dlsa.get_mnemonic());
-    assert_eq!(MG_MNE_LSA, lsa.get_mnemonic_str());
-    assert_eq!(MG_MNE_DLSA, dlsa.get_mnemonic_str());
-    assert_eq!(MG_MNE_LSA, "lsa");
-    assert_eq!(MG_MNE_DLSA, "dlsa");
+    assert!(MgMnemonic::MgMneLsa == lsa.get_mnemonic());
+    assert!(MgMnemonic::MgMneDlsa == dlsa.get_mnemonic());
+    assert!(MG_MNE_LSA == lsa.get_mnemonic_str());
+    assert!(MG_MNE_DLSA == dlsa.get_mnemonic_str());
+    assert!(MG_MNE_LSA == "lsa");
+    assert!(MG_MNE_DLSA == "dlsa");
 
-    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneLsa, false, true, false, true));
-    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneDlsa, false, false, false, true));
+    assert!(version_test(machine_code[0], MgMnemonic::MgMneLsa, false, true, false, true));
+    assert!(version_test(machine_code[1], MgMnemonic::MgMneDlsa, false, false, false, true));
 
-    assert_eq!(true, check_field(&decoder, machine_code[0], 0b111, MgMnemonic::MgMneLsa, 6));
-    assert_eq!(true, check_field(&decoder, machine_code[1], 0b111, MgMnemonic::MgMneDlsa, 6));
+    assert!(check_field(&decoder, machine_code[0], 0b111, MgMnemonic::MgMneLsa, 6));
+    assert!(check_field(&decoder, machine_code[1], 0b111, MgMnemonic::MgMneDlsa, 6));
 
-    assert_eq!(true, check_operands(&lsa, 4));
-    assert_eq!(true, check_operands(&dlsa, 4));
+    assert!(check_operands(&lsa, 4));
+    assert!(check_operands(&dlsa, 4));
 
     imm_limit_reached(&decoder, MgMnemonic::MgMneLsa, machine_code[0], 6, 3, 3);
     imm_limit_reached(&decoder, MgMnemonic::MgMneDlsa, machine_code[1], 6, 3, 3);
@@ -62,24 +62,24 @@ fn test_seleqz_selnez() {
     let selnez = decoder.disassemble(machine_code[1], 0).unwrap();
 
     //No problem
-    assert_eq!(seleqz.get_mnemonic(), MgMnemonic::MgMneSeleqz);
-    assert_eq!(selnez.get_mnemonic(), MgMnemonic::MgMneSelnez);
-    assert_eq!(seleqz.get_mnemonic_str(), MG_MNE_SELEQZ);
-    assert_eq!(selnez.get_mnemonic_str(), MG_MNE_SELNEZ);
-    assert_eq!("seleqz", MG_MNE_SELEQZ);
-    assert_eq!("selnez", MG_MNE_SELNEZ);
+    assert!(seleqz.get_mnemonic() == MgMnemonic::MgMneSeleqz);
+    assert!(selnez.get_mnemonic() == MgMnemonic::MgMneSelnez);
+    assert!(seleqz.get_mnemonic_str() == MG_MNE_SELEQZ);
+    assert!(selnez.get_mnemonic_str() == MG_MNE_SELNEZ);
+    assert!("seleqz" == MG_MNE_SELEQZ);
+    assert!("selnez" == MG_MNE_SELNEZ);
 
-    assert_eq!(seleqz.is_conditional(), true);
-    assert_eq!(selnez.is_conditional(), true);
+    assert!(seleqz.is_conditional());
+    assert!(selnez.is_conditional());
 
-    assert_eq!(true, check_operands(&seleqz, 3));
-    assert_eq!(true, check_operands(&selnez, 3));
+    assert!(check_operands(&seleqz, 3));
+    assert!(check_operands(&selnez, 3));
 
-    assert_eq!(true, check_field(&decoder, machine_code[0], 0b11111, MgMnemonic::MgMneSeleqz, 6));
-    assert_eq!(true, check_field(&decoder, machine_code[1], 0b11111, MgMnemonic::MgMneSelnez, 6));
+    assert!(check_field(&decoder, machine_code[0], 0b11111, MgMnemonic::MgMneSeleqz, 6));
+    assert!(check_field(&decoder, machine_code[1], 0b11111, MgMnemonic::MgMneSelnez, 6));
 
-    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneSeleqz, false, true, false, true));
-    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneSelnez, false, true, false, true));
+    assert!(version_test(machine_code[0], MgMnemonic::MgMneSeleqz, false, true, false, true));
+    assert!(version_test(machine_code[1], MgMnemonic::MgMneSelnez, false, true, false, true));
 }
 #[test]
 fn test_dahi_dati(){
@@ -91,21 +91,21 @@ fn test_dahi_dati(){
     let dahi = decoder.disassemble(machine_code[0], 0).unwrap();
     let dati = decoder.disassemble(machine_code[1], 0).unwrap();
 
-    assert_eq!(MgMnemonic::MgMneDati, dati.get_mnemonic());
-    assert_eq!(MgMnemonic::MgMneDahi, dahi.get_mnemonic());
-    assert_eq!(MG_MNE_DATI, dati.get_mnemonic_str());
-    assert_eq!(MG_MNE_DAHI, dahi.get_mnemonic_str());
-    assert_eq!(MG_MNE_DATI, "dati");
-    assert_eq!(MG_MNE_DAHI, "dahi");
+    assert!(MgMnemonic::MgMneDati == dati.get_mnemonic());
+    assert!(MgMnemonic::MgMneDahi == dahi.get_mnemonic());
+    assert!(MG_MNE_DATI == dati.get_mnemonic_str());
+    assert!(MG_MNE_DAHI == dahi.get_mnemonic_str());
+    assert!(MG_MNE_DATI == "dati");
+    assert!(MG_MNE_DAHI == "dahi");
 
-    assert_eq!(true, check_operands(&dahi, 2));
-    assert_eq!(true, check_operands(&dati, 2));
+    assert!(check_operands(&dahi, 2));
+    assert!(check_operands(&dati, 2));
 
-    assert_eq!(true, version_test(machine_code[0], MgMnemonic::MgMneDahi, false, false, false, true));
-    assert_eq!(true, version_test(machine_code[1], MgMnemonic::MgMneDati, false, false, false, true));
+    assert!(version_test(machine_code[0], MgMnemonic::MgMneDahi, false, false, false, true));
+    assert!(version_test(machine_code[1], MgMnemonic::MgMneDati, false, false, false, true));
 
-    assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneDahi, machine_code[0], 0, 0xffff, 1));
-    assert_eq!(true, imm_limit_reached(&decoder,MgMnemonic::MgMneDati, machine_code[1], 0, 0xffff, 1));
+    assert!(imm_limit_reached(&decoder,MgMnemonic::MgMneDahi, machine_code[0], 0, 0xffff, 1));
+    assert!(imm_limit_reached(&decoder,MgMnemonic::MgMneDati, machine_code[1], 0, 0xffff, 1));
 
     let Some(MgOperand::MgOpRegister(_)) = dahi.get_operand(0) else {
         panic!();
