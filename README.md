@@ -6,8 +6,30 @@
 | ![](/img/brice-no-goggles.png) |      ![](/img/hex.png)      |
 |  ![](/img/brice-goggles.png)   | ![](/img/mips-assembly.png) |
 
-
 Mips-Goggles is a mips disassembler for the mips instruction set, but is not finished yet, doesn't disassemble every instruction and doesn't implement the 64bits version.
+
+> [!Note]
+> You can't turn instructions into strings it has been removed, it's still in the first commit if you want to try, but I'll reimplement it somedays
+
+# Examples
+## [Basic linear sweep](examples\linear_sweep\src\main.rs)
+```rust
+use mips_goggles::{*, disassembler::MgDisassembler};
+ 
+fn main(){
+    //Mips machine has to be in big endian
+    let code = [    0x90ffbd27, 0x6c00bfaf, 0x6800beaf, 0x21f0a003,
+                    0x42001c3c, 0x308d9c27, 0x1000bcaf, 0x4000023c,
+                    0xc40c4424, 0x2c80998f, 0x00000000, 0x09f82003,
+                    0x00000000, 0x1000dc8f, 0x4000023c, 0xe00c4424,
+                    0x2c80998f, 0x00000000, 0x09f82003 ];
+    let decoder = MgDisassembler::new_disassembler(MgMipsVersion::M32(MgMips32::MgPreR6));
+    for machine_code in code{
+        println!("{:?}", decoder.disassemble(u32::from_be(machine_code), 0x00400000).unwrap());
+    }
+}
+```
+
 # Completed
 
 - [Opcode map](https://www.cipunited.com/xlx/files/document/202008/1205490289250.pdf#G320.1122743)
@@ -34,9 +56,7 @@ Mips-Goggles is a mips disassembler for the mips instruction set, but is not fin
 
 - [Zydis](https://github.com/zyantific/zydis)
 
-# Help
+# Resources
 
 - [Online assembler/disassembler](https://yozan233.github.io/Online-Assembler-Disassembler/) which is basically [Keystone](https://github.com/keystone-engine/keystone)
-1. [Manuel Volume 1](https://riteme.site/nscscc/doc/mips/Volume%20I:%20Introduction%20to%20MIPS32%20Architecture.pdf), [MIPS64 Release 6](https://www.cipunited.com/xlx/files/document/202008/1205481629410.pdf)
-2. [Manuel Volume 2](https://s3-eu-west-1.amazonaws.com/downloads-mips/documents/MD00086-2B-MIPS32BIS-AFP-6.06.pdf), [Release 6](https://s3-eu-west-1.amazonaws.com/downloads-mips/documents/MD00086-2B-MIPS32BIS-AFP-6.06.pdf), [MIPS64 Release 6](https://www.cipunited.com/xlx/files/document/202008/1205490289250.pdf)
-3. [Manuel Volume 3](https://s3-eu-west-1.amazonaws.com/downloads-mips/documents/MD00090-2B-MIPS32PRA-AFP-06.02.pdf)
+- [MIPS64 Manual Volume 1 Release 6](https://www.cipunited.com/xlx/files/document/202008/1205481629410.pdf), [MIPS64 Manual Volume 2 Release 6](https://s3-eu-west-1.amazonaws.com/downloads-mips/documents/MD00086-2B-MIPS32BIS-AFP-6.06.pdf), [MIPS64 Manual Volume 3 Release 6](https://s3-eu-west-1.amazonaws.com/downloads-mips/documents/MD00090-2B-MIPS32PRA-AFP-06.02.pdf)

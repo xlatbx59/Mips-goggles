@@ -893,3 +893,57 @@ fn test_lwr_swr_lwl_swl() {
     assert!(imm_limit_reached(&decoder, MgMnemonic::MgMneLwr, machine_code[2], 0, 0xffff, 1));
     assert!(imm_limit_reached(&decoder,MgMnemonic::MgMneSwr, machine_code[3], 0, 0xffff, 1));
 }
+#[test]
+fn test_lwxc1_ldxc1(){
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
+    let machine_code = [0x4EDC05C0, 0x4EDC05C1];
+    let lwxc1 = decoder.disassemble(machine_code[0], 0).unwrap();
+    let ldxc1 = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert!(lwxc1.get_mnemonic() == MgMnemonic::MgMneLwxc1);
+    assert!(ldxc1.get_mnemonic() == MgMnemonic::MgMneLdxc1);
+    assert!(lwxc1.get_mnemonic_str() == MG_MNE_LWXC1);
+    assert!(ldxc1.get_mnemonic_str() == MG_MNE_LDXC1);
+    assert!("lwxc1" == MG_MNE_LWUPC);
+    assert!("ldxc1" == MG_MNE_LWUPC);
+
+    assert!(MgCoprocessor::Cp1x == lwxc1.get_coprocessor());
+    assert!(MgCoprocessor::Cp1x == ldxc1.get_coprocessor());
+    
+    assert!(false == lwxc1.is_relative());
+    assert!(false == ldxc1.is_relative());
+    assert!(false == lwxc1.is_region());
+    assert!(false == ldxc1.is_region());
+    assert!(false == lwxc1.is_conditional());
+    assert!(false == ldxc1.is_conditional());
+
+    assert!(check_operands(&lwxc1, 3));
+    assert!(check_operands(&ldxc1, 3));
+
+    assert!(check_field(&decoder, machine_code[0], 0b11110, MgMnemonic::MgMneLwxc1, 6));
+    assert!(check_field(&decoder, machine_code[0], 0b11111, MgMnemonic::MgMneLdxc1, 6));
+
+    assert!(version_test(machine_code[0], MgMnemonic::MgMneLwxc1, true, true, false, false));
+    assert!(version_test(machine_code[1], MgMnemonic::MgMneLdxc1, true, true, false, false));
+
+    assert!(imm_limit_reached(&decoder, MgMnemonic::MgMneLwxc1, machine_code[0], 16, 0x1f, 1));
+    assert!(imm_limit_reached(&decoder, MgMnemonic::MgMneLdxc1, machine_code[1], 16, 0x1f, 1));
+
+    let Some(MgOperand::MgOpRegister(cpx_reg)) = lwxc1.get_operand(0) else {
+        panic!("Operand should've been a register")
+    };
+    let Some(MgOperand::MgOpRegister(cpu_reg)) = lwxc1.get_operand(2) else {
+        panic!("Operand should've been a register")
+    };
+    assert!(MgCoprocessor::Cpu == cpu_reg.get_coprocessor());
+    assert!(MgCoprocessor::Cp1x == cpx_reg.get_coprocessor());
+
+    let Some(MgOperand::MgOpRegister(cpx_reg)) = ldxc1.get_operand(0) else {
+        panic!("Operand should've been a register")
+    };
+    let Some(MgOperand::MgOpRegister(cpu_reg)) = ldxc1.get_operand(2) else {
+        panic!("Operand should've been a register")
+    };
+    assert!(MgCoprocessor::Cpu == cpu_reg.get_coprocessor());
+    assert!(MgCoprocessor::Cp1x == cpx_reg.get_coprocessor());
+}

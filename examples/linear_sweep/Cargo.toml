@@ -7,4 +7,4 @@ authors = ["xlatbx59"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-mips_goggles = {path = ".."}    #This path is relative
+mips_goggles = {path = "../.."}
