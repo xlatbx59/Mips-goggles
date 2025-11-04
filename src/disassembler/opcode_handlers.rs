@@ -145,11 +145,11 @@ impl MgDisassembler{
         return COP2_MAP[(prototype.machine_code >> 21 & 0b11111) as usize](self, prototype)
     }
     pub (super) fn cop1x_opcode_map(&self,prototype : &mut MgInstructionPrototype) -> Result<(), MgError>{
-        let MgMipsVersion::M32(MgMips32::MgR6) = self.version else{
+        if let MgMipsVersion::M32(MgMips32::MgR6) | MgMipsVersion::M64(MgMips64::MgR6) = self.version {
             return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
         };
-        static _COP1X_MAP: [fn(disassembler: &MgDisassembler, &mut MgInstructionPrototype) -> Result<(), MgError>; 64] = 
-        [   MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
+        static COP1X_MAP: [fn(disassembler: &MgDisassembler, &mut MgInstructionPrototype) -> Result<(), MgError>; 64] = 
+        [   MgDisassembler::lwxc1_ldxc1,  MgDisassembler::lwxc1_ldxc1,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
             MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
             MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
             MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
@@ -157,10 +157,10 @@ impl MgDisassembler{
             MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
             MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,
             MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions,  MgDisassembler::no_instructions ];
-        unimplemented!("[-]Opcode map isn't implemented yet!");
+        // unimplemented!("[-]Opcode map isn't implemented yet!");
 
-        // prototype.coprocessor = MgCoprocessor::Cp1x;
-        // _COP1X_MAP[(prototype.machine_code >> 26) as usize](prototype)
+        prototype.coprocessor = Some(MgCoprocessor::Cp1x);
+        COP1X_MAP[(prototype.machine_code & 0x3f) as usize](self, prototype)
     }
     pub (super) fn pcrel_opcode_map(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         if let MgMipsVersion::M32(MgMips32::MgPreR6) | MgMipsVersion::M64(MgMips64::MgPreR6) = self.version{
@@ -2174,5 +2174,24 @@ impl MgDisassembler{
         let rs = Some(FieldInfos::default_reg_field(0, MgCoprocessor::Cpu));
         prototype.mnemonic = Some(MgMnemonic::MgMneAuipc);
         self.imm_format(prototype, rs, None, Some(imm))
+    }
+    pub (super) fn lwxc1_ldxc1(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
+        if prototype.machine_code >> 11 & 0x1f != 0{
+            return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
+        }
+        else if let MgMipsVersion::M32(MgMips32::MgR6) | MgMipsVersion::M64(MgMips64::MgR6) = self.version{
+            return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+        }
+
+        prototype.mnemonic = if prototype.machine_code & 1 == 0{
+            Some(MgMnemonic::MgMneLwxc1)
+        }else {
+            Some(MgMnemonic::MgMneLdxc1)
+        };
+        prototype.operand[1] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code >> 16 & 0x1f) as u64));
+        prototype.operand[0] = Some(MgOpRegister::new_reg_operand(MgOpRegister::u8_2_reg((prototype.machine_code >> 6 & 0x1f) as u8), MgCoprocessor::Cp1, None));
+        prototype.operand[2] = Some(MgOpRegister::new_reg_operand(MgOpRegister::u8_2_reg((prototype.machine_code >> 21 & 0x1f) as u8), MgCoprocessor::Cpu, None));
+        prototype.operand_num = 3;
+        Ok(())
     }
 }

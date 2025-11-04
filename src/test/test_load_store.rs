@@ -904,8 +904,8 @@ fn test_lwxc1_ldxc1(){
     assert!(ldxc1.get_mnemonic() == MgMnemonic::MgMneLdxc1);
     assert!(lwxc1.get_mnemonic_str() == MG_MNE_LWXC1);
     assert!(ldxc1.get_mnemonic_str() == MG_MNE_LDXC1);
-    assert!("lwxc1" == MG_MNE_LWUPC);
-    assert!("ldxc1" == MG_MNE_LWUPC);
+    assert!("lwxc1" == MG_MNE_LWXC1);
+    assert!("ldxc1" == MG_MNE_LDXC1);
 
     assert!(MgCoprocessor::Cp1x == lwxc1.get_coprocessor());
     assert!(MgCoprocessor::Cp1x == ldxc1.get_coprocessor());
@@ -920,11 +920,11 @@ fn test_lwxc1_ldxc1(){
     assert!(check_operands(&lwxc1, 3));
     assert!(check_operands(&ldxc1, 3));
 
-    assert!(check_field(&decoder, machine_code[0], 0b11110, MgMnemonic::MgMneLwxc1, 6));
-    assert!(check_field(&decoder, machine_code[0], 0b11111, MgMnemonic::MgMneLdxc1, 6));
+    assert!(check_field(&decoder, machine_code[0], 0b11111, MgMnemonic::MgMneLwxc1, 11));
+    assert!(check_field(&decoder, machine_code[1], 0b11111, MgMnemonic::MgMneLdxc1, 11));
 
-    assert!(version_test(machine_code[0], MgMnemonic::MgMneLwxc1, true, true, false, false));
-    assert!(version_test(machine_code[1], MgMnemonic::MgMneLdxc1, true, true, false, false));
+    assert!(version_test(machine_code[0], MgMnemonic::MgMneLwxc1, true, false, true, false));
+    assert!(version_test(machine_code[1], MgMnemonic::MgMneLdxc1, true, false, true, false));
 
     assert!(imm_limit_reached(&decoder, MgMnemonic::MgMneLwxc1, machine_code[0], 16, 0x1f, 1));
     assert!(imm_limit_reached(&decoder, MgMnemonic::MgMneLdxc1, machine_code[1], 16, 0x1f, 1));
@@ -936,7 +936,7 @@ fn test_lwxc1_ldxc1(){
         panic!("Operand should've been a register")
     };
     assert!(MgCoprocessor::Cpu == cpu_reg.get_coprocessor());
-    assert!(MgCoprocessor::Cp1x == cpx_reg.get_coprocessor());
+    assert!(MgCoprocessor::Cp1 == cpx_reg.get_coprocessor());
 
     let Some(MgOperand::MgOpRegister(cpx_reg)) = ldxc1.get_operand(0) else {
         panic!("Operand should've been a register")
@@ -945,5 +945,5 @@ fn test_lwxc1_ldxc1(){
         panic!("Operand should've been a register")
     };
     assert!(MgCoprocessor::Cpu == cpu_reg.get_coprocessor());
-    assert!(MgCoprocessor::Cp1x == cpx_reg.get_coprocessor());
+    assert!(MgCoprocessor::Cp1 == cpx_reg.get_coprocessor());
 }
