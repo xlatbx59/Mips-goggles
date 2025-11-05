@@ -353,12 +353,12 @@ fn test_ctc1_mthc1(){
     assert!(MG_MNE_MTHC1 == "mthc1");
     assert!(MG_MNE_CTC1 == "ctc1");
 
-    assert!(false == ctc1.is_conditional());
-    assert!(false == ctc1.is_relative());
-    assert!(false == ctc1.is_region());
-    assert!(false == mthc1.is_conditional());
-    assert!(false == mthc1.is_relative());
-    assert!(false == mthc1.is_region());
+    assert!(!ctc1.is_conditional());
+    assert!(!ctc1.is_relative());
+    assert!(!ctc1.is_region());
+    assert!(!mthc1.is_conditional());
+    assert!(!mthc1.is_relative());
+    assert!(!mthc1.is_region());
 
     assert!(version_test(machine_code[0], MgMnemonic::MgMneCtc1, true, true, true, true));
     assert!(version_test(machine_code[1], MgMnemonic::MgMneMthc1, true, true, true, true));
@@ -368,4 +368,47 @@ fn test_ctc1_mthc1(){
 
     assert!(check_operands(&mthc1, 2));
     assert!(check_operands(&ctc1, 2));
+}
+#[test]
+fn test_sel_cp1(){
+    let machine_code: [u32; 2] = [0b01000110000000010001000011010000, 0b01000110001000010001000011010000];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgR6));
+
+    let sels = decoder.disassemble(machine_code[0], 0).unwrap();
+    let seld = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert!(sels.get_mnemonic() == MgMnemonic::MgMneSels);
+    assert!(seld.get_mnemonic() == MgMnemonic::MgMneSeld);
+    assert!(sels.get_mnemonic_str() == MG_MNE_SELS);
+    assert!(seld.get_mnemonic_str() == MG_MNE_SELD);
+    assert!("sel.s" == MG_MNE_SELS);
+    assert!("sel.d" == MG_MNE_SELD);
+
+    assert!(version_test(machine_code[0], MgMnemonic::MgMneSels, false, true, false, true));
+    assert!(version_test(machine_code[1], MgMnemonic::MgMneSeld, false, true, false, true));
+
+    assert!(seld.is_conditional());
+    assert!(!seld.is_relative());
+    assert!(!seld.is_region());
+
+    assert!(sels.is_conditional());
+    assert!(!sels.is_relative());
+    assert!(!sels.is_region());
+    
+    assert!(check_operands(&sels, 3));
+    assert!(check_operands(&seld, 3));
+
+    let (Some(MgOperand::MgOpRegister(cp1_reg_1)), Some(MgOperand::MgOpRegister(cp1_reg_2)), Some(MgOperand::MgOpRegister(cp1_reg_3))) = (sels.get_operand(0), sels.get_operand(1),  sels.get_operand(2) )else {
+        panic!("Operands should've been registers")
+    };
+    assert!(MgCoprocessor::Cp1 == cp1_reg_1.get_coprocessor());
+    assert!(MgCoprocessor::Cp1 == cp1_reg_2.get_coprocessor());
+    assert!(MgCoprocessor::Cp1 == cp1_reg_3.get_coprocessor());
+
+    let (Some(MgOperand::MgOpRegister(cp1_reg_1)), Some(MgOperand::MgOpRegister(cp1_reg_2)), Some(MgOperand::MgOpRegister(cp1_reg_3))) = (seld.get_operand(0), seld.get_operand(1),  seld.get_operand(2) )else {
+        panic!("Operands should've been registers")
+    };
+    assert!(MgCoprocessor::Cp1 == cp1_reg_1.get_coprocessor());
+    assert!(MgCoprocessor::Cp1 == cp1_reg_2.get_coprocessor());
+    assert!(MgCoprocessor::Cp1 == cp1_reg_3.get_coprocessor());
 }
