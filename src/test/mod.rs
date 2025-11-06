@@ -21,7 +21,7 @@ use crate::instruction::mnemonics::*;
 
 ///The purpose of this function is to check if the field that are supposed to be fixed are checked(these ones are supposed to not be 0)
 fn check_field_zero(decoder: &MgDisassembler, code: u32, mask: u32, mne: MgMnemonic, pos: u8) -> bool{
-    match  decoder.disassemble(code &! (mask << pos), 0){
+    match  decoder.disassemble(code & !(mask << pos), 0){
         Ok(i) => if i.get_mnemonic() != mne{return true},
         Err(_) => return true,
     }

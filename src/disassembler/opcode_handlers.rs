@@ -94,7 +94,7 @@ impl MgDisassembler{
         static S_MAP: [fn(disassembler: &MgDisassembler, &mut MgInstructionPrototype, index: usize) -> Result<(), MgError>; 64] =
         [   MgDisassembler::add_cp1,  MgDisassembler::sub_cp1,  MgDisassembler::mul_cp1,  MgDisassembler::div_cp1,  MgDisassembler::sqrt_cp1,  MgDisassembler::abs_cp1,  MgDisassembler::mov_cp1,  MgDisassembler::neg_cp1,
             MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
-            MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
+            MgDisassembler::sel,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
             MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
             MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
             MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
@@ -107,7 +107,7 @@ impl MgDisassembler{
         static D_MAP: [fn(disassembler: &MgDisassembler, &mut MgInstructionPrototype, index: usize) -> Result<(), MgError>; 64] =
         [   MgDisassembler::add_cp1,  MgDisassembler::sub_cp1,  MgDisassembler::mul_cp1,  MgDisassembler::div_cp1,  MgDisassembler::sqrt_cp1,  MgDisassembler::abs_cp1,  MgDisassembler::mov_cp1,  MgDisassembler::neg_cp1,
             MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
-            MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
+            MgDisassembler::sel,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
             MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
             MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
             MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
@@ -2135,6 +2135,26 @@ impl MgDisassembler{
 
         prototype.operand[1] = Some(MgOpImmediate::new_imm_opreand((prototype.machine_code & 0xffff) as u64));
         prototype.operand[0] = Some(MgOpRegister::new_reg_operand(MgOpRegister::u8_2_reg((prototype.machine_code >> 16 & 0x1f) as u8), MgCoprocessor::Cp1, None));
+        Ok(())
+    }
+    pub (super) fn sel(&self, prototype: &mut MgInstructionPrototype, index: usize) -> Result<(), MgError>{
+        if let MgMipsVersion::M32(MgMips32::MgPreR6) | MgMipsVersion::M64(MgMips64::MgPreR6) = self.version{
+            return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+        }
+
+        prototype.is_conditional = true;
+        prototype.mnemonic = if index == 0{
+            Some(MgMnemonic::MgMneSels)
+        }else if index == 1{
+            Some(MgMnemonic::MgMneSeld)
+        }else {
+            return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
+        };
+
+        prototype.operand[0] = Some(MgOpRegister::new_reg_operand(MgOpRegister::u8_2_reg((prototype.machine_code >> 6 & 0x1f) as u8), MgCoprocessor::Cp1, None));
+        prototype.operand[1] = Some(MgOpRegister::new_reg_operand(MgOpRegister::u8_2_reg((prototype.machine_code >> 11 & 0x1f) as u8), MgCoprocessor::Cp1, None));
+        prototype.operand[2] = Some(MgOpRegister::new_reg_operand(MgOpRegister::u8_2_reg((prototype.machine_code >> 16 & 0x1f) as u8), MgCoprocessor::Cp1, None));
+        prototype.operand_num = 3;
         Ok(())
     }
 
