@@ -1057,3 +1057,52 @@ fn test_neg_cp1(){
     assert!(check_operands(&negps, 2));
     assert!(check_operands(&negd, 2));
 }
+#[test]
+fn test_round_cp1(){
+    let machine_code: [u32; 3] = [0x46001047, 0x46201007, 0x46c01047];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
+
+    let roundls = decoder.disassemble(machine_code[0], 0).unwrap();
+    let roundld = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert!(roundls.get_mnemonic() == MgMnemonic::MgMneRoundls);
+    assert!(roundld.get_mnemonic() == MgMnemonic::MgMneRoundld);
+    assert!(roundls.get_mnemonic_str() == MG_MNE_ROUNDLS);
+    assert!(roundld.get_mnemonic_str() == MG_MNE_ROUNDLD);
+    assert!("round.l.s" == MG_MNE_ROUNDLS);
+    assert!("round.l.d" == MG_MNE_ROUNDLD);
+
+    assert!(version_test(machine_code[0], MgMnemonic::MgMneRoundls, true, true, true, true));
+    assert!(version_test(machine_code[1], MgMnemonic::MgMneRoundld, true, true, true, true));
+
+    assert!(!roundld.is_conditional());
+    assert!(!roundld.is_relative());
+    assert!(!roundld.is_region());
+    assert!(!roundls.is_conditional());
+    assert!(!roundls.is_relative());
+    assert!(!roundls.is_region());
+    
+    assert!(check_operands(&roundls, 2));
+    assert!(check_operands(&roundld, 2));
+
+    assert!(check_field(&decoder, machine_code[0], 0b11111, MgMnemonic::MgMneRoundls, 16));
+    assert!(check_field(&decoder, machine_code[1], 0b11111, MgMnemonic::MgMneRoundld, 16));
+
+    let Some(MgOperand::MgOpRegister(cp1_reg)) = roundls.get_operand(0) else {
+        panic!("Operand should've been a register")
+    };
+    let Some(MgOperand::MgOpRegister(cp1_reg_1)) = roundls.get_operand(1) else {
+        panic!("Operand should've been a register")
+    };
+    assert!(MgCoprocessor::Cp1 == cp1_reg.get_coprocessor());
+    assert!(MgCoprocessor::Cp1 == cp1_reg_1.get_coprocessor());
+
+    let Some(MgOperand::MgOpRegister(cp1_reg)) = roundld.get_operand(0) else {
+        panic!("Operand should've been a register")
+    };
+    let Some(MgOperand::MgOpRegister(cp1_reg_1)) = roundld.get_operand(1) else {
+        panic!("Operand should've been a register")
+    };
+    assert!(MgCoprocessor::Cp1 == cp1_reg.get_coprocessor());
+    assert!(MgCoprocessor::Cp1 == cp1_reg_1.get_coprocessor());
+}
