@@ -1106,3 +1106,52 @@ fn test_round_cp1(){
     assert!(MgCoprocessor::Cp1 == cp1_reg.get_coprocessor());
     assert!(MgCoprocessor::Cp1 == cp1_reg_1.get_coprocessor());
 }
+#[test]
+fn test_trunc_cp1(){
+    let machine_code: [u32; 3] = [0x46001047, 0x46201007, 0x46c01047];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
+
+    let truncls = decoder.disassemble(machine_code[0], 0).unwrap();
+    let truncld = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert!(truncls.get_mnemonic() == MgMnemonic::MgMneTruncls);
+    assert!(truncld.get_mnemonic() == MgMnemonic::MgMneTruncld);
+    assert!(truncls.get_mnemonic_str() == MG_MNE_ROUNDLS);
+    assert!(truncld.get_mnemonic_str() == MG_MNE_ROUNDLD);
+    assert!("trunc.l.s" == MG_MNE_ROUNDLS);
+    assert!("trunc.l.d" == MG_MNE_ROUNDLD);
+
+    assert!(version_test(machine_code[0], MgMnemonic::MgMneTruncls, true, true, true, true));
+    assert!(version_test(machine_code[1], MgMnemonic::MgMneTruncld, true, true, true, true));
+
+    assert!(!truncld.is_conditional());
+    assert!(!truncld.is_relative());
+    assert!(!truncld.is_region());
+    assert!(!truncls.is_conditional());
+    assert!(!truncls.is_relative());
+    assert!(!truncls.is_region());
+    
+    assert!(check_operands(&truncls, 2));
+    assert!(check_operands(&truncld, 2));
+
+    assert!(check_field(&decoder, machine_code[0], 0b11111, MgMnemonic::MgMneTruncls, 16));
+    assert!(check_field(&decoder, machine_code[1], 0b11111, MgMnemonic::MgMneTruncld, 16));
+
+    let Some(MgOperand::MgOpRegister(cp1_reg)) = truncls.get_operand(0) else {
+        panic!("Operand should've been a register")
+    };
+    let Some(MgOperand::MgOpRegister(cp1_reg_1)) = truncls.get_operand(1) else {
+        panic!("Operand should've been a register")
+    };
+    assert!(MgCoprocessor::Cp1 == cp1_reg.get_coprocessor());
+    assert!(MgCoprocessor::Cp1 == cp1_reg_1.get_coprocessor());
+
+    let Some(MgOperand::MgOpRegister(cp1_reg)) = truncld.get_operand(0) else {
+        panic!("Operand should've been a register")
+    };
+    let Some(MgOperand::MgOpRegister(cp1_reg_1)) = truncld.get_operand(1) else {
+        panic!("Operand should've been a register")
+    };
+    assert!(MgCoprocessor::Cp1 == cp1_reg.get_coprocessor());
+    assert!(MgCoprocessor::Cp1 == cp1_reg_1.get_coprocessor());
+}
