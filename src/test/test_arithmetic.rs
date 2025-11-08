@@ -1155,3 +1155,111 @@ fn test_trunc_cp1(){
     assert!(MgCoprocessor::Cp1 == cp1_reg.get_coprocessor());
     assert!(MgCoprocessor::Cp1 == cp1_reg_1.get_coprocessor());
 }
+#[test]
+fn test_maddf_cp1(){
+    let machine_code: [u32; 2] = [0b01000110000000001001101010011000, 0b01000110001000001001101010011000];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgR6));
+
+    let maddfls = decoder.disassemble(machine_code[0], 0).unwrap();
+    let maddfld = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert!(maddfls.get_mnemonic() == MgMnemonic::MgMneMaddfs);
+    assert!(maddfld.get_mnemonic() == MgMnemonic::MgMneMaddfd);
+    assert!(maddfls.get_mnemonic_str() == MG_MNE_MADDFS);
+    assert!(maddfld.get_mnemonic_str() == MG_MNE_MADDFD);
+    assert!("maddf.l.s" == MG_MNE_MADDFS);
+    assert!("maddf.l.d" == MG_MNE_MADDFD);
+
+    assert!(version_test(machine_code[0], MgMnemonic::MgMneMaddfs, false, true, false, true));
+    assert!(version_test(machine_code[1], MgMnemonic::MgMneMaddfd, false, true, false, true));
+
+    assert!(!maddfld.is_conditional());
+    assert!(!maddfld.is_relative());
+    assert!(!maddfld.is_region());
+    assert!(!maddfls.is_conditional());
+    assert!(!maddfls.is_relative());
+    assert!(!maddfls.is_region());
+    
+    assert!(check_operands(&maddfls, 3));
+    assert!(check_operands(&maddfld, 3));
+
+    let Some(MgOperand::MgOpRegister(cp1_reg)) = maddfls.get_operand(0) else {
+        panic!("Operand should've been a register")
+    };
+    let Some(MgOperand::MgOpRegister(cp1_reg_1)) = maddfls.get_operand(1) else {
+        panic!("Operand should've been a register")
+    };
+    let Some(MgOperand::MgOpRegister(cp1_reg_2)) = maddfls.get_operand(2) else {
+        panic!("Operand should've been a register")
+    };
+    assert!(MgCoprocessor::Cp1 == cp1_reg.get_coprocessor());
+    assert!(MgCoprocessor::Cp1 == cp1_reg_1.get_coprocessor());
+    assert!(MgCoprocessor::Cp1 == cp1_reg_2.get_coprocessor());
+
+    let Some(MgOperand::MgOpRegister(cp1_reg)) = maddfld.get_operand(0) else {
+        panic!("Operand should've been a register")
+    };
+    let Some(MgOperand::MgOpRegister(cp1_reg_1)) = maddfld.get_operand(1) else {
+        panic!("Operand should've been a register")
+    };
+    let Some(MgOperand::MgOpRegister(cp1_reg_2)) = maddfld.get_operand(2) else {
+        panic!("Operand should've been a register")
+    };
+    assert!(MgCoprocessor::Cp1 == cp1_reg.get_coprocessor());
+    assert!(MgCoprocessor::Cp1 == cp1_reg_1.get_coprocessor());
+    assert!(MgCoprocessor::Cp1 == cp1_reg_2.get_coprocessor());
+}
+#[test]
+fn test_msubf_cp1(){
+    let machine_code: [u32; 3] = [0b01000110000000001001101010011001, 0b01000110001000001001101010011001];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgR6));
+
+    let msubfls = decoder.disassemble(machine_code[0], 0).unwrap();
+    let msubfld = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert!(msubfls.get_mnemonic() == MgMnemonic::MgMneMsubfs);
+    assert!(msubfld.get_mnemonic() == MgMnemonic::MgMneMsubfd);
+    assert!(msubfls.get_mnemonic_str() == MG_MNE_MSUBFS);
+    assert!(msubfld.get_mnemonic_str() == MG_MNE_MSUBFD);
+    assert!("msubf.l.s" == MG_MNE_MSUBFS);
+    assert!("msubf.l.d" == MG_MNE_MSUBFD);
+
+    assert!(version_test(machine_code[0], MgMnemonic::MgMneMsubfs, false, true, false, true));
+    assert!(version_test(machine_code[1], MgMnemonic::MgMneMsubfd, false, true, false, true));
+
+    assert!(!msubfld.is_conditional());
+    assert!(!msubfld.is_relative());
+    assert!(!msubfld.is_region());
+    assert!(!msubfls.is_conditional());
+    assert!(!msubfls.is_relative());
+    assert!(!msubfls.is_region());
+    
+    assert!(check_operands(&msubfls, 3));
+    assert!(check_operands(&msubfld, 3));
+
+    let Some(MgOperand::MgOpRegister(cp1_reg)) = msubfls.get_operand(0) else {
+        panic!("Operand should've been a register")
+    };
+    let Some(MgOperand::MgOpRegister(cp1_reg_1)) = msubfls.get_operand(1) else {
+        panic!("Operand should've been a register")
+    };
+    let Some(MgOperand::MgOpRegister(cp1_reg_2)) = msubfls.get_operand(2) else {
+        panic!("Operand should've been a register")
+    };
+    assert!(MgCoprocessor::Cp1 == cp1_reg.get_coprocessor());
+    assert!(MgCoprocessor::Cp1 == cp1_reg_1.get_coprocessor());
+    assert!(MgCoprocessor::Cp1 == cp1_reg_2.get_coprocessor());
+
+    let Some(MgOperand::MgOpRegister(cp1_reg)) = msubfld.get_operand(0) else {
+        panic!("Operand should've been a register")
+    };
+    let Some(MgOperand::MgOpRegister(cp1_reg_1)) = msubfld.get_operand(1) else {
+        panic!("Operand should've been a register")
+    };
+    let Some(MgOperand::MgOpRegister(cp1_reg_2)) = msubfld.get_operand(2) else {
+        panic!("Operand should've been a register")
+    };
+    assert!(MgCoprocessor::Cp1 == cp1_reg.get_coprocessor());
+    assert!(MgCoprocessor::Cp1 == cp1_reg_1.get_coprocessor());
+    assert!(MgCoprocessor::Cp1 == cp1_reg_2.get_coprocessor());
+}

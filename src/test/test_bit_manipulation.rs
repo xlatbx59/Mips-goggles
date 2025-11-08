@@ -241,7 +241,7 @@ fn test_stli_stliu(){
 #[test]
 fn test_class(){
     let machine_code: [u32; 2] = [0b01000110000000001001101010011011, 0b01000110001000001001101010011011];
-    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgR6));
 
     let classs = decoder.disassemble(machine_code[0], 0).unwrap();
     let classd = decoder.disassemble(machine_code[1], 0).unwrap();

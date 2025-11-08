@@ -131,8 +131,9 @@ pub const MG_MNE_MOVD: &str = "mov.d"; pub const MG_MNE_MOVPS: &str = "mov.ps"; 
 pub const MG_MNE_ABSD: &str = "abs.d"; pub const MG_MNE_ABSPS: &str = "abs.ps"; pub const MG_MNE_NEGS: &str = "neg.s";
 pub const MG_MNE_NEGD: &str = "neg.d"; pub const MG_MNE_NEGPS: &str = "neg.ps"; pub const MG_MNE_SELS: &str = "sel.s";
 pub const MG_MNE_SELD: &str = "sel.d"; pub const MG_MNE_ROUNDLS: &str = "round.l.s"; pub const MG_MNE_ROUNDLD: &str = "round.l.d";
-pub const MG_MNE_TRUNCLS: &str = "trunc.l.s"; pub const MG_MNE_TRUNCLD: &str = "trunc.l.d";
-pub const MG_MNE_CLASSS: &str = "class.s"; pub const MG_MNE_CLASSD: &str = "class.d";
+pub const MG_MNE_TRUNCLS: &str = "trunc.l.s"; pub const MG_MNE_TRUNCLD: &str = "trunc.l.d"; pub const MG_MNE_CLASSS: &str = "class.s";
+pub const MG_MNE_CLASSD: &str = "class.d"; pub const MG_MNE_MADDFS: &str = "maddf.s"; pub const MG_MNE_MADDFD: &str = "maddf.d";
+pub const MG_MNE_MSUBFS: &str = "msubf.s"; pub const MG_MNE_MSUBFD: &str = "msubf.d";
 
 //Cp1x
 pub const MG_MNE_LWXC1: &str = "lwxc1"; pub const MG_MNE_LDXC1: &str = "ldxc1";
@@ -166,7 +167,7 @@ pub enum MgMnemonic {
     MgMneCtc1, MgMneMthc1, MgMneBc1f, MgMneBc1t, MgMneBc1fl, MgMneBc1tl, MgMneBc1eqz, MgMneBc1nez, MgMneAdds, MgMneAddps, MgMneAddd,
     MgMneSubs, MgMneSubps, MgMneSubd, MgMneMuls, MgMneMuld, MgMneMulps, MgMneDivs, MgMneDivd, MgMneDivps, MgMneSqrts, MgMneSqrtd, MgMneSqrtps,
     MgMneMovs, MgMneMovd, MgMneMovps, MgMneAbss, MgMneAbsd, MgMneAbsps, MgMneNegs, MgMneNegd, MgMneNegps, MgMneLwxc1, MgMneLdxc1, MgMneSels, MgMneSeld,
-    MgMneRoundls, MgMneRoundld, MgMneTruncls, MgMneTruncld, MgMneClasss, MgMneClassd
+    MgMneRoundls, MgMneRoundld, MgMneTruncls, MgMneTruncld, MgMneClasss, MgMneClassd, MgMneMaddfs, MgMneMaddfd, MgMneMsubfs, MgMneMsubfd,
 }
 
 pub(super)const MG_MNEMONICS: &[&str] = &[
@@ -198,5 +199,5 @@ pub(super)const MG_MNEMONICS: &[&str] = &[
     MG_MNE_BC1T, MG_MNE_BC1FL, MG_MNE_BC1TL, MG_MNE_BC1EQZ, MG_MNE_BC1NEZ, MG_MNE_ADDS, MG_MNE_ADDPS, MG_MNE_ADDD, MG_MNE_SUBS, MG_MNE_SUBPS, MG_MNE_SUBD, MG_MNE_MULS, MG_MNE_MULD, 
     MG_MNE_MULPS, MG_MNE_DIVS, MG_MNE_DIVD, MG_MNE_DIVPS, MG_MNE_SQRTS, MG_MNE_SQRTD, MG_MNE_SQRTPS, MG_MNE_MOVS, MG_MNE_MOVD, MG_MNE_MOVPS, MG_MNE_ABSS, MG_MNE_ABSD, MG_MNE_ABSPS,
     MG_MNE_NEGS, MG_MNE_NEGD, MG_MNE_NEGPS, MG_MNE_LWXC1, MG_MNE_LDXC1, MG_MNE_SELS, MG_MNE_SELD, MG_MNE_ROUNDLS, MG_MNE_ROUNDLD, MG_MNE_TRUNCLS, MG_MNE_TRUNCLD, MG_MNE_CLASSS, MG_MNE_CLASSD,
-
+    MG_MNE_MADDFS, MG_MNE_MADDFD
 ];
