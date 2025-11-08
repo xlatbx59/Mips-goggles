@@ -238,3 +238,52 @@ fn test_stli_stliu(){
     assert!(imm_limit_reached(&decoder, MgMnemonic::MgMneSlti, machine_code[0], 0, 0xffff, 2));
     assert!(imm_limit_reached(&decoder,MgMnemonic::MgMneSltiu, machine_code[1], 0, 0xffff, 2));
 }
+#[test]
+fn test_class(){
+    let machine_code: [u32; 2] = [0b01000110000000001001101010011011, 0b01000110001000001001101010011011];
+    let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
+
+    let classs = decoder.disassemble(machine_code[0], 0).unwrap();
+    let classd = decoder.disassemble(machine_code[1], 0).unwrap();
+
+    assert!(classs.get_mnemonic() == MgMnemonic::MgMneClasss);
+    assert!(classd.get_mnemonic() == MgMnemonic::MgMneClassd);
+    assert!(classs.get_mnemonic_str() == MG_MNE_CLASSS);
+    assert!(classd.get_mnemonic_str() == MG_MNE_CLASSD);
+    assert!("class.s" == MG_MNE_CLASSS);
+    assert!("class.d" == MG_MNE_CLASSD);
+
+    assert!(version_test(machine_code[0], MgMnemonic::MgMneClasss, false, true, false, true));
+    assert!(version_test(machine_code[1], MgMnemonic::MgMneClassd, false, true, false, true));
+
+    assert!(!classd.is_conditional());
+    assert!(!classd.is_relative());
+    assert!(!classd.is_region());
+    assert!(!classs.is_conditional());
+    assert!(!classs.is_relative());
+    assert!(!classs.is_region());
+    
+    assert!(check_operands(&classs, 2));
+    assert!(check_operands(&classd, 2));
+
+    assert!(check_field(&decoder, machine_code[0], 0b11111, MgMnemonic::MgMneClasss, 16));
+    assert!(check_field(&decoder, machine_code[1], 0b11111, MgMnemonic::MgMneClassd, 16));
+
+    let Some(MgOperand::MgOpRegister(cp1_reg)) = classs.get_operand(0) else {
+        panic!("Operand should've been a register")
+    };
+    let Some(MgOperand::MgOpRegister(cp1_reg_1)) = classs.get_operand(1) else {
+        panic!("Operand should've been a register")
+    };
+    assert!(MgCoprocessor::Cp1 == cp1_reg.get_coprocessor());
+    assert!(MgCoprocessor::Cp1 == cp1_reg_1.get_coprocessor());
+
+    let Some(MgOperand::MgOpRegister(cp1_reg)) = classd.get_operand(0) else {
+        panic!("Operand should've been a register")
+    };
+    let Some(MgOperand::MgOpRegister(cp1_reg_1)) = classd.get_operand(1) else {
+        panic!("Operand should've been a register")
+    };
+    assert!(MgCoprocessor::Cp1 == cp1_reg.get_coprocessor());
+    assert!(MgCoprocessor::Cp1 == cp1_reg_1.get_coprocessor());
+}

@@ -1108,7 +1108,7 @@ fn test_round_cp1(){
 }
 #[test]
 fn test_trunc_cp1(){
-    let machine_code: [u32; 3] = [0x46001047, 0x46201007, 0x46c01047];
+    let machine_code: [u32; 2] = [0b01000110000000001001101010001001, 0b01000110000000001001101010001001];
     let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
 
     let truncls = decoder.disassemble(machine_code[0], 0).unwrap();
@@ -1116,10 +1116,10 @@ fn test_trunc_cp1(){
 
     assert!(truncls.get_mnemonic() == MgMnemonic::MgMneTruncls);
     assert!(truncld.get_mnemonic() == MgMnemonic::MgMneTruncld);
-    assert!(truncls.get_mnemonic_str() == MG_MNE_ROUNDLS);
-    assert!(truncld.get_mnemonic_str() == MG_MNE_ROUNDLD);
-    assert!("trunc.l.s" == MG_MNE_ROUNDLS);
-    assert!("trunc.l.d" == MG_MNE_ROUNDLD);
+    assert!(truncls.get_mnemonic_str() == MG_MNE_TRUNCLS);
+    assert!(truncld.get_mnemonic_str() == MG_MNE_TRUNCLD);
+    assert!("trunc.l.s" == MG_MNE_TRUNCLS);
+    assert!("trunc.l.d" == MG_MNE_TRUNCLD);
 
     assert!(version_test(machine_code[0], MgMnemonic::MgMneTruncls, true, true, true, true));
     assert!(version_test(machine_code[1], MgMnemonic::MgMneTruncld, true, true, true, true));
