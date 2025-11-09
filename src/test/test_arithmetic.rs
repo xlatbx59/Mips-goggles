@@ -1211,7 +1211,7 @@ fn test_maddf_cp1(){
 }
 #[test]
 fn test_msubf_cp1(){
-    let machine_code: [u32; 3] = [0b01000110000000001001101010011001, 0b01000110001000001001101010011001];
+    let machine_code: [u32; 2] = [0b01000110000000001001101010011001, 0b01000110001000001001101010011001];
     let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgR6));
 
     let msubfls = decoder.disassemble(machine_code[0], 0).unwrap();

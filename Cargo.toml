@@ -1,9 +1,13 @@
-workspace = { members = ["examples/linear_sweep"] }
 [package]
 name = "mips_goggles"
+authors = ["xlatbx59"]
+repository = "https://github.com/xlatbx59/Mips-goggles"
+keywords = ["mips", "disassembler"]
 version = "0.1.0"
 edition = "2021"
-authors = ["xlatbx59"]
+
+[[example]]
+name = "linear_sweep"
 
 [dependencies]
 #no dependencies

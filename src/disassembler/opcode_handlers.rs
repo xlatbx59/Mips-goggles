@@ -95,7 +95,7 @@ impl MgDisassembler{
         [   MgDisassembler::add_cp1,  MgDisassembler::sub_cp1,  MgDisassembler::mul_cp1,  MgDisassembler::div_cp1,  MgDisassembler::sqrt_cp1,  MgDisassembler::abs_cp1,  MgDisassembler::mov_cp1,  MgDisassembler::neg_cp1,
             MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
             MgDisassembler::sel,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
-            MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
+            MgDisassembler::maddfl_msubfl,  MgDisassembler::maddfl_msubfl,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
             MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
             MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
             MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
@@ -108,7 +108,7 @@ impl MgDisassembler{
         [   MgDisassembler::add_cp1,  MgDisassembler::sub_cp1,  MgDisassembler::mul_cp1,  MgDisassembler::div_cp1,  MgDisassembler::sqrt_cp1,  MgDisassembler::abs_cp1,  MgDisassembler::mov_cp1,  MgDisassembler::neg_cp1,
             MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
             MgDisassembler::sel,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
-            MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
+            MgDisassembler::maddfl_msubfl,  MgDisassembler::maddfl_msubfl,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
             MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
             MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
             MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
@@ -2157,6 +2157,28 @@ impl MgDisassembler{
         prototype.operand_num = 3;
         Ok(())
     }
+    pub (super) fn maddfl_msubfl(&self, prototype: &mut MgInstructionPrototype, index: usize) -> Result<(), MgError>{
+        if let MgMipsVersion::M32(MgMips32::MgPreR6) | MgMipsVersion::M64(MgMips64::MgPreR6) = self.version{
+            return Err(MgError::throw_error(MgErrorCode::VersionError, prototype.opcode, prototype.address, prototype.machine_code))
+        }
+
+        prototype.mnemonic = if index == 0{
+            if prototype.machine_code & 1 == 0{Some(MgMnemonic::MgMneMaddfs)}
+            else {Some(MgMnemonic::MgMneMsubfs)}
+        }else if index == 1{
+            if prototype.machine_code & 1 == 0{Some(MgMnemonic::MgMneMaddfd)}
+            else {Some(MgMnemonic::MgMneMsubfd)}
+        }else {
+            return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
+        };
+
+        prototype.operand[0] = Some(MgOpRegister::new_reg_operand(MgOpRegister::u8_2_reg((prototype.machine_code >> 6 & 0x1f) as u8), MgCoprocessor::Cp1, None));
+        prototype.operand[1] = Some(MgOpRegister::new_reg_operand(MgOpRegister::u8_2_reg((prototype.machine_code >> 11 & 0x1f) as u8), MgCoprocessor::Cp1, None));
+        prototype.operand[2] = Some(MgOpRegister::new_reg_operand(MgOpRegister::u8_2_reg((prototype.machine_code >> 16 & 0x1f) as u8), MgCoprocessor::Cp1, None));
+        prototype.operand_num = 3;
+        Ok(())
+    }
+
 
     //pcrel
     pub (super) fn addiupc(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
