@@ -1,8 +1,9 @@
 [package]
-name = "mips_goggles"
 authors = ["xlatbx59"]
+name = "mips_goggles"
+description = "Mips disassembler written in Rust"
 repository = "https://github.com/xlatbx59/Mips-goggles"
-keywords = ["mips", "disassembler"]
+keywords = ["mips", "disassembler", "rust"]
 version = "0.1.0"
 edition = "2021"
 
