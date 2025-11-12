@@ -1059,7 +1059,7 @@ fn test_neg_cp1(){
 }
 #[test]
 fn test_round_cp1(){
-    let machine_code: [u32; 3] = [0x46001047, 0x46201007, 0x46c01047];
+    let machine_code: [u32; 2] = [0b01000110000000000010111100001000, 0b01000110001000000010111100001000];
     let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
 
     let roundls = decoder.disassemble(machine_code[0], 0).unwrap();

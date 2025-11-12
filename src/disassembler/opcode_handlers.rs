@@ -93,7 +93,7 @@ impl MgDisassembler{
     pub (super) fn cop1_s(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         static S_MAP: [fn(disassembler: &MgDisassembler, &mut MgInstructionPrototype, index: usize) -> Result<(), MgError>; 64] =
         [   MgDisassembler::add_cp1,  MgDisassembler::sub_cp1,  MgDisassembler::mul_cp1,  MgDisassembler::div_cp1,  MgDisassembler::sqrt_cp1,  MgDisassembler::abs_cp1,  MgDisassembler::mov_cp1,  MgDisassembler::neg_cp1,
-            MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
+            MgDisassembler::roundl,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
             MgDisassembler::sel,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
             MgDisassembler::maddfl_msubfl,  MgDisassembler::maddfl_msubfl,  MgDisassembler::cp1_no_instructions,  MgDisassembler::class,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
             MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
@@ -106,7 +106,7 @@ impl MgDisassembler{
     pub (super) fn cop1_d(&self, prototype: &mut MgInstructionPrototype) -> Result<(), MgError>{
         static D_MAP: [fn(disassembler: &MgDisassembler, &mut MgInstructionPrototype, index: usize) -> Result<(), MgError>; 64] =
         [   MgDisassembler::add_cp1,  MgDisassembler::sub_cp1,  MgDisassembler::mul_cp1,  MgDisassembler::div_cp1,  MgDisassembler::sqrt_cp1,  MgDisassembler::abs_cp1,  MgDisassembler::mov_cp1,  MgDisassembler::neg_cp1,
-            MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
+            MgDisassembler::roundl,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
             MgDisassembler::sel,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
             MgDisassembler::maddfl_msubfl,  MgDisassembler::maddfl_msubfl,  MgDisassembler::cp1_no_instructions,  MgDisassembler::class,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
             MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,  MgDisassembler::cp1_no_instructions,
@@ -2189,6 +2189,24 @@ impl MgDisassembler{
             Some(MgMnemonic::MgMneClasss)
         }else if index == 1{
             Some(MgMnemonic::MgMneClassd)
+        }else {
+            return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
+        };
+
+        prototype.operand[0] = Some(MgOpRegister::new_reg_operand(MgOpRegister::u8_2_reg((prototype.machine_code >> 6 & 0x1f) as u8), MgCoprocessor::Cp1, None));
+        prototype.operand[1] = Some(MgOpRegister::new_reg_operand(MgOpRegister::u8_2_reg((prototype.machine_code >> 11 & 0x1f) as u8), MgCoprocessor::Cp1, None));
+        prototype.operand_num = 2;
+        Ok(())
+    }
+    pub (super) fn roundl(&self, prototype: &mut MgInstructionPrototype, index: usize) -> Result<(), MgError>{
+        if prototype.machine_code >> 16 & 0x1f != 0{
+            return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
+        }
+
+        prototype.mnemonic = if index == 0{
+            Some(MgMnemonic::MgMneRoundls)
+        }else if index == 1{
+            Some(MgMnemonic::MgMneRoundld)
         }else {
             return Err(MgError::throw_error(MgErrorCode::FieldBadValue, prototype.opcode, prototype.address, prototype.machine_code))
         };
