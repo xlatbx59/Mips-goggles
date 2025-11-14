@@ -1108,7 +1108,7 @@ fn test_round_cp1(){
 }
 #[test]
 fn test_trunc_cp1(){
-    let machine_code: [u32; 2] = [0b01000110000000001001101010001001, 0b01000110000000001001101010001001];
+    let machine_code: [u32; 2] = [0b01000110000000001001101010001001, 0b01000110001000001001101010001001];
     let decoder: MgDisassembler = MgDisassembler::new_disassembler(MgMipsVersion::M64(MgMips64::MgPreR6));
 
     let truncls = decoder.disassemble(machine_code[0], 0).unwrap();
